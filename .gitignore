@@ -1,0 +1,36 @@
+node_modules
+dist
+dist-ssr
+coverage
+*.tsbuildinfo
+.vite
+*.local
+.DS_Store
+.session
+
+# scratch / live-verification artifacts
+*.log
+.chrome-cdp*
+today-cdp.png
+today-after-icon.png
+cdp-shot.mjs
+*-out.txt
+brand-test-*.txt
+brandkit-thumb.png
+
+# brand exploration sheets (kept locally; deliverables/sources are tracked)
+brand/concepts.*
+brand/pin-riffs.*
+brand/sunset-pin.*
+brand/pin-fill.*
+brand/verify-icons.*
+
+# photo-seeding scratch (pipeline .mjs scripts + src/data/spot-media.ts are tracked)
+scripts/.cand/
+scripts/candidates.json
+scripts/picks.json
+scripts/download-log.json
+scripts/montage-*.html
+scripts/montage-*.png
+scripts/hero-montage.*
+spot-*.png

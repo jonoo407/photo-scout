@@ -1,0 +1,65 @@
+import { describe, it, expect } from 'vitest'
+import { SPOTS } from '../../src/data/spots'
+import { CATEGORIES, type Light } from '../../src/spots/types'
+
+const WEEKDAYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
+const LIGHTS: Light[] = [
+  'sunrise', 'morning-golden', 'blue-hour', 'daytime',
+  'evening-golden', 'sunset', 'night-astro', 'open-shade',
+]
+
+describe('Tampa spot dataset', () => {
+  it('has the full set of spots', () => {
+    expect(SPOTS.length).toBeGreaterThanOrEqual(28)
+  })
+
+  it('has unique, kebab-case ids', () => {
+    const ids = SPOTS.map((s) => s.id)
+    expect(new Set(ids).size).toBe(ids.length)
+    for (const id of ids) expect(id).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/)
+  })
+
+  it('every spot has valid core fields', () => {
+    for (const s of SPOTS) {
+      expect(s.name.length).toBeGreaterThan(0)
+      expect(CATEGORIES).toContain(s.category)
+      expect(s.region).toBe('tampa-bay')
+      expect(s.lat).toBeGreaterThan(26.5)
+      expect(s.lat).toBeLessThan(28.6)
+      expect(s.lng).toBeGreaterThan(-83.3)
+      expect(s.lng).toBeLessThan(-82.0)
+      expect(s.facing === null || (s.facing >= 0 && s.facing < 360)).toBe(true)
+      expect(s.feeUSD).toBeGreaterThanOrEqual(0)
+      expect(typeof s.isFree).toBe('boolean')
+      expect(s.phone === null || typeof s.phone === 'string').toBe(true)
+    }
+  })
+
+  it('every spot has a complete weekly schedule', () => {
+    for (const s of SPOTS) {
+      for (const d of WEEKDAYS) expect(s.hours.days).toHaveProperty(d)
+    }
+  })
+
+  it('every spot has at least one best-light tag, all valid', () => {
+    for (const s of SPOTS) {
+      expect(s.bestLight.length).toBeGreaterThan(0)
+      for (const l of s.bestLight) expect(LIGHTS).toContain(l)
+    }
+  })
+
+  it('every spot has a craft guide with signature shots', () => {
+    for (const s of SPOTS) {
+      expect(s.craft.whatToShoot.length).toBeGreaterThan(0)
+      expect(s.craft.signatureShots.length).toBeGreaterThan(0)
+      expect(s.craft.lightStrategy.length).toBeGreaterThan(0)
+      const shotIds = s.craft.signatureShots.map((x) => x.id)
+      expect(new Set(shotIds).size).toBe(shotIds.length)
+    }
+  })
+
+  it('covers all seven categories', () => {
+    const cats = new Set(SPOTS.map((s) => s.category))
+    for (const c of CATEGORIES) expect(cats).toContain(c)
+  })
+})

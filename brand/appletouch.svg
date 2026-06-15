@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Vantage">
+  <defs>
+    <linearGradient id="pin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d4682f"/><stop offset="1" stop-color="#c45a2c"/>
+    </linearGradient>
+    <linearGradient id="sun" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f2b43c"/><stop offset="1" stop-color="#e0922f"/>
+    </linearGradient>
+    <clipPath id="win"><circle cx="256" cy="214" r="126"/></clipPath>
+  </defs>
+  <rect width="512" height="512" fill="#faf1e2"/>
+  <g transform="translate(256 256) scale(0.86) translate(-256 -262)">
+    <path d="M256 48 C150 48 66 128 66 222 C66 338 206 442 246 472 C251 476 261 476 266 472 C306 442 446 338 446 222 C446 128 362 48 256 48 Z" fill="url(#pin)"/>
+    <circle cx="256" cy="214" r="126" fill="#2e2014"/>
+    <g clip-path="url(#win)">
+      <circle cx="256" cy="226" r="84" fill="url(#sun)"/>
+      <rect x="130" y="258" width="252" height="96" fill="#2e2014"/>
+      <rect x="130" y="255" width="252" height="10" fill="#c45a2c"/>
+      <rect x="160" y="284" width="192" height="8" rx="4" fill="#e0922f" opacity="0.6"/>
+    </g>
+  </g>
+</svg>

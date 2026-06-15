@@ -1,0 +1,86 @@
+/* Golden-hour warm theme tokens. Light + warm-dark (auto via prefers-color-scheme,
+   or forced with [data-theme="light"|"dark"] on <html>). */
+:root {
+  --bg: #faf1e2;
+  --surface: #fffcf6;
+  --surface-2: #f2e7d5;
+  --ink: #2e2014;
+  --ink-2: #8a7560;
+  --ink-3: #a8947e;
+  --line: #ecddc8;
+  --line-strong: #e0cdb1;
+
+  --terracotta: #c45a2c;
+  --terracotta-soft: #f6e1d2;
+  --amber: #e0922f;
+  --gold: #f2b43c;
+
+  --go-bg: #e7ecd6;
+  --go-ink: #4c5e2a;
+  --maybe-bg: #f8e4c6;
+  --maybe-ink: #8a5614;
+  --skip-bg: #f2d8cd;
+  --skip-ink: #97361c;
+  --info-bg: #ece2d2;
+  --info-ink: #7a5a2e;
+
+  --radius: 16px;
+  --radius-sm: 12px;
+  --radius-pill: 999px;
+
+  --font-serif: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-sans: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #1a120b;
+    --surface: #241910;
+    --surface-2: #2e2114;
+    --ink: #f4e7d4;
+    --ink-2: #c2a98c;
+    --ink-3: #94795e;
+    --line: #3a2c1c;
+    --line-strong: #4a3826;
+
+    --terracotta: #e0794a;
+    --terracotta-soft: #3a241a;
+    --amber: #e7a648;
+    --gold: #f2b43c;
+
+    --go-bg: #2c3a1e;
+    --go-ink: #bcd189;
+    --maybe-bg: #43331a;
+    --maybe-ink: #f0c581;
+    --skip-bg: #43251c;
+    --skip-ink: #f0a78c;
+    --info-bg: #33291a;
+    --info-ink: #d9bd8c;
+  }
+}
+
+[data-theme='dark'] {
+  --bg: #1a120b;
+  --surface: #241910;
+  --surface-2: #2e2114;
+  --ink: #f4e7d4;
+  --ink-2: #c2a98c;
+  --ink-3: #94795e;
+  --line: #3a2c1c;
+  --line-strong: #4a3826;
+  --terracotta: #e0794a;
+  --terracotta-soft: #3a241a;
+  --amber: #e7a648;
+  --gold: #f2b43c;
+  --go-bg: #2c3a1e;
+  --go-ink: #bcd189;
+  --maybe-bg: #43331a;
+  --maybe-ink: #f0c581;
+  --skip-bg: #43251c;
+  --skip-ink: #f0a78c;
+  --info-bg: #33291a;
+  --info-ink: #d9bd8c;
+}

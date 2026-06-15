@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap" rel="stylesheet" />
+<style>
+  :root{ --cream:#faf1e2; --espresso:#2e2014; --ink-2:#8a7560; --terracotta:#c45a2c; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'DM Sans',system-ui,sans-serif}
+  .band{display:flex;align-items:center;gap:22px;padding:38px 44px}
+  .band.light{background:var(--cream)}
+  .band.dark{background:var(--espresso)}
+  .glyph{width:84px;height:84px;flex:none}
+  .lock{display:flex;flex-direction:column;justify-content:center}
+  .name{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:62px;line-height:1;letter-spacing:-.012em}
+  .tag{font-family:'DM Sans',sans-serif;font-weight:500;font-size:16px;letter-spacing:.02em;margin-top:8px}
+  .light .name{color:var(--espresso)} .light .tag{color:var(--ink-2)}
+  .dark .name{color:var(--cream)} .dark .tag{color:#c2a98c}
+  .name .a{color:var(--terracotta)}
+</style>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="glyph" viewBox="0 0 512 512">
+      <defs>
+        <linearGradient id="pin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4682f"/><stop offset="1" stop-color="#c45a2c"/></linearGradient>
+        <linearGradient id="sun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f2b43c"/><stop offset="1" stop-color="#e0922f"/></linearGradient>
+        <clipPath id="win"><circle cx="256" cy="214" r="126"/></clipPath>
+      </defs>
+      <rect width="512" height="512" rx="116" fill="#faf1e2"/>
+      <path d="M256 48 C150 48 66 128 66 222 C66 338 206 442 246 472 C251 476 261 476 266 472 C306 442 446 338 446 222 C446 128 362 48 256 48 Z" fill="url(#pin)"/>
+      <circle cx="256" cy="214" r="126" fill="#2e2014"/>
+      <g clip-path="url(#win)">
+        <circle cx="256" cy="226" r="84" fill="url(#sun)"/>
+        <rect x="130" y="258" width="252" height="96" fill="#2e2014"/>
+        <rect x="130" y="255" width="252" height="10" fill="#c45a2c"/>
+        <rect x="160" y="284" width="192" height="8" rx="4" fill="#e0922f" opacity="0.6"/>
+      </g>
+    </symbol>
+  </svg>
+
+  <div class="band light" id="b1">
+    <svg class="glyph"><use href="#glyph"/></svg>
+    <div class="lock">
+      <div class="name">V<span class="a">a</span>ntage</div>
+      <div class="tag">Find your light.</div>
+    </div>
+  </div>
+  <div class="band dark" id="b2">
+    <svg class="glyph"><use href="#glyph"/></svg>
+    <div class="lock">
+      <div class="name">V<span class="a">a</span>ntage</div>
+      <div class="tag">Photo scouting for Tampa Bay</div>
+    </div>
+  </div>
+</body>
+</html>
