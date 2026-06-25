@@ -62,4 +62,25 @@ describe('Tampa spot dataset', () => {
     const cats = new Set(SPOTS.map((s) => s.category))
     for (const c of CATEGORIES) expect(cats).toContain(c)
   })
+
+  it('every spot has a verified street address (street + city)', () => {
+    for (const s of SPOTS) {
+      expect(typeof s.address, `${s.id} address`).toBe('string')
+      expect(s.address.trim().length, `${s.id} address`).toBeGreaterThan(0)
+      expect(s.address, `${s.id} address`).toMatch(/,/)
+    }
+  })
+
+  it('no spot is left flagged coordsNeedVerify', () => {
+    for (const s of SPOTS) {
+      expect(s.coordsNeedVerify ?? false, `${s.id} coordsNeedVerify`).toBe(false)
+    }
+  })
+
+  it('St. Paul AME is named explicitly as a church with verified coords', () => {
+    const s = SPOTS.find((x) => x.id === 'st-paul-ame')
+    expect(s).toBeDefined()
+    expect(s!.name.toLowerCase()).toContain('church')
+    expect(s!.coordsNeedVerify ?? false).toBe(false)
+  })
 })

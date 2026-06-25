@@ -45,7 +45,10 @@ export function directionsUrl(
   home: HomeLocation,
   app: 'apple' | 'google',
 ): string {
-  const dest = `${spot.lat},${spot.lng}`
+  // Prefer the verified street address so the maps app routes to the right
+  // building (raw coords can reverse-geocode to a neighbor — e.g. St. Paul AME
+  // landing on the Tampa Firefighters Museum). Fall back to coords if unset.
+  const dest = spot.address ? encodeURIComponent(spot.address) : `${spot.lat},${spot.lng}`
   const origin = `${home.lat},${home.lng}`
   if (app === 'google') {
     return `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&travelmode=driving`

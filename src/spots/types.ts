@@ -63,6 +63,7 @@ export interface Spot {
   bestLight: Light[]
   lat: number
   lng: number
+  address: string // full street address for display + driving directions ("Street, City, FL ZIP")
   coordsNeedVerify?: boolean
   facing: number | null // bearing shot TOWARD (deg from north); null if N/A
   feeUSD: number

@@ -4,7 +4,7 @@ import {
   IconArrowLeft, IconCoin, IconClock, IconCar, IconCompass,
   IconCamera, IconAperture, IconDeviceCctv, IconParking, IconBath, IconUsers,
   IconSquare, IconSquareCheck, IconStar, IconCircleCheck, IconNavigation,
-  IconExternalLink, IconPhone, IconCalendarEvent,
+  IconExternalLink, IconPhone, IconCalendarEvent, IconMapPin,
 } from '@tabler/icons-react'
 import SpotHero from './SpotHero'
 import { useStore } from '../../state/store'
@@ -75,6 +75,13 @@ export default function SpotDetailScreen() {
         <div>
           <h1 style={{ fontSize: 21, margin: 0 }}>{spot.name}</h1>
           <p className="muted" style={{ fontSize: 13, margin: '3px 0 0' }}>{CATEGORY_LABEL[spot.category]} · {spot.city}</p>
+          <a
+            className="addresslink"
+            href={`https://maps.${mapsApp === 'google' ? 'google.com/maps/search/?api=1&query=' : 'apple.com/?q='}${encodeURIComponent(spot.address)}`}
+            target="_blank" rel="noreferrer"
+          >
+            <IconMapPin size={13} /> {spot.address}
+          </a>
         </div>
       </div>
 
