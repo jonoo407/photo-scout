@@ -77,6 +77,22 @@ describe('Tampa spot dataset', () => {
     }
   })
 
+  it('fee and isFree are consistent (free if and only if $0)', () => {
+    for (const s of SPOTS) {
+      expect(s.isFree, `${s.id}: isFree=${s.isFree} but feeUSD=${s.feeUSD}`).toBe(s.feeUSD === 0)
+    }
+  })
+
+  it('skyline-across-the-bay spots face toward downtown (NE), not away from it', () => {
+    for (const id of ['bayshore-boulevard', 'ballast-point-park']) {
+      const s = SPOTS.find((x) => x.id === id)
+      expect(s, id).toBeDefined()
+      expect(s!.facing, `${id} facing should point NE toward the skyline`).not.toBeNull()
+      expect(s!.facing!).toBeGreaterThan(0)
+      expect(s!.facing!).toBeLessThan(90)
+    }
+  })
+
   it('St. Paul AME is named explicitly as a church with verified coords', () => {
     const s = SPOTS.find((x) => x.id === 'st-paul-ame')
     expect(s).toBeDefined()

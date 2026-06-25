@@ -35,4 +35,15 @@ describe('SpotDetailScreen — address on the detail page', () => {
     renderSpot('st-pete-pier')
     expect(screen.getByText(/Bending Arc.*down since Hurricane Milton/i)).toBeInTheDocument()
   })
+
+  it('renders the phone number as a tappable tel: link', () => {
+    renderSpot('sacred-heart-catholic-church')
+    const link = screen.getByRole('link', { name: /813-229-1595/ })
+    expect(link.getAttribute('href')).toBe('tel:8132291595')
+  })
+
+  it('shows the fee note for a free-to-shoot / ticketed-interior spot', () => {
+    renderSpot('dali-museum')
+    expect(screen.getByText(/interior ticketed/i)).toBeInTheDocument()
+  })
 })

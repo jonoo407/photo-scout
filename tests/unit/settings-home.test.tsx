@@ -39,4 +39,12 @@ describe('Settings — set home by typing an address', () => {
     expect(await screen.findByText(/couldn't find/i)).toBeInTheDocument()
     expect(useStore.getState().home).toEqual(DEFAULT_HOME)
   })
+
+  it('gives feedback when "Use my current location" is unavailable (no geolocation)', async () => {
+    const user = userEvent.setup()
+    // jsdom has no navigator.geolocation → the unavailable branch
+    renderSettings()
+    await user.click(screen.getByRole('button', { name: /current location/i }))
+    expect(await screen.findByText(/location unavailable/i)).toBeInTheDocument()
+  })
 })

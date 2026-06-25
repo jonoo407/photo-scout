@@ -83,6 +83,15 @@ export default function BrowseScreen() {
         <button className="chip" onClick={() => setFilters({ sort: filters.sort === 'nearest' ? 'az' : filters.sort === 'az' ? 'category' : 'nearest' })}>
           Sort: {filters.sort === 'nearest' ? 'Nearest' : filters.sort === 'az' ? 'A–Z' : 'Category'}
         </button>
+        {([30, 60, 90] as const).map((m) => (
+          <button
+            key={m}
+            className={`chip ${filters.maxDriveMin === m ? 'on' : ''}`}
+            onClick={() => setFilters({ maxDriveMin: filters.maxDriveMin === m ? null : m })}
+          >
+            ≤{m} min
+          </button>
+        ))}
       </div>
 
       {rows.length === 0 ? (

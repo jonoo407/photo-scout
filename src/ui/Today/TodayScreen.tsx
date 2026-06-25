@@ -30,14 +30,19 @@ export default function TodayScreen() {
   const home = useStore((s) => s.home)
   const wishlistArr = useStore((s) => s.wishlist)
   const wishlist = useMemo(() => new Set(wishlistArr), [wishlistArr])
+  const units = useStore((s) => s.units)
   const now = useMemo(() => new Date(), [])
 
   const [weather, setWeather] = useState<WeatherNow | null>(null)
+  const [weatherErr, setWeatherErr] = useState(false)
   useEffect(() => {
     let alive = true
-    fetchWeather(home.lat, home.lng, now).then((w) => alive && setWeather(w)).catch(() => {})
+    setWeatherErr(false)
+    fetchWeather(home.lat, home.lng, now, units)
+      .then((w) => { if (alive) setWeather(w) })
+      .catch(() => { if (alive) setWeatherErr(true) })
     return () => { alive = false }
-  }, [home.lat, home.lng, now])
+  }, [home.lat, home.lng, now, units])
 
   const verdict = weather ? weatherVerdict({ cloudCover: weather.cloudCover, precipProbability: weather.precipProb }) : undefined
   const result = useMemo(
@@ -116,8 +121,8 @@ export default function TodayScreen() {
       <div className="stats">
         <div className="stat">
           <IconCloud size={18} />
-          <p className="sv">{weather ? `${weather.tempF}°` : '—'}</p>
-          <p className="sl">{weather ? weatherText(weather.code) : 'Loading…'}</p>
+          <p className="sv">{weather && weather.temp != null ? `${weather.temp}${weather.unit}` : '—'}</p>
+          <p className="sl">{weather ? weatherText(weather.code) : weatherErr ? 'Weather unavailable' : 'Loading…'}</p>
         </div>
         <div className="stat">
           <IconSunset2 size={18} color="var(--amber)" />

@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { IconArrowLeft, IconCar } from '@tabler/icons-react'
+import { IconArrowLeft, IconCar, IconMoodEmpty } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
 import { SPOTS } from '../../data/spots'
 import { nextUp, type ShootingWindow } from '../../spots/next-up'
@@ -32,6 +32,20 @@ export default function DayScreen() {
     }
     return out
   }, [home, wishlistArr])
+
+  if (!stops.length) {
+    return (
+      <div className="screen">
+        <button className="back" onClick={() => nav('/plan')}><IconArrowLeft size={18} /> Plan</button>
+        <h1 style={{ fontSize: 21 }}>Your day</h1>
+        <div className="empty">
+          <IconMoodEmpty size={30} />
+          <p className="et">No open spots for today's windows</p>
+          <p className="es">Everything's closed for the upcoming light windows — check back tomorrow.</p>
+        </div>
+      </div>
+    )
+  }
 
   const leg = (i: number) =>
     i === 0 ? driveMinutes(stops[0].spot, home) : Math.round(haversineMiles(stops[i - 1].spot, stops[i].spot) * 2.2)

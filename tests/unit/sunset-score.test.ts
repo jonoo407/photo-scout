@@ -19,6 +19,12 @@ describe('sunsetScore', () => {
     expect(s).toBeGreaterThanOrEqual(0)
     expect(s).toBeLessThanOrEqual(100)
   })
+  it('still rewards rich mid+high cloud whose naive sum exceeds 100', () => {
+    // mid 55 + high 60 = 115; an additive band collapsed this to 0 (a clearly
+    // photogenic, textured sky scored "meh"). Combined coverage keeps it decent.
+    const s = sunsetScore({ cloudLow: 10, cloudMid: 55, cloudHigh: 60, humidity: 50 })
+    expect(s).toBeGreaterThan(40)
+  })
 })
 
 describe('sunsetLabel', () => {

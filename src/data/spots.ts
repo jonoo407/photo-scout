@@ -21,12 +21,12 @@ export const SPOTS: Spot[] = [
   {
     id: 'bayshore-boulevard', name: 'Bayshore Boulevard', category: 'skyline', city: 'Tampa', region: 'tampa-bay',
     bestFor: ['skyline across water', 'portraits', 'balustrade leading line'], bestLight: ['sunrise', 'blue-hour'],
-    lat: 27.9165, lng: -82.4827, address: 'Bayshore Blvd at Bay-to-Bay Blvd, Tampa, FL 33629', facing: 350, feeUSD: 0, isFree: true,
+    lat: 27.9165, lng: -82.4827, address: 'Bayshore Blvd at Bay-to-Bay Blvd, Tampa, FL 33629', facing: 36, feeUSD: 0, isFree: true,
     feeNote: 'Free street parking at the Bay-to-Bay corner', driveMinutes: 6,
     hours: days(H24), phone: null,
-    notes: 'A 4.5-mile continuous sidewalk along Hillsborough Bay; brass distance medallions every half mile. Downtown skyline to the north is front-lit at sunrise.',
+    notes: 'A 4.5-mile continuous sidewalk along Hillsborough Bay; brass distance medallions every half mile. Downtown skyline to the northeast is front-lit at sunrise.',
     craft: {
-      lightStrategy: 'Shoot north toward downtown at sunrise for warm front-lit towers; the same view silhouettes against a glowing sky at sunset.',
+      lightStrategy: 'Shoot northeast toward downtown at sunrise for warm front-lit towers; the same view silhouettes against a glowing sky at sunset.',
       whatToShoot: ['downtown skyline across the bay', 'the curving WPA balustrade as a leading line', 'runners + palms for foreground'],
       signatureShots: [
         { id: 'balustrade', label: 'Curving balustrade leading to the skyline', bestLight: 'sunrise' },
@@ -42,7 +42,7 @@ export const SPOTS: Spot[] = [
   {
     id: 'ballast-point-park', name: 'Ballast Point Park', category: 'skyline', city: 'Tampa', region: 'tampa-bay',
     bestFor: ['skyline', 'sunrise over the bay'], bestLight: ['sunrise', 'blue-hour'],
-    lat: 27.8893, lng: -82.4818, address: '5300 Interbay Blvd, Tampa, FL 33611', facing: 350, feeUSD: 0, isFree: true, driveMinutes: 7,
+    lat: 27.8893, lng: -82.4818, address: '5300 Interbay Blvd, Tampa, FL 33611', facing: 20, feeUSD: 0, isFree: true, driveMinutes: 7,
     hours: days(open(iv(clk('06:00'), clk('20:00')))), phone: null,
     notes: 'South end of Bayshore (5300 Interbay Blvd); skyline + Davis Islands across the bay with color on the water at sunrise.',
     caveats: 'The 600-ft pier and fitness center are closed since the 2024 hurricanes — shoot from shore.',
@@ -60,11 +60,11 @@ export const SPOTS: Spot[] = [
   {
     id: 'davis-islands-beach', name: 'Davis Islands Beach & Yacht Basin', category: 'skyline', city: 'Tampa', region: 'tampa-bay',
     bestFor: ['skyline backdrop', 'sunset'], bestLight: ['sunset', 'evening-golden'],
-    lat: 27.9112, lng: -82.4530, address: '864 Severn Ave, Tampa, FL 33606', facing: 325, feeUSD: 0, isFree: true, driveMinutes: 12,
+    lat: 27.9112, lng: -82.4530, address: '864 Severn Ave, Tampa, FL 33606', facing: 350, feeUSD: 0, isFree: true, driveMinutes: 12,
     hours: days(open(iv(sr(), ss()))), phone: null,
     notes: 'Small free beach (864 Severn Ave) with the skyline as a backdrop; a local favorite for sunset.',
     craft: {
-      lightStrategy: 'The skyline sits to the NW, so evening light rakes across the towers before the sky lights up behind you.',
+      lightStrategy: 'The skyline sits to the north, so evening light rakes across the towers before the sky lights up over the bay.',
       whatToShoot: ['skyline backdrop over the basin', 'sailboats + palms'],
       signatureShots: [{ id: 'skyline-dusk', label: 'Skyline + boats at dusk', bestLight: 'sunset' }],
       compositionTips: ['Include a moored boat in the foreground for scale'],
@@ -182,8 +182,8 @@ export const SPOTS: Spot[] = [
   {
     id: 'tampa-theatre', name: 'Tampa Theatre', category: 'architecture', city: 'Tampa', region: 'tampa-bay',
     bestFor: ['atmospheric movie palace', 'marquee at night'], bestLight: ['night-astro', 'blue-hour'],
-    lat: 27.9504, lng: -82.4589, address: '711 N Franklin St, Tampa, FL 33602', facing: null, feeUSD: 0, isFree: false,
-    feeNote: 'Tour ticket or movie/event ticket; marquee from the sidewalk is free', driveMinutes: 14,
+    lat: 27.9504, lng: -82.4589, address: '711 N Franklin St, Tampa, FL 33602', facing: null, feeUSD: 0, isFree: true,
+    feeNote: 'Marquee from the sidewalk is free; interior is tour-ticket or movie/event-ticket only', driveMinutes: 14,
     hours: days({ open: 'tour-only', note: 'No walk-in photography. Monthly Balcony-to-Backstage tour (~11:30am) or buy a show ticket. Marquee always shootable from the sidewalk.' }), phone: null,
     notes: '711 N Franklin St; a 1926 Eberson atmospheric palace with a twinkling-star ceiling, 1,250 seats.',
     caveats: 'Duncan Auditorium under restoration early Mar–end Sep 2026; Balcony-to-Backstage tours paused during that window.',
@@ -219,7 +219,7 @@ export const SPOTS: Spot[] = [
   {
     id: 'mbird-armature-works', name: 'M.Bird (Armature Works rooftop)', category: 'rooftop', city: 'Tampa', region: 'tampa-bay',
     bestFor: ['rooftop skyline', 'river views'], bestLight: ['sunset', 'blue-hour'],
-    lat: 27.9612, lng: -82.4640, address: 'Armature Works, 1910 N Ola Ave, Tampa, FL 33602', facing: 200, feeUSD: 0, isFree: true,
+    lat: 27.9612, lng: -82.4640, address: 'Armature Works, 1910 N Ola Ave, Tampa, FL 33602', facing: 162, feeUSD: 0, isFree: true,
     feeNote: 'Free entry (buy a drink); 21+ after 6pm Thu–Sat', driveMinutes: 15,
     hours: days(open(iv(clk('16:00'), clk('24:00'))), {
       thu: open(iv(clk('16:00'), clk('27:00'))), fri: open(iv(clk('15:00'), clk('27:00'))),
@@ -451,7 +451,7 @@ export const SPOTS: Spot[] = [
   {
     id: 'dali-museum', name: 'The Dalí Museum', category: 'architecture', city: 'St. Petersburg', region: 'tampa-bay',
     bestFor: ["'Enigma' geodesic glass", 'waterfront architecture'], bestLight: ['evening-golden', 'blue-hour'],
-    lat: 27.7660, lng: -82.6314, address: 'The Dalí Museum, 1 Dali Blvd, St. Petersburg, FL 33701', facing: null, feeUSD: 0, isFree: false, feeNote: 'Exterior + grounds free; interior ticketed', driveMinutes: 38,
+    lat: 27.7660, lng: -82.6314, address: 'The Dalí Museum, 1 Dali Blvd, St. Petersburg, FL 33701', facing: null, feeUSD: 0, isFree: true, feeNote: 'Exterior + grounds free; interior ticketed', driveMinutes: 38,
     hours: days(open(iv(clk('10:00'), clk('18:00'))), { thu: open(iv(clk('10:00'), clk('20:00'))) }), phone: null,
     notes: "1 Dali Blvd; the wild 'Enigma' geodesic glass bubble + waterfront make a great free exterior subject at golden hour. Interior personal photography allowed on the first floor and gardens.",
     caveats: 'Strict no-drone zone.',

@@ -1,11 +1,15 @@
 import { computeSunTimes } from '../astro/sun-times'
 
+export type Units = 'imperial' | 'metric'
+
 export interface WeatherNow {
-  tempF: number
+  temp: number | null // null when the API omits the current temperature
+  unit: '°F' | '°C'
   cloudCover: number
   humidity: number
   precipProb: number
-  windMph: number
+  wind: number
+  windUnit: 'mph' | 'km/h'
   code: number
   sunsetLayers: { cloudLow: number; cloudMid: number; cloudHigh: number; humidity: number }
   daily: { date: string; precipMax: number; code: number }[]
@@ -23,48 +27,83 @@ export function weatherText(code: number): string {
   return 'Mixed'
 }
 
-export async function fetchWeather(lat: number, lng: number, now = new Date()): Promise<WeatherNow> {
+const fin = (x: unknown, fallback: number): number =>
+  typeof x === 'number' && Number.isFinite(x) ? x : fallback
+
+/* Open-Meteo time arrays are requested as unixtime (seconds, UTC) so the
+   nearest-sunset hour is selected by comparing true instants — this is correct
+   regardless of the device timezone. A bare ISO string would be parsed as
+   browser-local and silently pick the wrong hour off-zone. */
+function hourMs(t: unknown): number {
+  if (typeof t === 'number') return t * 1000
+  return new Date(String(t)).getTime()
+}
+
+export function parseWeather(j: unknown, sunset: Date, units: Units = 'imperial'): WeatherNow {
+  const root = (j ?? {}) as Record<string, any>
+  const c = (root.current ?? {}) as Record<string, unknown>
+  const hourly = root.hourly as Record<string, unknown[]> | undefined
+
+  let idx = 0
+  const times = hourly?.time
+  if (Array.isArray(times) && times.length) {
+    const target = sunset.getTime()
+    let best = Infinity
+    times.forEach((t, i) => {
+      const dt = Math.abs(hourMs(t) - target)
+      if (Number.isFinite(dt) && dt < best) { best = dt; idx = i }
+    })
+  }
+
+  const dailyTime: unknown[] = (root.daily?.time as unknown[]) ?? []
+  const daily = dailyTime.slice(0, 6).map((t, i) => ({
+    date: typeof t === 'number' ? new Date(t * 1000).toISOString().slice(0, 10) : String(t),
+    precipMax: fin(root.daily?.precipitation_probability_max?.[i], 0),
+    code: fin(root.daily?.weather_code?.[i], 0),
+  }))
+
+  const tempRaw = c.temperature_2m
+  const currentCloud = fin(c.cloud_cover, 0)
+  const currentPrecip = c.precipitation_probability
+
+  return {
+    temp: typeof tempRaw === 'number' && Number.isFinite(tempRaw) ? Math.round(tempRaw) : null,
+    unit: units === 'metric' ? '°C' : '°F',
+    cloudCover: currentCloud,
+    humidity: fin(c.relative_humidity_2m, 0),
+    // current.precipitation_probability is frequently null in Open-Meteo's
+    // `current` block — fall back to today's daily max so the rain path works.
+    precipProb: typeof currentPrecip === 'number' && Number.isFinite(currentPrecip)
+      ? currentPrecip
+      : (daily[0]?.precipMax ?? 0),
+    wind: Math.round(fin(c.wind_speed_10m, 0)),
+    windUnit: units === 'metric' ? 'km/h' : 'mph',
+    code: fin(c.weather_code, 0),
+    sunsetLayers: {
+      cloudLow: fin(hourly?.cloud_cover_low?.[idx], currentCloud),
+      cloudMid: fin(hourly?.cloud_cover_mid?.[idx], currentCloud),
+      cloudHigh: fin(hourly?.cloud_cover_high?.[idx], 0),
+      humidity: fin(hourly?.relative_humidity_2m?.[idx], fin(c.relative_humidity_2m, 0)),
+    },
+    daily,
+  }
+}
+
+export async function fetchWeather(
+  lat: number, lng: number, now = new Date(), units: Units = 'imperial',
+): Promise<WeatherNow> {
+  const tempUnit = units === 'metric' ? 'celsius' : 'fahrenheit'
+  const windUnit = units === 'metric' ? 'kmh' : 'mph'
   const url =
     `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}` +
     `&current=temperature_2m,relative_humidity_2m,cloud_cover,precipitation_probability,weather_code,wind_speed_10m` +
     `&hourly=cloud_cover_low,cloud_cover_mid,cloud_cover_high,relative_humidity_2m` +
     `&daily=precipitation_probability_max,weather_code` +
-    `&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=6`
+    `&temperature_unit=${tempUnit}&wind_speed_unit=${windUnit}&timeformat=unixtime&timezone=auto&forecast_days=6`
 
   const res = await fetch(url)
   if (!res.ok) throw new Error(`weather ${res.status}`)
   const j = await res.json()
-
-  const c = j.current
   const sunset = computeSunTimes(now, lat, lng).sunset
-  const hourly = j.hourly
-  let idx = 0
-  if (hourly?.time?.length) {
-    const target = sunset.getTime()
-    let best = Infinity
-    hourly.time.forEach((iso: string, i: number) => {
-      const dt = Math.abs(new Date(iso).getTime() - target)
-      if (dt < best) { best = dt; idx = i }
-    })
-  }
-
-  return {
-    tempF: Math.round(c.temperature_2m),
-    cloudCover: c.cloud_cover,
-    humidity: c.relative_humidity_2m,
-    precipProb: c.precipitation_probability ?? 0,
-    windMph: Math.round(c.wind_speed_10m),
-    code: c.weather_code,
-    sunsetLayers: {
-      cloudLow: hourly?.cloud_cover_low?.[idx] ?? c.cloud_cover,
-      cloudMid: hourly?.cloud_cover_mid?.[idx] ?? c.cloud_cover,
-      cloudHigh: hourly?.cloud_cover_high?.[idx] ?? 0,
-      humidity: hourly?.relative_humidity_2m?.[idx] ?? c.relative_humidity_2m,
-    },
-    daily: (j.daily?.time ?? []).slice(0, 6).map((d: string, i: number) => ({
-      date: d,
-      precipMax: j.daily.precipitation_probability_max?.[i] ?? 0,
-      code: j.daily.weather_code?.[i] ?? 0,
-    })),
-  }
+  return parseWeather(j, sunset, units)
 }

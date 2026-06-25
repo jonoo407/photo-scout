@@ -21,11 +21,14 @@ export default function SettingsScreen() {
   const [geoErr, setGeoErr] = useState('')
 
   const useCurrent = () => {
-    if (!navigator.geolocation) return
-    setLocating(true)
+    if (!navigator.geolocation) {
+      setGeoErr('Location unavailable on this device — type an address instead.')
+      return
+    }
+    setGeoErr(''); setLocating(true)
     navigator.geolocation.getCurrentPosition(
       (p) => { setHome({ label: 'Current location', lat: p.coords.latitude, lng: p.coords.longitude }); setLocating(false) },
-      () => setLocating(false),
+      () => { setGeoErr("Couldn't get your location — check permissions, or type an address instead."); setLocating(false) },
       { timeout: 8000 },
     )
   }

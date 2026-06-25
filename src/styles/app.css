@@ -106,6 +106,7 @@ button.row, button.linkrow { appearance: none; background: var(--surface); curso
 .parklink span { display: inline-flex; align-items: center; gap: 6px; }
 .addresslink { display: inline-flex; align-items: center; gap: 5px; margin: 5px 0 0; font-size: 12.5px; color: var(--terracotta); text-decoration: none; line-height: 1.4; }
 .addresslink svg { flex: none; }
+.tellink { color: var(--terracotta); text-decoration: none; }
 
 /* empty states */
 .empty { background: var(--surface-2); border-radius: var(--radius); padding: 28px 20px; text-align: center; margin: 12px 0; }

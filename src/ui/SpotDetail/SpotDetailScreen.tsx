@@ -139,7 +139,10 @@ export default function SpotDetailScreen() {
         {spot.logistics?.restrooms && <p><IconBath size={15} /> Restrooms on site</p>}
         {spot.logistics?.crowdTiming && <p><IconUsers size={15} /> {spot.logistics.crowdTiming}</p>}
         {spot.logistics?.dressCode && <p><IconUsers size={15} /> {spot.logistics.dressCode}</p>}
-        {spot.phone && <p><IconPhone size={15} /> {spot.phone}</p>}
+        {spot.feeNote && <p><IconCoin size={15} /> {spot.feeNote}</p>}
+        {spot.phone && (
+          <p><IconPhone size={15} /> <a className="tellink" href={`tel:${spot.phone.replace(/[^\d+]/g, '')}`}>{spot.phone}</a></p>
+        )}
         {spot.caveats && <p style={{ color: 'var(--skip-ink)' }}>{spot.caveats}</p>}
         {c.accessTips && <p>{c.accessTips}</p>}
       </div>
