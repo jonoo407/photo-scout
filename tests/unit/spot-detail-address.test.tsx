@@ -27,4 +27,9 @@ describe('SpotDetailScreen — address on the detail page', () => {
     // 27.9512,-82.4555 was the coord that reverse-geocoded to the Firefighters Museum
     expect(href).not.toContain('27.9512')
   })
+
+  it('surfaces that the St. Pete Pier Bending Arc is currently down', () => {
+    renderSpot('st-pete-pier')
+    expect(screen.getByText(/Bending Arc.*down since Hurricane Milton/i)).toBeInTheDocument()
+  })
 })
