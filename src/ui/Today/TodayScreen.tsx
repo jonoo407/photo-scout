@@ -11,9 +11,11 @@ import { computeSunTimes } from '../../astro/sun-times'
 import { moonInfo } from '../../astro/moon'
 import { fetchWeather, weatherText, type WeatherNow } from '../../weather/open-meteo'
 import { weatherVerdict } from '../../weather/verdict'
-import { sunsetScore } from '../../weather/sunset-score'
+import { sunsetScore, sunsetLabel } from '../../weather/sunset-score'
 import { fmtTime, untilString } from '../../util/format'
 import { SpotCard } from '../SpotCard'
+
+const GRADE_COLOR = { great: 'var(--go-ink)', decent: 'var(--maybe-ink)', meh: 'var(--ink-2)' } as const
 
 function openMeta(r: RankedSpot) {
   if (r.open.state === 'open') {
@@ -49,9 +51,11 @@ export default function TodayScreen() {
     () => nextUp({ now, lat: home.lat, lng: home.lng, home, spots: SPOTS, wishlist, verdict }),
     [now, home, wishlist, verdict],
   )
+  const setFilters = useStore((s) => s.setFilters)
   const moon = moonInfo(now, home.lat, home.lng)
   const sun = computeSunTimes(now, home.lat, home.lng)
   const sScore = weather ? sunsetScore(weather.sunsetLayers) : null
+  const sGrade = sScore != null ? sunsetLabel(sScore) : null
 
   const hr = now.getHours()
   const greeting = hr < 12 ? 'Good morning' : hr < 18 ? 'Good afternoon' : 'Good evening'
@@ -113,7 +117,11 @@ export default function TodayScreen() {
         ))}
       </div>
 
-      <button className="linkrow" style={{ margin: '12px 0', color: 'var(--terracotta)' }} onClick={() => nav('/browse')}>
+      <button
+        className="linkrow"
+        style={{ margin: '12px 0', color: 'var(--terracotta)' }}
+        onClick={() => { setFilters({ lights: [result.window.light] }); nav('/browse') }}
+      >
         <span>See all {result.ranked.length} spots for this window</span>
         <IconChevronRight size={16} />
       </button>
@@ -126,8 +134,8 @@ export default function TodayScreen() {
         </div>
         <div className="stat">
           <IconSunset2 size={18} color="var(--amber)" />
-          <p className="sv">{sScore ?? '—'}</p>
-          <p className="sl">Sunset score</p>
+          <p className="sv" style={sGrade ? { color: GRADE_COLOR[sGrade] } : undefined}>{sScore ?? '—'}</p>
+          <p className="sl">{sGrade ? `Sunset · ${sGrade}` : 'Sunset score'}</p>
         </div>
         <div className="stat">
           <IconMoon size={18} />

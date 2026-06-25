@@ -24,6 +24,13 @@ export default function SpotHero({ media }: { media: SpotMedia[] }) {
     if (i !== active) setActive(Math.max(0, Math.min(media.length - 1, i)))
   }
 
+  const goTo = (i: number) => {
+    const el = trackRef.current
+    if (!el) return
+    setActive(i)
+    el.scrollTo?.({ left: i * el.clientWidth, behavior: 'smooth' })
+  }
+
   const cur = media[active] ?? media[0]
 
   return (
@@ -49,7 +56,15 @@ export default function SpotHero({ media }: { media: SpotMedia[] }) {
 
       {media.length > 1 && (
         <div className="carousel-dots">
-          {media.map((m, i) => <span key={m.src + i} className={`dot ${i === active ? 'on' : ''}`} />)}
+          {media.map((m, i) => (
+            <button
+              key={m.src + i}
+              className={`dot ${i === active ? 'on' : ''}`}
+              onClick={() => goTo(i)}
+              aria-label={`Photo ${i + 1} of ${media.length}`}
+              aria-current={i === active}
+            />
+          ))}
         </div>
       )}
     </div>

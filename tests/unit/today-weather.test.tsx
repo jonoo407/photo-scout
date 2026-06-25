@@ -1,11 +1,14 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import TodayScreen from '../../src/ui/Today/TodayScreen'
-import { useStore } from '../../src/state/store'
+import { useStore, EMPTY_FILTERS } from '../../src/state/store'
 import { DEFAULT_HOME } from '../../src/data/home.config'
 
-beforeEach(() => { useStore.setState({ home: DEFAULT_HOME, units: 'imperial', wishlist: [] }) })
+beforeEach(() => {
+  useStore.setState({ home: DEFAULT_HOME, units: 'imperial', wishlist: [], filters: EMPTY_FILTERS })
+})
 afterEach(() => { vi.restoreAllMocks() })
 
 const okJson = (body: unknown) =>
@@ -26,5 +29,24 @@ describe('TodayScreen weather', () => {
     })) as unknown as typeof fetch
     render(<MemoryRouter><TodayScreen /></MemoryRouter>)
     expect(await screen.findByText('32°C')).toBeInTheDocument()
+  })
+
+  it('labels the sunset score with its grade', async () => {
+    global.fetch = vi.fn(async () => okJson({
+      // clear horizon + balanced mid/high cloud + low humidity => "great"
+      current: { temperature_2m: 80, cloud_cover: 35, relative_humidity_2m: 50, weather_code: 2, wind_speed_10m: 5 },
+      hourly: { time: [1], cloud_cover_low: [5], cloud_cover_mid: [40], cloud_cover_high: [30], relative_humidity_2m: [50] },
+      daily: { time: [] },
+    })) as unknown as typeof fetch
+    render(<MemoryRouter><TodayScreen /></MemoryRouter>)
+    expect(await screen.findByText(/sunset · great/i)).toBeInTheDocument()
+  })
+
+  it('"See all" carries the current light window into Browse as a filter', async () => {
+    const user = userEvent.setup()
+    global.fetch = vi.fn(async () => { throw new Error('offline') }) as unknown as typeof fetch
+    render(<MemoryRouter><TodayScreen /></MemoryRouter>)
+    await user.click(await screen.findByText(/see all .* spots for this window/i))
+    expect(useStore.getState().filters.lights).toHaveLength(1)
   })
 })

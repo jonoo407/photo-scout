@@ -53,7 +53,7 @@ function nextWindow(now: Date, lat: number, lng: number): ShootingWindow {
   return windowsForDate(tomorrow, lat, lng)[0]
 }
 
-function matchesLight(spot: Spot, light: Light): boolean {
+export function matchesLight(spot: Spot, light: Light): boolean {
   const tags = spot.bestLight
   if (light === 'evening-golden') return tags.includes('evening-golden') || tags.includes('sunset')
   if (light === 'morning-golden') return tags.includes('morning-golden') || tags.includes('sunrise')

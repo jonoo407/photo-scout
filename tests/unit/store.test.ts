@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { useStore, EMPTY_FILTERS, healStaleHome } from '../../src/state/store'
+import { useStore, EMPTY_FILTERS, healStaleHome, applyTheme } from '../../src/state/store'
 import { DEFAULT_HOME } from '../../src/data/home.config'
 
 beforeEach(() => {
@@ -52,5 +52,22 @@ describe('healStaleHome (persisted-home migration)', () => {
 
   it('falls back to the default for a missing home', () => {
     expect(healStaleHome(undefined)).toEqual(DEFAULT_HOME)
+  })
+})
+
+describe('theme', () => {
+  beforeEach(() => { document.documentElement.removeAttribute('data-theme') })
+
+  it('setTheme stores the choice and applies it to <html>', () => {
+    useStore.getState().setTheme('dark')
+    expect(useStore.getState().theme).toBe('dark')
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark')
+  })
+
+  it('applyTheme("auto") clears the attribute so the system preference wins', () => {
+    applyTheme('light')
+    expect(document.documentElement.getAttribute('data-theme')).toBe('light')
+    applyTheme('auto')
+    expect(document.documentElement.getAttribute('data-theme')).toBeNull()
   })
 })

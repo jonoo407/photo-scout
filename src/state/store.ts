@@ -4,6 +4,15 @@ import type { Category, Light } from '../spots/types'
 import { DEFAULT_HOME, type HomeLocation } from '../data/home.config'
 
 export type SortKey = 'nearest' | 'az' | 'category'
+export type ThemeChoice = 'auto' | 'light' | 'dark'
+
+/* Apply a theme by setting (or clearing) data-theme on <html>. "auto" removes
+   the attribute so prefers-color-scheme decides. theme.css keys off this. */
+export function applyTheme(theme: ThemeChoice) {
+  const el = document.documentElement
+  if (theme === 'auto') el.removeAttribute('data-theme')
+  else el.setAttribute('data-theme', theme)
+}
 
 export interface Filters {
   query: string
@@ -35,6 +44,7 @@ interface AppState {
   home: HomeLocation
   units: 'imperial' | 'metric'
   mapsApp: 'apple' | 'google'
+  theme: ThemeChoice
 
   toggleWishlist: (id: string) => void
   toggleVisited: (id: string) => void
@@ -44,6 +54,7 @@ interface AppState {
   setHome: (home: HomeLocation) => void
   setUnits: (u: 'imperial' | 'metric') => void
   setMapsApp: (m: 'apple' | 'google') => void
+  setTheme: (t: ThemeChoice) => void
 }
 
 const toggle = (list: string[], id: string) =>
@@ -73,6 +84,7 @@ export const useStore = create<AppState>()(
       home: DEFAULT_HOME,
       units: 'imperial',
       mapsApp: 'apple',
+      theme: 'auto',
 
       toggleWishlist: (id) => set((s) => ({ wishlist: toggle(s.wishlist, id) })),
       toggleVisited: (id) => set((s) => ({ visited: toggle(s.visited, id) })),
@@ -83,6 +95,7 @@ export const useStore = create<AppState>()(
       setHome: (home) => set({ home }),
       setUnits: (units) => set({ units }),
       setMapsApp: (mapsApp) => set({ mapsApp }),
+      setTheme: (theme) => { applyTheme(theme); set({ theme }) },
     }),
     {
       name: 'photo-scout',

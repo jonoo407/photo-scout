@@ -6,7 +6,10 @@ import SettingsScreen from '../../src/ui/Settings/SettingsScreen'
 import { useStore } from '../../src/state/store'
 import { DEFAULT_HOME } from '../../src/data/home.config'
 
-beforeEach(() => { useStore.setState({ home: DEFAULT_HOME }) })
+beforeEach(() => {
+  useStore.setState({ home: DEFAULT_HOME, theme: 'auto' })
+  document.documentElement.removeAttribute('data-theme')
+})
 afterEach(() => { vi.restoreAllMocks() })
 
 function renderSettings() {
@@ -46,5 +49,13 @@ describe('Settings — set home by typing an address', () => {
     renderSettings()
     await user.click(screen.getByRole('button', { name: /current location/i }))
     expect(await screen.findByText(/location unavailable/i)).toBeInTheDocument()
+  })
+
+  it('switches the theme to dark from Settings', async () => {
+    const user = userEvent.setup()
+    renderSettings()
+    await user.click(screen.getByRole('button', { name: /^dark$/i }))
+    expect(useStore.getState().theme).toBe('dark')
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark')
   })
 })

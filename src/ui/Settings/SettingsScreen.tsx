@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   IconArrowLeft, IconHome, IconBuildingCommunity, IconNavigation, IconRuler2,
-  IconBellRinging, IconCameraPlus, IconCurrentLocation, IconChevronRight, IconMapPin,
+  IconBellRinging, IconCameraPlus, IconCurrentLocation, IconChevronRight, IconMapPin, IconMoonStars,
 } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
 import { geocodeAddress } from '../../spots/geocode'
@@ -15,6 +15,8 @@ export default function SettingsScreen() {
   const setUnits = useStore((s) => s.setUnits)
   const mapsApp = useStore((s) => s.mapsApp)
   const setMapsApp = useStore((s) => s.setMapsApp)
+  const theme = useStore((s) => s.theme)
+  const setTheme = useStore((s) => s.setTheme)
   const [locating, setLocating] = useState(false)
   const [addr, setAddr] = useState('')
   const [geoBusy, setGeoBusy] = useState(false)
@@ -90,6 +92,18 @@ export default function SettingsScreen() {
           <span style={{ display: 'flex', gap: 4 }}>
             <button className={`chip ${units === 'imperial' ? 'on' : ''}`} onClick={() => setUnits('imperial')}>°F · mi</button>
             <button className={`chip ${units === 'metric' ? 'on' : ''}`} onClick={() => setUnits('metric')}>°C · km</button>
+          </span>
+        </div>
+      </div>
+
+      <p className="shdr">APPEARANCE</p>
+      <div className="card list">
+        <div className="row last">
+          <span className="rowleft"><IconMoonStars size={18} /> Theme</span>
+          <span style={{ display: 'flex', gap: 4 }}>
+            {(['auto', 'light', 'dark'] as const).map((t) => (
+              <button key={t} className={`chip ${theme === t ? 'on' : ''}`} onClick={() => setTheme(t)} style={{ textTransform: 'capitalize' }}>{t}</button>
+            ))}
           </span>
         </div>
       </div>

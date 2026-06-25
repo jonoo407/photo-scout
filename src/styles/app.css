@@ -1,5 +1,12 @@
 /* Shared component styles for all screens (golden-hour warm). */
 
+/* Branded keyboard focus ring (was relying on the UA default). */
+:focus-visible { outline: 2px solid var(--terracotta); outline-offset: 2px; border-radius: 5px; }
+@media (prefers-reduced-motion: no-preference) {
+  .spotcard, .cta, .actbtn, .chip { transition: transform 0.08s ease, opacity 0.12s ease; }
+  .spotcard:active, .cta:active, .actbtn:active, .chip:active { transform: scale(0.98); }
+}
+
 .screen { padding: calc(var(--safe-top) + 10px) 16px calc(var(--safe-bottom) + 84px); }
 .screen h1 { font-size: 24px; margin: 4px 0 12px; }
 .muted { color: var(--ink-2); }
@@ -21,7 +28,7 @@
 .pill.open { background: var(--go-bg); color: var(--go-ink); }
 .pill.closed { background: var(--skip-bg); color: var(--skip-ink); }
 
-.chip { appearance: none; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; font-size: 12px; padding: 6px 12px; border-radius: var(--radius-pill); border: 0.5px solid var(--line-strong); color: var(--ink-2); background: var(--surface); }
+.chip { appearance: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 38px; font-size: 12px; padding: 8px 13px; border-radius: var(--radius-pill); border: 0.5px solid var(--line-strong); color: var(--ink-2); background: var(--surface); }
 .chip.on { background: var(--terracotta); color: #fff3e6; border-color: transparent; }
 
 .fact { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; padding: 5px 10px; border-radius: var(--radius-pill); background: var(--surface-2); color: var(--ink-2); }
@@ -57,7 +64,7 @@ button.row, button.linkrow { appearance: none; background: var(--surface); curso
 .spotcard .nm { font-weight: 500; font-size: 15px; }
 .spotcard .sub { font-size: 12px; color: var(--ink-2); margin: 3px 0 0; }
 .spotcard .meta { font-size: 12px; color: var(--ink-2); margin: 4px 0 0; display: flex; gap: 12px; flex-wrap: wrap; }
-.spotcard .cardaddr { font-size: 11.5px; color: var(--ink-3); margin: 4px 0 0; display: flex; align-items: center; gap: 4px; }
+.spotcard .cardaddr { font-size: 11.5px; color: var(--ink-2); margin: 4px 0 0; display: flex; align-items: center; gap: 4px; }
 .spotcard .cardaddr svg { flex: none; }
 
 /* Next Up hero + alert */
@@ -91,9 +98,9 @@ button.row, button.linkrow { appearance: none; background: var(--surface); curso
 .slide-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 26px 14px 10px; background: linear-gradient(to top, rgba(28, 18, 8, 0.82), rgba(28, 18, 8, 0)); pointer-events: none; }
 .slide-cap .cap-text { display: block; font-size: 13px; font-weight: 500; color: #fff3e6; }
 .slide-cap .cap-credit { display: block; font-size: 10px; color: #f3dcc4; opacity: 0.9; margin-top: 2px; pointer-events: auto; text-decoration: none; }
-.carousel-dots { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; }
-.carousel-dots .dot { width: 6px; height: 6px; border-radius: var(--radius-pill); background: rgba(255, 243, 230, 0.5); }
-.carousel-dots .dot.on { background: #fff3e6; }
+.carousel-dots { position: absolute; top: 6px; right: 6px; display: flex; gap: 2px; }
+.carousel-dots .dot { appearance: none; border: 0; cursor: pointer; width: 7px; height: 7px; padding: 5px; box-sizing: content-box; background-clip: content-box; border-radius: var(--radius-pill); background-color: rgba(255, 243, 230, 0.55); }
+.carousel-dots .dot.on { background-color: #fff3e6; }
 .howto { margin: 0 0 12px; padding-left: 18px; font-size: 13px; line-height: 1.7; }
 .check { appearance: none; background: var(--surface); border: 0; border-bottom: 0.5px solid var(--line); display: flex; gap: 10px; align-items: center; padding: 11px 12px; width: 100%; box-sizing: border-box; cursor: pointer; color: var(--ink); text-align: left; font-size: 13px; }
 .check:last-child { border-bottom: none; }
@@ -128,6 +135,8 @@ button.row, button.linkrow { appearance: none; background: var(--surface); curso
 
 .bucket { font-size: 12px; color: var(--ink-2); margin: 10px 0 4px; display: flex; align-items: center; gap: 6px; }
 .bcard { background: var(--surface); border: 0.5px solid var(--line); border-radius: var(--radius); padding: 11px; font-size: 13px; line-height: 1.8; }
+.spotlinks { display: flex; flex-wrap: wrap; gap: 6px; line-height: 1.4; }
+.spotlink { appearance: none; border: 0.5px solid var(--line-strong); background: var(--surface-2); color: var(--terracotta); font: inherit; font-size: 12px; cursor: pointer; padding: 6px 11px; border-radius: var(--radius-pill); }
 
 #map { width: 100%; height: 62vh; border-radius: var(--radius); overflow: hidden; border: 0.5px solid var(--line); }
 .leaflet-container { font-family: var(--font-sans); }

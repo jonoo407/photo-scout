@@ -11,8 +11,18 @@ import { moonInfo } from '../../astro/moon'
 import { fmtTime, fmtRange } from '../../util/format'
 import type { Light } from '../../spots/types'
 
-const names = (pred: (l: Light[]) => boolean) =>
-  SPOTS.filter((s) => pred(s.bestLight)).map((s) => s.name).join(' · ')
+function SpotLinks({ pred }: { pred: (l: Light[]) => boolean }) {
+  const nav = useNavigate()
+  const list = SPOTS.filter((s) => pred(s.bestLight))
+  if (!list.length) return <div className="bcard tertiary">None today</div>
+  return (
+    <div className="bcard spotlinks">
+      {list.map((s) => (
+        <button key={s.id} className="spotlink" onClick={() => nav(`/spot/${s.id}`)}>{s.name}</button>
+      ))}
+    </div>
+  )
+}
 
 export default function PlanScreen() {
   const nav = useNavigate()
@@ -61,11 +71,11 @@ export default function PlanScreen() {
 
       <h3 className="h3">Spots by light</h3>
       <p className="bucket"><IconSunset2 size={15} color="var(--amber)" /> Sunset / evening</p>
-      <div className="bcard">{names((l) => l.includes('sunset') || l.includes('evening-golden'))}</div>
+      <SpotLinks pred={(l) => l.includes('sunset') || l.includes('evening-golden')} />
       <p className="bucket"><IconSunrise size={15} color="var(--amber)" /> Sunrise / morning</p>
-      <div className="bcard">{names((l) => l.includes('sunrise') || l.includes('morning-golden'))}</div>
+      <SpotLinks pred={(l) => l.includes('sunrise') || l.includes('morning-golden')} />
       <p className="bucket"><IconBuildingArch size={15} /> Daytime / interiors</p>
-      <div className="bcard">{names((l) => l.includes('daytime') || l.includes('open-shade'))}</div>
+      <SpotLinks pred={(l) => l.includes('daytime') || l.includes('open-shade')} />
     </div>
   )
 }

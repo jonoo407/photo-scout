@@ -23,3 +23,29 @@ describe('Browse — max drive-time filter', () => {
     expect(useStore.getState().filters.maxDriveMin).toBe(30)
   })
 })
+
+describe('Browse — light filter, count, and clear', () => {
+  it('filters by light window when filters.lights is set', () => {
+    useStore.setState({ filters: { ...EMPTY_FILTERS, lights: ['evening-golden'] } })
+    render(<MemoryRouter><BrowseScreen /></MemoryRouter>)
+    expect(screen.getByText('Curtis Hixon Waterfront Park')).toBeInTheDocument()
+    expect(screen.queryByText('Sacred Heart Catholic Church')).not.toBeInTheDocument()
+  })
+
+  it('shows a result count and a dynamic spot total in the placeholder', () => {
+    render(<MemoryRouter><BrowseScreen /></MemoryRouter>)
+    expect(screen.getByText(/Showing 30 of 30/i)).toBeInTheDocument()
+    expect(screen.getByPlaceholderText(/30 Tampa spots/i)).toBeInTheDocument()
+  })
+
+  it('shows Clear all only when a filter is active, and it resets', async () => {
+    const user = userEvent.setup()
+    render(<MemoryRouter><BrowseScreen /></MemoryRouter>)
+    expect(screen.queryByRole('button', { name: /clear all/i })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /^Skyline$/ }))
+    const clear = await screen.findByRole('button', { name: /clear all/i })
+    await user.click(clear)
+    expect(useStore.getState().filters.categories).toEqual([])
+  })
+})
