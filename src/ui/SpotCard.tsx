@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import type { ReactNode } from 'react'
+import { IconMapPin } from '@tabler/icons-react'
 import type { Spot } from '../spots/types'
 import { CATEGORY_COLOR } from '../spots/types'
 import { CategoryIcon } from './icons'
@@ -31,6 +32,7 @@ export function SpotCard({
             {badge && <span className={`pill ${badge.kind}`}>{badge.label}</span>}
           </div>
           {reason && <p className="sub">{reason}</p>}
+          <p className="cardaddr"><IconMapPin size={12} /> {spot.address}</p>
           {meta && <p className="meta">{meta}</p>}
         </div>
       </div>

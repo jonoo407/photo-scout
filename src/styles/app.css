@@ -53,6 +53,8 @@ button.row, button.linkrow { appearance: none; background: var(--surface); curso
 .spotcard .nm { font-weight: 500; font-size: 15px; }
 .spotcard .sub { font-size: 12px; color: var(--ink-2); margin: 3px 0 0; }
 .spotcard .meta { font-size: 12px; color: var(--ink-2); margin: 4px 0 0; display: flex; gap: 12px; flex-wrap: wrap; }
+.spotcard .cardaddr { font-size: 11.5px; color: var(--ink-3); margin: 4px 0 0; display: flex; align-items: center; gap: 4px; }
+.spotcard .cardaddr svg { flex: none; }
 
 /* Next Up hero + alert */
 .hero-card { background: var(--surface-2); border-radius: var(--radius); padding: 14px; margin-bottom: 8px; }

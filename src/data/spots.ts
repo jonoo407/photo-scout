@@ -21,7 +21,7 @@ export const SPOTS: Spot[] = [
   {
     id: 'bayshore-boulevard', name: 'Bayshore Boulevard', category: 'skyline', city: 'Tampa', region: 'tampa-bay',
     bestFor: ['skyline across water', 'portraits', 'balustrade leading line'], bestLight: ['sunrise', 'blue-hour'],
-    lat: 27.9119, lng: -82.4806, address: 'Bayshore Blvd at Bay-to-Bay Blvd, Tampa, FL 33629', facing: 350, feeUSD: 0, isFree: true,
+    lat: 27.9165, lng: -82.4827, address: 'Bayshore Blvd at Bay-to-Bay Blvd, Tampa, FL 33629', facing: 350, feeUSD: 0, isFree: true,
     feeNote: 'Free street parking at the Bay-to-Bay corner', driveMinutes: 6,
     hours: days(H24), phone: null,
     notes: 'A 4.5-mile continuous sidewalk along Hillsborough Bay; brass distance medallions every half mile. Downtown skyline to the north is front-lit at sunrise.',
@@ -42,7 +42,7 @@ export const SPOTS: Spot[] = [
   {
     id: 'ballast-point-park', name: 'Ballast Point Park', category: 'skyline', city: 'Tampa', region: 'tampa-bay',
     bestFor: ['skyline', 'sunrise over the bay'], bestLight: ['sunrise', 'blue-hour'],
-    lat: 27.8890, lng: -82.4813, address: '5300 Interbay Blvd, Tampa, FL 33611', facing: 350, feeUSD: 0, isFree: true, driveMinutes: 7,
+    lat: 27.8893, lng: -82.4818, address: '5300 Interbay Blvd, Tampa, FL 33611', facing: 350, feeUSD: 0, isFree: true, driveMinutes: 7,
     hours: days(open(iv(clk('06:00'), clk('20:00')))), phone: null,
     notes: 'South end of Bayshore (5300 Interbay Blvd); skyline + Davis Islands across the bay with color on the water at sunrise.',
     caveats: 'The 600-ft pier and fitness center are closed since the 2024 hurricanes — shoot from shore.',
@@ -60,7 +60,7 @@ export const SPOTS: Spot[] = [
   {
     id: 'davis-islands-beach', name: 'Davis Islands Beach & Yacht Basin', category: 'skyline', city: 'Tampa', region: 'tampa-bay',
     bestFor: ['skyline backdrop', 'sunset'], bestLight: ['sunset', 'evening-golden'],
-    lat: 27.9109, lng: -82.4523, address: '864 Severn Ave, Tampa, FL 33606', facing: 325, feeUSD: 0, isFree: true, driveMinutes: 12,
+    lat: 27.9112, lng: -82.4530, address: '864 Severn Ave, Tampa, FL 33606', facing: 325, feeUSD: 0, isFree: true, driveMinutes: 12,
     hours: days(open(iv(sr(), ss()))), phone: null,
     notes: 'Small free beach (864 Severn Ave) with the skyline as a backdrop; a local favorite for sunset.',
     craft: {
@@ -76,7 +76,7 @@ export const SPOTS: Spot[] = [
   {
     id: 'curtis-hixon-waterfront-park', name: 'Curtis Hixon Waterfront Park', category: 'skyline', city: 'Tampa', region: 'tampa-bay',
     bestFor: ['skyline', 'UT minarets', 'blue hour', 'fountains'], bestLight: ['evening-golden', 'sunset', 'blue-hour'],
-    lat: 27.9490, lng: -82.4619, address: '600 N Ashley Dr, Tampa, FL 33602', facing: 270, feeUSD: 0, isFree: true, driveMinutes: 14,
+    lat: 27.9487, lng: -82.4625, address: '600 N Ashley Dr, Tampa, FL 33602', facing: 270, feeUSD: 0, isFree: true, driveMinutes: 14,
     hours: days(open(iv(clk('07:00'), clk('22:00')))), phone: null,
     notes: '600 N Ashley Dr; the downtown lawn looks WEST across the river — THE spot for the sun setting behind the silver UT minarets, plus blue-hour fountains and skyline.',
     craft: {
@@ -100,7 +100,7 @@ export const SPOTS: Spot[] = [
   {
     id: 'tampa-riverwalk', name: 'Tampa Riverwalk', category: 'skyline', city: 'Tampa', region: 'tampa-bay',
     bestFor: ['skyline reflections', 'blue hour'], bestLight: ['blue-hour', 'sunset', 'night-astro'],
-    lat: 27.9456, lng: -82.4609, address: 'Tampa Riverwalk, Tampa, FL 33602', facing: 270, feeUSD: 0, isFree: true, driveMinutes: 14,
+    lat: 27.9468, lng: -82.4618, address: 'Tampa Riverwalk, Tampa, FL 33602', facing: 270, feeUSD: 0, isFree: true, driveMinutes: 14,
     hours: days(H24), phone: null,
     notes: '2.4-mile lit waterfront path from Armature Works to the Tampa Bay History Center; superb blue-hour reflections of the skyline and the UT minarets.',
     craft: {
@@ -117,7 +117,7 @@ export const SPOTS: Spot[] = [
   {
     id: 'plant-park-ut-minarets', name: 'Plant Park / UT Minarets', category: 'architecture', city: 'Tampa', region: 'tampa-bay',
     bestFor: ['minarets up close', 'exterior architecture'], bestLight: ['morning-golden', 'evening-golden'],
-    lat: 27.9454, lng: -82.4659, address: 'Plant Park, 401 W Kennedy Blvd, Tampa, FL 33606', facing: null, feeUSD: 0, isFree: true, driveMinutes: 13,
+    lat: 27.9459, lng: -82.4646, address: 'Plant Park, 401 W Kennedy Blvd, Tampa, FL 33606', facing: null, feeUSD: 0, isFree: true, driveMinutes: 13,
     hours: days(open(iv(sr(), ss()))), phone: null,
     notes: "Free grounds around the University of Tampa's Moorish silver minarets — Tampa's most iconic architecture. Golden hour lights the silver domes.",
     craft: {
@@ -292,7 +292,7 @@ export const SPOTS: Spot[] = [
   {
     id: 'lettuce-lake-park', name: 'Lettuce Lake Park', category: 'nature', city: 'Tampa', region: 'tampa-bay',
     bestFor: ['cypress swamp', 'wildlife', 'boardwalk'], bestLight: ['morning-golden', 'sunrise'],
-    lat: 28.0715, lng: -82.3727, address: '6920 E Fletcher Ave, Tampa, FL 33637', facing: null, feeUSD: 2, isFree: false, feeNote: '$2/car', driveMinutes: 25,
+    lat: 28.0699, lng: -82.3701, address: '6920 E Fletcher Ave, Tampa, FL 33637', facing: null, feeUSD: 2, isFree: false, feeNote: '$2/car', driveMinutes: 25,
     hours: days(open(iv(clk('08:00'), clk('18:00')))), phone: null,
     notes: '6920 E Fletcher Ave; a cypress-swamp boardwalk along the Hillsborough River — herons, turtles, gators. Early morning for wildlife and misty light.',
     caveats: 'Late-2025: parts of the boardwalk and the observation tower are closed for reconstruction; the newer right-side section has reopened.',
@@ -352,7 +352,7 @@ export const SPOTS: Spot[] = [
   {
     id: 'fort-de-soto-park', name: 'Fort De Soto Park', category: 'beach', city: 'Tierra Verde', region: 'tampa-bay',
     bestFor: ['beaches', 'Skyway views', 'North Beach sunset'], bestLight: ['sunset', 'sunrise'],
-    lat: 27.6350, lng: -82.7181, address: '3500 Pinellas Bayway S, Tierra Verde, FL 33715', facing: 270, feeUSD: 6, isFree: false, feeNote: '$6/car (since 2025) + Pinellas Bayway toll', driveMinutes: 50,
+    lat: 27.6396, lng: -82.7253, address: '3500 Pinellas Bayway S, Tierra Verde, FL 33715', facing: 270, feeUSD: 6, isFree: false, feeNote: '$6/car (since 2025) + Pinellas Bayway toll', driveMinutes: 50,
     hours: days(open(iv(sr(), ss()))), phone: null, tideStationId: '8726520',
     notes: '3500 Pinellas Bayway S; 1,136 acres across five keys. North Beach (reopened 2025) is the classic white-sand sunset spot; East Beach faces Tampa Bay with Skyway views.',
     caveats: 'Recovering from 2024 hurricanes; North Beach reopened Feb 2025.',
@@ -374,7 +374,7 @@ export const SPOTS: Spot[] = [
   {
     id: 'honeymoon-island-sp', name: 'Honeymoon Island State Park', category: 'beach', city: 'Dunedin', region: 'tampa-bay',
     bestFor: ['driftwood / dead-tree area', 'Gulf sunset', 'long exposures'], bestLight: ['sunset', 'evening-golden'],
-    lat: 28.0636, lng: -82.8316, address: '1 Causeway Blvd, Dunedin, FL 34698', facing: 270, feeUSD: 8, isFree: false, feeNote: '$8/car, $4 single-occupant', driveMinutes: 45,
+    lat: 28.0745, lng: -82.8340, address: '1 Causeway Blvd, Dunedin, FL 34698', facing: 270, feeUSD: 8, isFree: false, feeNote: '$8/car, $4 single-occupant', driveMinutes: 45,
     hours: days(open(iv(clk('08:00'), ss()))), phone: null, tideStationId: '8726724',
     notes: '1 Causeway Blvd; weathered bare trees on the beach at the north end (Osprey Trail) are the signature subject — superb at sunset and for long exposures.',
     caveats: 'An erosion "cut" has separated the northernmost mile — do not wade across.',
@@ -393,11 +393,11 @@ export const SPOTS: Spot[] = [
     logistics: { restrooms: true, feeDetail: '$8/car, $4 single occupant', crowdTiming: 'Park opens 8am; sunset is busiest' },
   },
   {
-    id: 'sunshine-skyway-fishing-piers', name: 'Sunshine Skyway Fishing Piers', category: 'nature', city: 'St. Petersburg', region: 'tampa-bay',
+    id: 'sunshine-skyway-fishing-piers', name: 'Sunshine Skyway Fishing Piers (South)', category: 'nature', city: 'Palmetto', region: 'tampa-bay',
     bestFor: ['bridge', 'fishing', 'water'], bestLight: ['sunrise', 'sunset'],
-    lat: 27.6442, lng: -82.6726, address: 'North Skyway Fishing Pier, 11101 34th St S, St. Petersburg, FL 33711', facing: null, feeUSD: 8, isFree: false, feeNote: '$4/car + $4/person + Skyway toll', driveMinutes: 40,
+    lat: 27.6210, lng: -82.6562, address: 'South Skyway Fishing Pier, 7901 US-19, Palmetto, FL 34221', facing: null, feeUSD: 8, isFree: false, feeNote: '$4/car + $4/person + Skyway toll', driveMinutes: 45,
     hours: days(H24), phone: null,
-    notes: 'Old bridge spans converted to fishing piers, with dramatic views of the Sunshine Skyway.',
+    notes: 'Old Skyway bridge spans converted to fishing piers. The South Pier (Palmetto side, 7901 US-19) is the longer span and reaches closest to the main bridge — walk out toward the tip and shoot north along the old roadway into the cables. The shorter North Pier (St. Pete side, 11101 34th St S) also works.',
     caveats: '2025–26 closure: access beyond the bait shop is restricted; confirm status before going. If closed, shoot the bridge from Fort De Soto East Beach.',
     craft: {
       lightStrategy: 'The soaring Skyway catches gold at both ends of the day; sunrise and sunset both light the cables.',
@@ -433,7 +433,7 @@ export const SPOTS: Spot[] = [
   {
     id: 'vinoy-park', name: 'Vinoy Park & North Straub Park', category: 'skyline', city: 'St. Petersburg', region: 'tampa-bay',
     bestFor: ['waterfront', 'palms', 'sunrise over the bay'], bestLight: ['sunrise', 'blue-hour'],
-    lat: 27.7791, lng: -82.6257, address: 'Vinoy Park, 701 Bayshore Dr NE, St. Petersburg, FL 33701', facing: 90, feeUSD: 0, isFree: true, driveMinutes: 38,
+    lat: 27.7793, lng: -82.6268, address: 'Vinoy Park, 701 Bayshore Dr NE, St. Petersburg, FL 33701', facing: 90, feeUSD: 0, isFree: true, driveMinutes: 38,
     hours: days(open(iv(sr(-30), clk('23:00')))), phone: null,
     notes: 'Free waterfront lawns with palms and the Vinoy hotel; great for sunrise over the bay.',
     craft: {
@@ -470,7 +470,7 @@ export const SPOTS: Spot[] = [
   {
     id: 'weedon-island-preserve', name: 'Weedon Island Preserve', category: 'nature', city: 'St. Petersburg', region: 'tampa-bay',
     bestFor: ['boardwalks', 'observation tower', 'birds'], bestLight: ['sunrise', 'morning-golden'],
-    lat: 27.8450, lng: -82.6019, address: '1800 Weedon Dr NE, St. Petersburg, FL 33702', facing: null, feeUSD: 0, isFree: true, driveMinutes: 30,
+    lat: 27.8476, lng: -82.6012, address: '1800 Weedon Dr NE, St. Petersburg, FL 33702', facing: null, feeUSD: 0, isFree: true, driveMinutes: 30,
     hours: days(open(iv(clk('07:00'), ss(-15)))), phone: null,
     notes: '1800 Weedon Dr NE; 3,000+ acres of mangroves, boardwalks, a 45-ft observation tower and paddling trails. Early morning for birds (roseate spoonbills in season). Pets not allowed.',
     craft: {
@@ -584,7 +584,7 @@ export const SPOTS: Spot[] = [
   {
     id: 'fred-howard-park', name: 'Fred Howard Park', category: 'beach', city: 'Tarpon Springs', region: 'tampa-bay',
     bestFor: ['causeway beach', 'Gulf sunset', 'kites + wind'], bestLight: ['sunset', 'evening-golden'],
-    lat: 28.1539, lng: -82.7960, address: '1700 Sunset Dr, Tarpon Springs, FL 34689', facing: 270, feeUSD: 0, isFree: true, driveMinutes: 55,
+    lat: 28.1531, lng: -82.8010, address: '1700 Sunset Dr, Tarpon Springs, FL 34689', facing: 270, feeUSD: 0, isFree: true, driveMinutes: 55,
     hours: days(open(iv(clk('07:00'), ss()))), phone: null, tideStationId: '8726724',
     notes: 'A causeway beach in Tarpon Springs, west-facing — good for sunset and kite/wind subjects.',
     craft: {
