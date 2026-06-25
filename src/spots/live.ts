@@ -49,7 +49,9 @@ export function directionsUrl(
   // building (raw coords can reverse-geocode to a neighbor — e.g. St. Paul AME
   // landing on the Tampa Firefighters Museum). Fall back to coords if unset.
   const dest = spot.address ? encodeURIComponent(spot.address) : `${spot.lat},${spot.lng}`
-  const origin = `${home.lat},${home.lng}`
+  // Same reasoning for the origin: route from the home street address when we
+  // have one (the seeded default), falling back to coords for "current location".
+  const origin = home.address ? encodeURIComponent(home.address) : `${home.lat},${home.lng}`
   if (app === 'google') {
     return `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&travelmode=driving`
   }

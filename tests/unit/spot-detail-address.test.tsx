@@ -26,6 +26,9 @@ describe('SpotDetailScreen — address on the detail page', () => {
     expect(href).toContain(encodeURIComponent('506 E Harrison St, Tampa, FL 33602'))
     // 27.9512,-82.4555 was the coord that reverse-geocoded to the Firefighters Museum
     expect(href).not.toContain('27.9512')
+    // origin starts from the home address, not the old 5000-S-Crescent coord (27.8916)
+    expect(href).toContain(encodeURIComponent('3812 W Leona St, Tampa, FL 33629'))
+    expect(href).not.toContain('27.8916')
   })
 
   it('surfaces that the St. Pete Pier Bending Arc is currently down', () => {

@@ -49,6 +49,20 @@ interface AppState {
 const toggle = (list: string[], id: string) =>
   list.includes(id) ? list.filter((x) => x !== id) : [...list, id]
 
+/**
+ * The seeded default home originally shipped with approximate coords (which
+ * reverse-geocoded to a neighbor ~1.5mi away) and no `address`. A persisted
+ * copy of that stale home overrides the corrected default on rehydrate, so we
+ * heal it: any non-"Current location" home without an address predates the fix
+ * (there's no custom-address entry UI) and is reset to the corrected default.
+ * "Current location" homes (real GPS coords) and already-fixed homes are kept.
+ */
+export function healStaleHome(home: HomeLocation | undefined): HomeLocation {
+  if (!home) return DEFAULT_HOME
+  if (home.label !== 'Current location' && !home.address) return DEFAULT_HOME
+  return home
+}
+
 export const useStore = create<AppState>()(
   persist(
     (set) => ({
@@ -70,6 +84,15 @@ export const useStore = create<AppState>()(
       setUnits: (units) => set({ units }),
       setMapsApp: (mapsApp) => set({ mapsApp }),
     }),
-    { name: 'photo-scout', storage: createJSONStorage(() => localStorage) },
+    {
+      name: 'photo-scout',
+      storage: createJSONStorage(() => localStorage),
+      version: 1,
+      migrate: (persisted: unknown) => {
+        const s = persisted as AppState | undefined
+        if (s && typeof s === 'object') s.home = healStaleHome(s.home)
+        return s as AppState
+      },
+    },
   ),
 )

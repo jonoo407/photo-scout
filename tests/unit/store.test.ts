@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { useStore, EMPTY_FILTERS } from '../../src/state/store'
+import { useStore, EMPTY_FILTERS, healStaleHome } from '../../src/state/store'
+import { DEFAULT_HOME } from '../../src/data/home.config'
 
 beforeEach(() => {
   useStore.setState({ wishlist: [], visited: [], checklist: {}, filters: EMPTY_FILTERS })
@@ -31,5 +32,25 @@ describe('app store', () => {
     expect(useStore.getState().filters.query).toBe('pier')
     useStore.getState().resetFilters()
     expect(useStore.getState().filters).toEqual(EMPTY_FILTERS)
+  })
+})
+
+describe('healStaleHome (persisted-home migration)', () => {
+  it('resets the old seeded home (wrong coords, no address) to the corrected default', () => {
+    const stale = { label: '3812 W Leona St, Tampa', lat: 27.8916, lng: -82.4843, coordsNeedVerify: true }
+    expect(healStaleHome(stale)).toEqual(DEFAULT_HOME)
+  })
+
+  it('leaves a "Current location" home untouched (GPS coords are correct)', () => {
+    const cur = { label: 'Current location', lat: 27.7, lng: -82.6 }
+    expect(healStaleHome(cur)).toBe(cur)
+  })
+
+  it('leaves an already-fixed home (has an address) untouched', () => {
+    expect(healStaleHome(DEFAULT_HOME)).toBe(DEFAULT_HOME)
+  })
+
+  it('falls back to the default for a missing home', () => {
+    expect(healStaleHome(undefined)).toEqual(DEFAULT_HOME)
   })
 })
