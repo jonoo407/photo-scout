@@ -15,6 +15,11 @@ describe('spot media (seeded reference photos)', () => {
     expect(withMedia.length).toBeGreaterThanOrEqual(12)
   })
 
+  it('the Tampa murals spot has a seeded photo of the anchor mural', () => {
+    const murals = SPOTS.find((s) => s.id === 'tampa-murals')
+    expect(murals?.media.length).toBeGreaterThan(0)
+  })
+
   it('every media entry is well-formed and attributed', () => {
     for (const s of SPOTS) {
       for (const m of s.media) {
@@ -30,12 +35,13 @@ describe('spot media (seeded reference photos)', () => {
     }
   })
 
-  it('media images come from allowed hosts (Wikimedia Commons / own)', () => {
+  it('media images come from allowed hosts (Wikimedia Commons, Flickr, or own)', () => {
     for (const s of SPOTS) {
       for (const m of s.media) {
         const host = new URL(m.src).host
         expect(
-          /(^|\.)wikimedia\.org$/.test(host) || host === 'upload.wikimedia.org' || m.src.startsWith('/'),
+          /(^|\.)wikimedia\.org$/.test(host) || host === 'upload.wikimedia.org' ||
+          host === 'live.staticflickr.com' || m.src.startsWith('/'),
           `${s.id} host ${host}`,
         ).toBe(true)
       }

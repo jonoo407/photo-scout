@@ -679,5 +679,16 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:Downtown_Tampa_(58977580).jpeg",
       "light": "evening-golden"
     }
+  ],
+  "tampa-murals": [
+    {
+      "src": "https://live.staticflickr.com/3875/14492170902_aeffc419dd_b.jpg",
+      "thumb": "https://live.staticflickr.com/3875/14492170902_aeffc419dd_z.jpg",
+      "caption": "The 'Tampa Postcard' mural (by Carl Cowden III) at golden hour",
+      "credit": "Photomatt28 (Flickr)",
+      "license": "CC BY-NC-ND 2.0",
+      "sourceUrl": "https://www.flickr.com/photos/46837385@N03/14492170902",
+      "light": "evening-golden"
+    }
   ]
 }
