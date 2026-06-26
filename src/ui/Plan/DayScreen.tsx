@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { IconArrowLeft, IconCar, IconMoodEmpty, IconArrowsShuffle, IconStar, IconCheck, IconX } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
 import { SPOTS } from '../../data/spots'
-import { planDay, type PlanStop } from '../../spots/day-plan'
+import { planDay, rankForBlock, type PlanStop } from '../../spots/day-plan'
 import { haversineMiles } from '../../spots/distance'
 import { driveMinutes } from '../../spots/live'
 import { CATEGORY_LABEL } from '../../spots/types'
@@ -70,7 +70,10 @@ export default function DayScreen() {
   const usedElsewhere = new Set(display.filter((d) => d.block.key !== sheet).map((d) => d.spot.id))
   const sheetFrom = sheetIdx > 0 ? display[sheetIdx - 1].spot : home
   const sheetOptions = sheetStop
-    ? optionsFor(sheetStop).filter((s) => s.id === display[sheetIdx].spot.id || !usedElsewhere.has(s.id))
+    ? rankForBlock(
+        optionsFor(sheetStop).filter((s) => s.id === display[sheetIdx].spot.id || !usedElsewhere.has(s.id)),
+        { block: sheetStop.block, from: sheetFrom, sunLat: home.lat, sunLng: home.lng, wishlist: new Set(wishlistArr) },
+      )
     : []
 
   return (

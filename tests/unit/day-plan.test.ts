@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { planDay, dayBlocks } from '../../src/spots/day-plan'
+import { planDay, dayBlocks, rankForBlock } from '../../src/spots/day-plan'
 import { matchesLight } from '../../src/spots/next-up'
 import { SPOTS } from '../../src/data/spots'
 import { DEFAULT_HOME } from '../../src/data/home.config'
@@ -51,5 +51,15 @@ describe('planDay', () => {
     const stops = planDay({ date: DATE, home: DEFAULT_HOME, spots: SPOTS })
     expect(stops[0].alternatives.length).toBeGreaterThan(0)
     expect(stops[0].alternatives.every((a) => a.id !== stops[0].spot.id)).toBe(true)
+  })
+
+  it('rankForBlock re-ranks candidates by proximity to the current origin', () => {
+    const sunset = dayBlocks(DATE, DEFAULT_HOME.lat, DEFAULT_HOME.lng).find((b) => b.key === 'sunset')!
+    const cands = SPOTS.filter((s) => ['curtis-hixon-waterfront-park', 'st-pete-pier'].includes(s.id))
+    const base = { block: sunset, sunLat: DEFAULT_HOME.lat, sunLng: DEFAULT_HOME.lng }
+    const fromTampa = rankForBlock(cands, { ...base, from: { lat: 27.95, lng: -82.46 } })
+    const fromStPete = rankForBlock(cands, { ...base, from: { lat: 27.77, lng: -82.63 } })
+    expect(fromTampa[0].id).toBe('curtis-hixon-waterfront-park')
+    expect(fromStPete[0].id).toBe('st-pete-pier')
   })
 })

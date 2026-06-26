@@ -58,6 +58,35 @@ function lightFit(spot: Spot, block: PlanBlock): number {
   return block.lights.filter((l) => matchesLight(spot, l)).length
 }
 
+export interface RankContext {
+  block: PlanBlock
+  from: { lat: number; lng: number } // route origin — re-ranking keys off this
+  sunLat: number
+  sunLng: number
+  wishlist?: Set<string>
+}
+
+/** Score a spot for a block from a given route origin (higher = better fit). */
+export function scoreSpot(spot: Spot, ctx: RankContext): number {
+  let s = lightFit(spot, ctx.block) * 0.15
+  if (spot.facing != null) {
+    const sun = sunPosition(ctx.block.time, ctx.sunLat, ctx.sunLng)
+    if (sun.elevation > 0) {
+      const dir = classifyLightDirection(sun.azimuth, spot.facing, sun.elevation)
+      s += dir === 'silhouette' ? 0.25 : dir === 'front' ? 0.2 : dir === 'side' ? 0.15 : 0.1
+    }
+  }
+  const miles = haversineMiles(ctx.from, spot)
+  s += clamp(1 - miles / 40, 0, 1) * 0.5 // cluster the day to cut driving
+  if (ctx.wishlist?.has(spot.id)) s += 0.3
+  return s
+}
+
+/** Rank candidates best-first for a block, from the current route origin. */
+export function rankForBlock(candidates: Spot[], ctx: RankContext): Spot[] {
+  return [...candidates].sort((a, b) => scoreSpot(b, ctx) - scoreSpot(a, ctx))
+}
+
 function bestBlockFor(spot: Spot, blocks: PlanBlock[]): BlockKey {
   // Prefer sunset, then sunrise, then midday on ties (most anchors are evening spots).
   const order: BlockKey[] = ['sunset', 'sunrise', 'midday']
@@ -80,21 +109,6 @@ export function planDay({ date, home, spots, wishlist, anchorId }: PlanDayInput)
   const anchor = anchorId ? spots.find((s) => s.id === anchorId) : undefined
   const anchorBlock = anchor ? bestBlockFor(anchor, blocks) : undefined
 
-  const score = (spot: Spot, block: PlanBlock, from: { lat: number; lng: number }): number => {
-    let s = lightFit(spot, block) * 0.15
-    if (spot.facing != null) {
-      const sun = sunPosition(block.time, home.lat, home.lng)
-      if (sun.elevation > 0) {
-        const dir = classifyLightDirection(sun.azimuth, spot.facing, sun.elevation)
-        s += dir === 'silhouette' ? 0.25 : dir === 'front' ? 0.2 : dir === 'side' ? 0.15 : 0.1
-      }
-    }
-    const miles = haversineMiles(from, spot)
-    s += clamp(1 - miles / 40, 0, 1) * 0.5 // cluster the day to cut driving
-    if (wishlist?.has(spot.id)) s += 0.3
-    return s
-  }
-
   const used = new Set<string>()
   if (anchor) used.add(anchor.id) // reserve the anchor for its block only
 
@@ -102,10 +116,12 @@ export function planDay({ date, home, spots, wishlist, anchorId }: PlanDayInput)
   let from: { lat: number; lng: number } = home
 
   for (const block of blocks) {
-    const ranked = spots
-      .filter((s) => !used.has(s.id) && lightFit(s, block) > 0 &&
-        resolveOpenStatus(s.hours, block.time, sunTimesFor).state !== 'closed')
-      .sort((a, b) => score(b, block, from) - score(a, block, from))
+    const ctx: RankContext = { block, from, sunLat: home.lat, sunLng: home.lng, wishlist }
+    const ranked = rankForBlock(
+      spots.filter((s) => !used.has(s.id) && lightFit(s, block) > 0 &&
+        resolveOpenStatus(s.hours, block.time, sunTimesFor).state !== 'closed'),
+      ctx,
+    )
 
     let chosen: Spot | undefined
     let anchored = false
