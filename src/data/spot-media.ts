@@ -635,5 +635,49 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3APorsche_and_parasail.jpg",
       "light": "daytime"
     }
+  ],
+  "azure-tampa-edition": [
+    {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/EditionTampa.jpg/1280px-EditionTampa.jpg",
+      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/EditionTampa.jpg/500px-EditionTampa.jpg",
+      "caption": "The Tampa EDITION — home of the Azure rooftop",
+      "credit": "Chiefmiz",
+      "license": "CC0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:EditionTampa.jpg",
+      "light": "daytime"
+    }
+  ],
+  "beacon-jw-marriott": [
+    {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Downtown_Tampa%2C_Florida.jpg/1280px-Downtown_Tampa%2C_Florida.jpg",
+      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Downtown_Tampa%2C_Florida.jpg/500px-Downtown_Tampa%2C_Florida.jpg",
+      "caption": "Downtown Tampa skyline — the kind of view from the rooftop",
+      "credit": "Clément Bardot",
+      "license": "CC BY-SA 4.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Downtown_Tampa,_Florida.jpg",
+      "light": "daytime"
+    }
+  ],
+  "mbird-armature-works": [
+    {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Tampa_Skyline_-_Eric_Statzer.jpg/1280px-Tampa_Skyline_-_Eric_Statzer.jpg",
+      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Tampa_Skyline_-_Eric_Statzer.jpg/500px-Tampa_Skyline_-_Eric_Statzer.jpg",
+      "caption": "Downtown skyline across the water from the Heights",
+      "credit": "Eric Statzer",
+      "license": "CC BY-SA 4.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tampa_Skyline_-_Eric_Statzer.jpg",
+      "light": "daytime"
+    }
+  ],
+  "edge-epicurean": [
+    {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Downtown_Tampa_%2858977580%29.jpeg/1280px-Downtown_Tampa_%2858977580%29.jpeg",
+      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Downtown_Tampa_%2858977580%29.jpeg/500px-Downtown_Tampa_%2858977580%29.jpeg",
+      "caption": "The distant downtown skyline at golden hour",
+      "credit": "Steven Buehler",
+      "license": "CC BY 3.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Downtown_Tampa_(58977580).jpeg",
+      "light": "evening-golden"
+    }
   ]
 }
