@@ -147,7 +147,7 @@ export default function SpotDetailScreen() {
         {c.accessTips && <p>{c.accessTips}</p>}
       </div>
 
-      <button className="linkrow" style={{ margin: '14px 0', color: 'var(--terracotta)' }} onClick={() => nav('/plan')}>
+      <button className="linkrow" style={{ margin: '14px 0', color: 'var(--terracotta)' }} onClick={() => nav(`/day?anchor=${spot.id}`)}>
         <span><IconCalendarEvent size={16} /> Plan a day around this spot</span>
       </button>
 

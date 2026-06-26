@@ -51,8 +51,8 @@ export default function PlanScreen() {
         <button className={`chip ${day === 1 ? 'on' : ''}`} style={{ flex: 1, justifyContent: 'center' }} onClick={() => setDay(1)}>Tomorrow</button>
       </div>
 
-      <button className="cta" style={{ marginBottom: 14 }} onClick={() => nav('/day')}>
-        <IconRoute size={18} /> Build my whole day
+      <button className="cta" style={{ marginBottom: 14 }} onClick={() => nav(`/day?day=${day}`)}>
+        <IconRoute size={18} /> Build {day === 1 ? "tomorrow's" : "today's"} itinerary
       </button>
 
       <h3 className="h3">Light &amp; sun times</h3>
