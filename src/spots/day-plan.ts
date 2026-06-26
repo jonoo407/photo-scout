@@ -128,7 +128,7 @@ export function planDay({ date, home, spots, wishlist, anchorId }: PlanDayInput)
       open: resolveOpenStatus(chosen.hours, block.time, sunTimesFor),
       driveMin,
       anchored,
-      alternatives: ranked.filter((s) => s.id !== chosen!.id).slice(0, 4),
+      alternatives: ranked.filter((s) => s.id !== chosen!.id).slice(0, 8),
     })
     from = chosen
   }

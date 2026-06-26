@@ -1,12 +1,14 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { IconArrowLeft, IconCar, IconMoodEmpty, IconArrowsShuffle, IconStar } from '@tabler/icons-react'
+import { IconArrowLeft, IconCar, IconMoodEmpty, IconArrowsShuffle, IconStar, IconCheck, IconX } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
 import { SPOTS } from '../../data/spots'
-import { planDay } from '../../spots/day-plan'
+import { planDay, type PlanStop } from '../../spots/day-plan'
 import { haversineMiles } from '../../spots/distance'
 import { driveMinutes } from '../../spots/live'
+import { CATEGORY_LABEL } from '../../spots/types'
 import { fmtTime } from '../../util/format'
+import type { Spot } from '../../spots/types'
 
 function badge(state: string): { label: string; kind: string } {
   if (state === 'open') return { label: 'Open', kind: 'open' }
@@ -22,7 +24,8 @@ export default function DayScreen() {
   const anchorId = params.get('anchor') ?? undefined
   const home = useStore((s) => s.home)
   const wishlistArr = useStore((s) => s.wishlist)
-  const [swap, setSwap] = useState<Record<string, number>>({})
+  const [picked, setPicked] = useState<Record<string, string>>({}) // blockKey -> spot id
+  const [sheet, setSheet] = useState<string | null>(null) // open chooser for this block
 
   const plan = useMemo(() => {
     const date = new Date(Date.now() + dayOffset * 86400000)
@@ -49,15 +52,26 @@ export default function DayScreen() {
     )
   }
 
-  // Resolve the displayed spot per block (swap cycles through alternatives).
+  // Resolve the displayed spot per block (a swap overrides the planned pick).
+  const optionsFor = (stop: PlanStop): Spot[] => [stop.spot, ...stop.alternatives]
   const display = plan.map((stop) => {
-    const options = [stop.spot, ...stop.alternatives]
-    const idx = (swap[stop.block.key] ?? 0) % options.length
-    return { ...stop, spot: options[idx], canSwap: options.length > 1 && !stop.anchored }
+    const opts = optionsFor(stop)
+    const chosenId = picked[stop.block.key]
+    const spot = (chosenId && opts.find((s) => s.id === chosenId)) || stop.spot
+    return { ...stop, spot, swappable: stop.alternatives.length > 0 && !stop.anchored }
   })
   const leg = (i: number) =>
     i === 0 ? driveMinutes(display[0].spot, home) : Math.round(haversineMiles(display[i - 1].spot, display[i].spot) * 2.2)
   const total = display.reduce((sum, _, i) => sum + leg(i), 0)
+
+  // Chooser: ranked candidates for the open block, minus spots used elsewhere.
+  const sheetIdx = sheet ? display.findIndex((d) => d.block.key === sheet) : -1
+  const sheetStop = sheetIdx >= 0 ? plan[sheetIdx] : null
+  const usedElsewhere = new Set(display.filter((d) => d.block.key !== sheet).map((d) => d.spot.id))
+  const sheetFrom = sheetIdx > 0 ? display[sheetIdx - 1].spot : home
+  const sheetOptions = sheetStop
+    ? optionsFor(sheetStop).filter((s) => s.id === display[sheetIdx].spot.id || !usedElsewhere.has(s.id))
+    : []
 
   return (
     <div className="screen">
@@ -80,17 +94,17 @@ export default function DayScreen() {
                     <span className={`pill ${b.kind}`}>{b.label}</span>
                   </div>
                   <p className="sub">
-                    {s.anchored && <><IconStar size={12} style={{ verticalAlign: '-1px' }} /> Your anchor for the day · </>}
-                    {!s.anchored && s.reason}
-                    {!s.anchored && ` · ${fmtTime(s.block.time)}`}
+                    {s.anchored
+                      ? <><IconStar size={12} style={{ verticalAlign: '-1px' }} /> Your anchor for the day · {fmtTime(s.block.time)}</>
+                      : <>{s.reason} · {fmtTime(s.block.time)}</>}
                   </p>
                 </button>
-                {s.canSwap && (
+                {s.swappable && (
                   <button
                     className="actbtn"
                     style={{ flex: 'none', width: 46, padding: 0 }}
                     aria-label={`Swap ${s.block.label} spot`}
-                    onClick={() => setSwap((p) => ({ ...p, [s.block.key]: (p[s.block.key] ?? 0) + 1 }))}
+                    onClick={() => setSheet(s.block.key)}
                   >
                     <IconArrowsShuffle size={18} />
                   </button>
@@ -107,8 +121,38 @@ export default function DayScreen() {
       </div>
 
       <p className="small tertiary" style={{ marginTop: 14, lineHeight: 1.6 }}>
-        Tap <IconArrowsShuffle size={12} /> to swap a stop, or tap a spot for details and directions.
+        Tap <IconArrowsShuffle size={12} /> to choose a different spot for a stop, or tap a spot for details and directions.
       </p>
+
+      {sheetStop && (
+        <div className="sheet-backdrop" onClick={() => setSheet(null)}>
+          <div className="sheet" role="dialog" aria-label={`Choose a ${sheetStop.block.label} spot`} onClick={(e) => e.stopPropagation()}>
+            <div className="row-spread" style={{ marginBottom: 8 }}>
+              <h4>{sheetStop.block.label}</h4>
+              <button className="back" style={{ margin: 0 }} aria-label="Close" onClick={() => setSheet(null)}><IconX size={18} /></button>
+            </div>
+            <p className="small tertiary" style={{ margin: '0 0 6px' }}>Best fit first — by light, distance and your list.</p>
+            {sheetOptions.map((opt) => {
+              const isCurrent = opt.id === display[sheetIdx].spot.id
+              const dmin = Math.round(haversineMiles(sheetFrom, opt) * 2.2)
+              const wished = wishlistArr.includes(opt.id)
+              return (
+                <button
+                  key={opt.id}
+                  className="opt"
+                  onClick={() => { setPicked((p) => ({ ...p, [sheetStop.block.key]: opt.id })); setSheet(null) }}
+                >
+                  <span style={{ minWidth: 0 }}>
+                    <span className="nm" style={{ fontSize: 14 }}>{wished && <IconStar size={12} style={{ verticalAlign: '-1px', color: 'var(--maybe-ink)' }} />} {opt.name}</span>
+                    <span className="sub" style={{ display: 'block' }}>{CATEGORY_LABEL[opt.category]} · ~{dmin} min</span>
+                  </span>
+                  {isCurrent && <IconCheck size={18} className="on-check" />}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

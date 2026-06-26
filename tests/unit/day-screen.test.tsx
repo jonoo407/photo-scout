@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import DayScreen from '../../src/ui/Plan/DayScreen'
 import { useStore } from '../../src/state/store'
@@ -27,5 +28,19 @@ describe('DayScreen', () => {
     renderDay('/day?anchor=dali-museum')
     expect(screen.getByText('The Dalí Museum')).toBeInTheDocument()
     expect(screen.getByText(/your anchor/i)).toBeInTheDocument()
+  })
+
+  it('swap opens a ranked chooser and applies the picked spot', async () => {
+    const user = userEvent.setup()
+    renderDay('/day')
+    // Ballast Point isn't the default morning pick (Bayshore is, nearer home)
+    expect(screen.queryByText('Ballast Point Park')).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /swap sunrise & morning golden/i }))
+    const dialog = await screen.findByRole('dialog')
+    await user.click(within(dialog).getByText('Ballast Point Park'))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.getByText('Ballast Point Park')).toBeInTheDocument()
   })
 })
