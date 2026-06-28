@@ -28,7 +28,13 @@ describe('secondary text contrast on the page background (WCAG)', () => {
   it('--ink-2 meets AA (>= 4.5:1)', () => {
     expect(contrast(token('--ink-2'), bg)).toBeGreaterThanOrEqual(4.5)
   })
-  it('--ink-3 is legible (>= 4.0:1)', () => {
-    expect(contrast(token('--ink-3'), bg)).toBeGreaterThanOrEqual(4.0)
+  it('--ink-3 meets AA (>= 4.5:1) — axe holds 11-12px labels to this', () => {
+    expect(contrast(token('--ink-3'), bg)).toBeGreaterThanOrEqual(4.5)
+  })
+
+  it('both muted inks also clear AA on the tan surface-2 (cards/inputs)', () => {
+    const s2 = token('--surface-2')
+    expect(contrast(token('--ink-2'), s2)).toBeGreaterThanOrEqual(4.5)
+    expect(contrast(token('--ink-3'), s2)).toBeGreaterThanOrEqual(4.5)
   })
 })

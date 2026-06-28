@@ -35,7 +35,7 @@ export default function SpotHero({ media }: { media: SpotMedia[] }) {
 
   return (
     <div className="carousel">
-      <div className="carousel-track" ref={trackRef} onScroll={onScroll}>
+      <div className="carousel-track" ref={trackRef} onScroll={onScroll} tabIndex={0} role="group" aria-label="Spot photos (scroll horizontally)">
         {media.map((m, i) => (
           <div className="slide" key={m.src + i}>
             <img src={m.src} alt={m.caption} loading={i === 0 ? 'eager' : 'lazy'} />

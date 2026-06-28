@@ -34,3 +34,8 @@ scripts/montage-*.html
 scripts/montage-*.png
 scripts/hero-montage.*
 spot-*.png
+
+# Playwright
+e2e/screens/
+test-results/
+playwright-report/
