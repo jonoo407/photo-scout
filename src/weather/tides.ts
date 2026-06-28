@@ -1,41 +1,41 @@
-/* Keyless tide predictions via NOAA CO-OPS (tidesandcurrents.gov). hi/lo only.
-   Times come back in the station's local time (lst_ldt) — fine for local users. */
+/* Tide height via the Open-Meteo Marine API (keyless, CORS-enabled — same infra
+   as the weather calls, verified `access-control-allow-origin: *`). NOAA CO-OPS
+   is keyless too but does NOT send CORS headers, so it fails in the browser.
+   `sea_level_height_msl` is the tidal sea level; low tides are its local minima. */
 
-export interface TidePoint { t: Date; type: 'L' | 'H'; height: number }
+export interface TideSeries { time: number[]; height: number[] } // time = unixtime seconds (UTC)
 
-export function parseTidePredictions(j: unknown): TidePoint[] {
-  const rows = (j as { predictions?: unknown[] })?.predictions
-  if (!Array.isArray(rows)) return []
-  return rows
-    .map((r) => {
-      const row = r as { t?: string; type?: string; v?: string }
-      const t = new Date(String(row.t).replace(' ', 'T'))
-      return { t, type: row.type === 'L' ? ('L' as const) : ('H' as const), height: Number(row.v) }
-    })
-    .filter((p) => !Number.isNaN(p.t.getTime()))
+export function parseMarineTides(j: unknown): TideSeries {
+  const h = ((j ?? {}) as Record<string, any>).hourly ?? {}
+  const time = Array.isArray(h.time) ? h.time.map((x: unknown) => Number(x)).filter((n: number) => Number.isFinite(n)) : []
+  const height = Array.isArray(h.sea_level_height_msl) ? h.sea_level_height_msl.map((x: unknown) => Number(x)) : []
+  return { time, height }
 }
 
-/** Minutes from `when` to the nearest LOW tide, or null if there are none. */
-export function lowTideMinutesNear(preds: TidePoint[], when: Date): number | null {
-  const lows = preds.filter((p) => p.type === 'L')
-  if (!lows.length) return null
-  let best = Infinity
-  for (const l of lows) best = Math.min(best, Math.abs(l.t.getTime() - when.getTime()) / 60000)
-  return Math.round(best)
+/** Minutes from `when` to the nearest low tide (local minimum of sea level), or null. */
+export function lowTideMinutesNear(s: TideSeries, when: Date): number | null {
+  const { time, height } = s
+  if (time.length < 3 || height.length < 3) return null
+  const target = when.getTime()
+  let best: number | null = null
+  for (let i = 1; i < height.length - 1; i++) {
+    if (Number.isFinite(height[i]) && height[i] < height[i - 1] && height[i] <= height[i + 1]) {
+      const dm = Math.abs(time[i] * 1000 - target) / 60000
+      if (best == null || dm < best) best = dm
+    }
+  }
+  return best == null ? null : Math.round(best)
 }
 
-export async function fetchTides(
-  stationId: string, beginYYYYMMDD: string, endYYYYMMDD: string, fetchImpl: typeof fetch = fetch,
-): Promise<TidePoint[]> {
+export async function fetchMarineTides(lat: number, lng: number, fetchImpl: typeof fetch = fetch): Promise<TideSeries> {
   const url =
-    `https://api.tidesandcurrents.gov/api/prod/datagetter?product=predictions&datum=MLLW` +
-    `&interval=hilo&units=english&time_zone=lst_ldt&format=json` +
-    `&station=${encodeURIComponent(stationId)}&begin_date=${beginYYYYMMDD}&end_date=${endYYYYMMDD}`
+    `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lng}` +
+    `&hourly=sea_level_height_msl&timeformat=unixtime&timezone=auto&forecast_days=16`
   try {
     const res = await fetchImpl(url)
-    if (!res.ok) return []
-    return parseTidePredictions(await res.json())
+    if (!res.ok) return { time: [], height: [] }
+    return parseMarineTides(await res.json())
   } catch {
-    return []
+    return { time: [], height: [] }
   }
 }

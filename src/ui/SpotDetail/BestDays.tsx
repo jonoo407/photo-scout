@@ -2,23 +2,20 @@ import { useEffect, useMemo, useState } from 'react'
 import type { Spot } from '../../spots/types'
 import { rankBestDays, windowTimeFor } from '../../spots/best-days'
 import { fetchSkyForecast, skyScoreAt, type SkyHourly } from '../../weather/open-meteo'
-import { fetchTides, lowTideMinutesNear, type TidePoint } from '../../weather/tides'
+import { fetchMarineTides, lowTideMinutesNear, type TideSeries } from '../../weather/tides'
 
-const ymd = (d: Date) => `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`
 const fmtDay = (d: Date) => d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })
 const chipKind = (score: number) => (score >= 75 ? 'go' : score >= 55 ? 'maybe' : 'info')
 
 export default function BestDays({ spot }: { spot: Spot }) {
   const [sky, setSky] = useState<SkyHourly | null>(null)
-  const [tides, setTides] = useState<TidePoint[] | null>(null)
+  const [tides, setTides] = useState<TideSeries | null>(null)
 
   useEffect(() => {
     let alive = true
     fetchSkyForecast(spot.lat, spot.lng).then((s) => { if (alive) setSky(s) }).catch(() => {})
     if (spot.tideStationId) {
-      const now = new Date()
-      fetchTides(spot.tideStationId, ymd(now), ymd(new Date(now.getTime() + 31 * 86400000)))
-        .then((t) => { if (alive) setTides(t) }).catch(() => {})
+      fetchMarineTides(spot.lat, spot.lng).then((t) => { if (alive) setTides(t) }).catch(() => {})
     }
     return () => { alive = false }
   }, [spot.lat, spot.lng, spot.tideStationId])
@@ -54,7 +51,7 @@ export default function BestDays({ spot }: { spot: Spot }) {
         ))}
       </div>
       <p className="small tertiary" style={{ margin: '6px 2px 0', lineHeight: 1.5 }}>
-        Scored on sun alignment, moon{tides && tides.length ? ', tide' : ''} &amp; access; the next ~16 days also factor the weather forecast.
+        Scored on sun alignment, moon{tides && tides.time.length ? ', tide' : ''} &amp; access; the next ~16 days also factor the weather forecast.
       </p>
     </>
   )
