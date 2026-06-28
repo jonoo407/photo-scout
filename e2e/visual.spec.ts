@@ -24,6 +24,13 @@ for (const [name, path] of routes) {
   })
 }
 
+test('spot best-days (coastal, with tides)', async ({ page }) => {
+  await page.goto('/#/spot/fort-de-soto-park')
+  await page.waitForLoadState('networkidle').catch(() => {})
+  await page.waitForTimeout(2500) // let forecast + NOAA tides resolve
+  await page.screenshot({ path: `${SHOTS}/spot-bestdays.png`, fullPage: true })
+})
+
 test('dark theme (Today)', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' }) // theme=auto follows system → dark
   await page.goto('/')

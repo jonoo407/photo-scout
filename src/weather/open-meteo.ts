@@ -1,4 +1,5 @@
 import { computeSunTimes } from '../astro/sun-times'
+import { sunsetScore } from './sunset-score'
 
 export type Units = 'imperial' | 'metric'
 
@@ -104,6 +105,35 @@ export function parseHourlyConditions(j: unknown, times: Date[]): BlockCondition
     ms.forEach((m, i) => { const d = Math.abs(m - target); if (Number.isFinite(d) && d < bestD) { bestD = d; best = i } })
     return { precipProb: fin(h.precipitation_probability?.[best], 0), cloudCover: fin(h.cloud_cover?.[best], 0) }
   })
+}
+
+export interface SkyHourly { time: number[]; low: number[]; mid: number[]; high: number[]; humidity: number[] }
+
+export function parseSkyHourly(j: unknown): SkyHourly {
+  const h = ((j ?? {}) as Record<string, any>).hourly ?? {}
+  const num = (a: unknown): number[] => (Array.isArray(a) ? a.map((x) => fin(x, 0)) : [])
+  const time = Array.isArray(h.time) ? h.time.map((x: unknown) => hourMs(x) / 1000) : []
+  return { time, low: num(h.cloud_cover_low), mid: num(h.cloud_cover_mid), high: num(h.cloud_cover_high), humidity: num(h.relative_humidity_2m) }
+}
+
+/** Cloud-based sunset/sky score at a moment, or null if the moment is past the forecast horizon. */
+export function skyScoreAt(h: SkyHourly, time: Date): number | null {
+  if (!h.time.length) return null
+  const target = time.getTime()
+  let best = 0, bestD = Infinity
+  h.time.forEach((t, i) => { const d = Math.abs(t * 1000 - target); if (d < bestD) { bestD = d; best = i } })
+  if (bestD > 12 * 3600 * 1000) return null // nearest forecast hour is too far → beyond horizon
+  return sunsetScore({ cloudLow: h.low[best] ?? 0, cloudMid: h.mid[best] ?? 0, cloudHigh: h.high[best] ?? 0, humidity: h.humidity[best] ?? 0 })
+}
+
+export async function fetchSkyForecast(lat: number, lng: number, fetchImpl: typeof fetch = fetch): Promise<SkyHourly> {
+  const url =
+    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}` +
+    `&hourly=cloud_cover_low,cloud_cover_mid,cloud_cover_high,relative_humidity_2m` +
+    `&timeformat=unixtime&timezone=auto&forecast_days=16`
+  const res = await fetchImpl(url)
+  if (!res.ok) throw new Error(`weather ${res.status}`)
+  return parseSkyHourly(await res.json())
 }
 
 export async function fetchBlockConditions(

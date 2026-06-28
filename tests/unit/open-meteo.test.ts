@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseWeather, parseHourlyConditions } from '../../src/weather/open-meteo'
+import { parseWeather, parseHourlyConditions, parseSkyHourly, skyScoreAt } from '../../src/weather/open-meteo'
 
 // Fixed instant so the test is deterministic (no Date.now()).
 const SUNSET = new Date(1_750_000_000_000)
@@ -58,5 +58,18 @@ describe('parseHourlyConditions', () => {
 
   it('falls back to zero when hourly data is missing', () => {
     expect(parseHourlyConditions({}, [new Date(Z * 1000)])[0]).toEqual({ precipProb: 0, cloudCover: 0 })
+  })
+})
+
+describe('skyScoreAt (per-day forecast sky)', () => {
+  const Z = 1_750_000_000
+  const sky = parseSkyHourly({ hourly: { time: [Z], cloud_cover_low: [5], cloud_cover_mid: [40], cloud_cover_high: [30], relative_humidity_2m: [50] } })
+
+  it('scores a good mid/high-cloud sky high at the nearest forecast hour', () => {
+    expect(skyScoreAt(sky, new Date(Z * 1000))!).toBeGreaterThan(80)
+  })
+
+  it('returns null past the forecast horizon (nearest hour too far)', () => {
+    expect(skyScoreAt(sky, new Date((Z + 20 * 24 * 3600) * 1000))).toBeNull()
   })
 })

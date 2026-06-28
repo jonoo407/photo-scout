@@ -7,6 +7,7 @@ import {
   IconExternalLink, IconPhone, IconCalendarEvent, IconMapPin,
 } from '@tabler/icons-react'
 import SpotHero from './SpotHero'
+import BestDays from './BestDays'
 import { useStore } from '../../state/store'
 import { SPOTS } from '../../data/spots'
 import { CATEGORY_LABEL } from '../../spots/types'
@@ -104,6 +105,8 @@ export default function SpotDetailScreen() {
           )
         })}
       </div>
+
+      <BestDays spot={spot} />
 
       <h3 className="h3">How to shoot it</h3>
       <p className="muted" style={{ fontSize: 13, margin: '0 0 8px', lineHeight: 1.6 }}>{c.lightStrategy}</p>
