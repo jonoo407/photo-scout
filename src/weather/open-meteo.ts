@@ -89,6 +89,34 @@ export function parseWeather(j: unknown, sunset: Date, units: Units = 'imperial'
   }
 }
 
+export interface BlockConditions { precipProb: number; cloudCover: number }
+
+/* Sample hourly precip + cloud at each given moment (nearest hour). Used to
+   give the day planner per-block (morning/midday/evening) weather. */
+export function parseHourlyConditions(j: unknown, times: Date[]): BlockConditions[] {
+  const h = ((j ?? {}) as Record<string, any>).hourly ?? {}
+  const ts: unknown[] = Array.isArray(h.time) ? h.time : []
+  const ms = ts.map(hourMs)
+  return times.map((t) => {
+    if (!ms.length) return { precipProb: 0, cloudCover: 0 }
+    const target = t.getTime()
+    let best = 0, bestD = Infinity
+    ms.forEach((m, i) => { const d = Math.abs(m - target); if (Number.isFinite(d) && d < bestD) { bestD = d; best = i } })
+    return { precipProb: fin(h.precipitation_probability?.[best], 0), cloudCover: fin(h.cloud_cover?.[best], 0) }
+  })
+}
+
+export async function fetchBlockConditions(
+  lat: number, lng: number, times: Date[], fetchImpl: typeof fetch = fetch,
+): Promise<BlockConditions[]> {
+  const url =
+    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}` +
+    `&hourly=precipitation_probability,cloud_cover&timeformat=unixtime&timezone=auto&forecast_days=3`
+  const res = await fetchImpl(url)
+  if (!res.ok) throw new Error(`weather ${res.status}`)
+  return parseHourlyConditions(await res.json(), times)
+}
+
 export async function fetchWeather(
   lat: number, lng: number, now = new Date(), units: Units = 'imperial',
 ): Promise<WeatherNow> {

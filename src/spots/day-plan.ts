@@ -6,6 +6,7 @@ import { haversineMiles } from './distance'
 import { matchesLight } from './next-up'
 import type { Spot, Light } from './types'
 import type { HomeLocation } from '../data/home.config'
+import type { WeatherVerdict, WeatherMood } from '../weather/verdict'
 
 export type BlockKey = 'sunrise' | 'midday' | 'sunset'
 
@@ -25,6 +26,7 @@ export interface PlanStop {
   driveMin: number // estimated drive from the previous stop (or home for the first)
   anchored: boolean
   alternatives: Spot[] // ranked swap options for this block
+  weather?: { mood: WeatherMood; note: string } // set when weather shaped this stop
 }
 
 export interface PlanDayInput {
@@ -33,6 +35,7 @@ export interface PlanDayInput {
   spots: Spot[]
   wishlist?: Set<string>
   anchorId?: string
+  blockWeather?: Partial<Record<BlockKey, WeatherVerdict>>
 }
 
 const clamp = (x: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, x))
@@ -64,6 +67,7 @@ export interface RankContext {
   sunLat: number
   sunLng: number
   wishlist?: Set<string>
+  verdict?: WeatherVerdict // block weather — favors/avoids by category
 }
 
 /** Score a spot for a block from a given route origin (higher = better fit). */
@@ -79,7 +83,18 @@ export function scoreSpot(spot: Spot, ctx: RankContext): number {
   const miles = haversineMiles(ctx.from, spot)
   s += clamp(1 - miles / 40, 0, 1) * 0.5 // cluster the day to cut driving
   if (ctx.wishlist?.has(spot.id)) s += 0.3
+  if (ctx.verdict) {
+    if (ctx.verdict.favors.includes(spot.category)) s += 0.2
+    if (ctx.verdict.avoid.includes(spot.category)) s -= 0.35
+  }
   return s
+}
+
+function weatherNote(v: WeatherVerdict, spot: Spot): string {
+  if (v.mood === 'rainy') {
+    return v.favors.includes(spot.category) ? 'Rain likely — picked a sheltered spot' : 'Rain likely — bring cover'
+  }
+  return v.avoid.includes(spot.category) ? 'Overcast — the skyline will look flat' : 'Overcast — soft, even light'
 }
 
 /** Rank candidates best-first for a block, from the current route origin. */
@@ -100,7 +115,7 @@ function bestBlockFor(spot: Spot, blocks: PlanBlock[]): BlockKey {
   return best.key
 }
 
-export function planDay({ date, home, spots, wishlist, anchorId }: PlanDayInput): PlanStop[] {
+export function planDay({ date, home, spots, wishlist, anchorId, blockWeather }: PlanDayInput): PlanStop[] {
   const blocks = dayBlocks(date, home.lat, home.lng)
   const sunTimesFor = (d: Date) => {
     const tt = computeSunTimes(d, home.lat, home.lng)
@@ -116,10 +131,17 @@ export function planDay({ date, home, spots, wishlist, anchorId }: PlanDayInput)
   let from: { lat: number; lng: number } = home
 
   for (const block of blocks) {
-    const ctx: RankContext = { block, from, sunLat: home.lat, sunLng: home.lng, wishlist }
+    const verdict = blockWeather?.[block.key]
+    const ctx: RankContext = { block, from, sunLat: home.lat, sunLng: home.lng, wishlist, verdict }
     const ranked = rankForBlock(
-      spots.filter((s) => !used.has(s.id) && lightFit(s, block) > 0 &&
-        resolveOpenStatus(s.hours, block.time, sunTimesFor).state !== 'closed'),
+      spots.filter((s) => {
+        if (used.has(s.id)) return false
+        if (resolveOpenStatus(s.hours, block.time, sunTimesFor).state === 'closed') return false
+        if (lightFit(s, block) > 0) return true
+        // When it's raining, the golden light is washed out — allow sheltered
+        // spots (interiors/gardens/architecture) even if they don't fit the block.
+        return verdict?.mood === 'rainy' && verdict.favors.includes(s.category)
+      }),
       ctx,
     )
 
@@ -137,6 +159,7 @@ export function planDay({ date, home, spots, wishlist, anchorId }: PlanDayInput)
     const driveMin = from === home
       ? (chosen.driveMinutes ?? Math.round(haversineMiles(home, chosen) * 2.2))
       : Math.round(haversineMiles(from, chosen) * 2.2)
+    const significant = verdict && (verdict.mood === 'rainy' || verdict.mood === 'cloudy')
     stops.push({
       block,
       spot: chosen,
@@ -145,6 +168,7 @@ export function planDay({ date, home, spots, wishlist, anchorId }: PlanDayInput)
       driveMin,
       anchored,
       alternatives: ranked.filter((s) => s.id !== chosen!.id).slice(0, 8),
+      weather: significant ? { mood: verdict!.mood, note: weatherNote(verdict!, chosen) } : undefined,
     })
     from = chosen
   }

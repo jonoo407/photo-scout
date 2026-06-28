@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseWeather } from '../../src/weather/open-meteo'
+import { parseWeather, parseHourlyConditions } from '../../src/weather/open-meteo'
 
 // Fixed instant so the test is deterministic (no Date.now()).
 const SUNSET = new Date(1_750_000_000_000)
@@ -43,5 +43,20 @@ describe('parseWeather', () => {
     const w = parseWeather({ current: {}, hourly: {}, daily: {} }, SUNSET)
     expect(w.temp).toBeNull()
     expect(Number.isNaN(w.cloudCover)).toBe(false)
+  })
+})
+
+describe('parseHourlyConditions', () => {
+  const Z = 1_750_000_000
+  const j = { hourly: { time: [Z - 3600, Z, Z + 3600], precipitation_probability: [10, 80, 30], cloud_cover: [20, 90, 40] } }
+
+  it('samples the nearest hour for each block time', () => {
+    const res = parseHourlyConditions(j, [new Date(Z * 1000), new Date((Z + 3400) * 1000)])
+    expect(res[0]).toEqual({ precipProb: 80, cloudCover: 90 })
+    expect(res[1]).toEqual({ precipProb: 30, cloudCover: 40 })
+  })
+
+  it('falls back to zero when hourly data is missing', () => {
+    expect(parseHourlyConditions({}, [new Date(Z * 1000)])[0]).toEqual({ precipProb: 0, cloudCover: 0 })
   })
 })

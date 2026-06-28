@@ -39,6 +39,16 @@ test('day plan swap chooser', async ({ page }) => {
   await page.screenshot({ path: `${SHOTS}/day-chooser.png`, fullPage: true })
 })
 
+test('day plan weather indicator (forced rain)', async ({ page }) => {
+  await page.route('**api.open-meteo.com**', (route) => route.fulfill({
+    status: 200, contentType: 'application/json',
+    body: JSON.stringify({ hourly: { time: [Math.floor(Date.now() / 1000)], precipitation_probability: [90], cloud_cover: [95] } }),
+  }))
+  await page.goto('/#/day')
+  await page.waitForTimeout(1500)
+  await page.screenshot({ path: `${SHOTS}/day-rain.png`, fullPage: true })
+})
+
 test('map pin popup', async ({ page }) => {
   await page.goto('/#/map')
   await page.waitForTimeout(2500)

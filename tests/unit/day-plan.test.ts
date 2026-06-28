@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { planDay, dayBlocks, rankForBlock } from '../../src/spots/day-plan'
+import { planDay, dayBlocks, rankForBlock, scoreSpot } from '../../src/spots/day-plan'
 import { matchesLight } from '../../src/spots/next-up'
+import { weatherVerdict } from '../../src/weather/verdict'
 import { SPOTS } from '../../src/data/spots'
 import { DEFAULT_HOME } from '../../src/data/home.config'
 
@@ -51,6 +52,28 @@ describe('planDay', () => {
     const stops = planDay({ date: DATE, home: DEFAULT_HOME, spots: SPOTS })
     expect(stops[0].alternatives.length).toBeGreaterThan(0)
     expect(stops[0].alternatives.every((a) => a.id !== stops[0].spot.id)).toBe(true)
+  })
+
+  it('weather verdict favors sheltered and penalizes outdoor categories', () => {
+    const rainy = weatherVerdict({ cloudCover: 90, precipProbability: 80 }) // favors interiors/gardens/architecture; avoids skyline/rooftop/beach
+    const block = dayBlocks(DATE, DEFAULT_HOME.lat, DEFAULT_HOME.lng).find((b) => b.key === 'sunset')!
+    const base = { block, from: DEFAULT_HOME, sunLat: DEFAULT_HOME.lat, sunLng: DEFAULT_HOME.lng }
+    const arch = SPOTS.find((s) => s.id === 'ybor-city')! // architecture
+    const sky = SPOTS.find((s) => s.id === 'curtis-hixon-waterfront-park')! // skyline
+    expect(scoreSpot(arch, { ...base, verdict: rainy }) - scoreSpot(arch, base)).toBeCloseTo(0.2, 5)
+    expect(scoreSpot(sky, { ...base, verdict: rainy }) - scoreSpot(sky, base)).toBeCloseTo(-0.35, 5)
+  })
+
+  it('flags stops where weather is a factor, and stays clean on a fair day', () => {
+    const rainy = weatherVerdict({ cloudCover: 90, precipProbability: 80 })
+    const wet = planDay({ date: DATE, home: DEFAULT_HOME, spots: SPOTS, blockWeather: { sunrise: rainy, midday: rainy, sunset: rainy } })
+    const flagged = wet.filter((s) => s.weather?.mood === 'rainy')
+    expect(flagged.length).toBeGreaterThan(0)
+    expect(flagged[0].weather?.note).toMatch(/rain/i)
+
+    const clear = weatherVerdict({ cloudCover: 5, precipProbability: 0 })
+    const fair = planDay({ date: DATE, home: DEFAULT_HOME, spots: SPOTS, blockWeather: { sunrise: clear, midday: clear, sunset: clear } })
+    expect(fair.every((s) => !s.weather)).toBe(true)
   })
 
   it('rankForBlock re-ranks candidates by proximity to the current origin', () => {

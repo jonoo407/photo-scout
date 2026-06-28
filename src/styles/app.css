@@ -143,6 +143,10 @@ button.row, button.linkrow { appearance: none; background: var(--surface); curso
 .sheet .opt:last-child { border-bottom: 0; }
 .sheet .opt .on-check { color: var(--go-ink); flex: none; }
 
+.wxchip { display: inline-flex; align-items: center; gap: 4px; margin-top: 7px; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: var(--radius-pill); }
+.wxchip.rainy { background: var(--skip-bg); color: var(--skip-ink); }
+.wxchip.cloudy { background: var(--info-bg); color: var(--info-ink); }
+
 .spotlinks { display: flex; flex-wrap: wrap; gap: 6px; line-height: 1.4; }
 .spotlink { appearance: none; border: 0.5px solid var(--line-strong); background: var(--surface-2); color: var(--terracotta); font: inherit; font-size: 12px; cursor: pointer; padding: 6px 11px; border-radius: var(--radius-pill); }
 

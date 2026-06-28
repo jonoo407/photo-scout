@@ -1,9 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { IconArrowLeft, IconCar, IconMoodEmpty, IconArrowsShuffle, IconStar, IconCheck, IconX } from '@tabler/icons-react'
+import { IconArrowLeft, IconCar, IconMoodEmpty, IconArrowsShuffle, IconStar, IconCheck, IconX, IconCloudRain, IconCloud } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
 import { SPOTS } from '../../data/spots'
-import { planDay, rankForBlock, type PlanStop } from '../../spots/day-plan'
+import { planDay, rankForBlock, dayBlocks, type PlanStop, type BlockKey } from '../../spots/day-plan'
+import { fetchBlockConditions, type BlockConditions } from '../../weather/open-meteo'
+import { weatherVerdict, type WeatherVerdict } from '../../weather/verdict'
 import { haversineMiles } from '../../spots/distance'
 import { driveMinutes } from '../../spots/live'
 import { CATEGORY_LABEL } from '../../spots/types'
@@ -26,11 +28,35 @@ export default function DayScreen() {
   const wishlistArr = useStore((s) => s.wishlist)
   const [picked, setPicked] = useState<Record<string, string>>({}) // blockKey -> spot id
   const [sheet, setSheet] = useState<string | null>(null) // open chooser for this block
+  const [conditions, setConditions] = useState<BlockConditions[] | null>(null)
 
-  const plan = useMemo(() => {
-    const date = new Date(Date.now() + dayOffset * 86400000)
-    return planDay({ date, home, spots: SPOTS, wishlist: new Set(wishlistArr), anchorId })
-  }, [home, wishlistArr, dayOffset, anchorId])
+  const date = useMemo(() => new Date(Date.now() + dayOffset * 86400000), [dayOffset])
+  const blocks = useMemo(() => dayBlocks(date, home.lat, home.lng), [date, home.lat, home.lng])
+
+  // Fetch precip + cloud at each block's shooting time for the planned day.
+  useEffect(() => {
+    let alive = true
+    setConditions(null)
+    fetchBlockConditions(home.lat, home.lng, blocks.map((b) => b.time))
+      .then((c) => { if (alive) setConditions(c) })
+      .catch(() => { if (alive) setConditions(null) })
+    return () => { alive = false }
+  }, [home.lat, home.lng, blocks])
+
+  const blockWeather = useMemo(() => {
+    if (!conditions) return undefined
+    const bw: Partial<Record<BlockKey, WeatherVerdict>> = {}
+    blocks.forEach((b, i) => {
+      const c = conditions[i]
+      if (c) bw[b.key] = weatherVerdict({ cloudCover: c.cloudCover, precipProbability: c.precipProb })
+    })
+    return bw
+  }, [conditions, blocks])
+
+  const plan = useMemo(
+    () => planDay({ date, home, spots: SPOTS, wishlist: new Set(wishlistArr), anchorId, blockWeather }),
+    [date, home, wishlistArr, anchorId, blockWeather],
+  )
 
   const Header = (
     <>
@@ -101,6 +127,11 @@ export default function DayScreen() {
                       ? <><IconStar size={12} style={{ verticalAlign: '-1px' }} /> Your anchor for the day · {fmtTime(s.block.time)}</>
                       : <>{s.reason} · {fmtTime(s.block.time)}</>}
                   </p>
+                  {s.weather && (
+                    <span className={`wxchip ${s.weather.mood}`}>
+                      {s.weather.mood === 'rainy' ? <IconCloudRain size={12} /> : <IconCloud size={12} />} {s.weather.note}
+                    </span>
+                  )}
                 </button>
                 {s.swappable && (
                   <button
