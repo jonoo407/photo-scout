@@ -11,6 +11,11 @@ const loaders: Record<string, () => Promise<{ default: Spot[] }>> = {
 
 const cache = new Map<RegionId, Spot[]>()
 
+/** Region ids that have a spot module (used to resolve cross-region deep links). */
+export function allRegionIds(): RegionId[] {
+  return Object.keys(loaders)
+}
+
 /** Load a region's spots (cached). Unknown region → []. */
 export async function loadRegionSpots(region: RegionId): Promise<Spot[]> {
   const hit = cache.get(region)

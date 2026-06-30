@@ -9,7 +9,7 @@ import {
 import SpotHero from './SpotHero'
 import BestDays from './BestDays'
 import { useStore } from '../../state/store'
-import { useRegionSpots } from '../../state/useRegion'
+import { useSpotById } from '../../state/useRegion'
 import { CATEGORY_LABEL } from '../../spots/types'
 import { computeSunTimes } from '../../astro/sun-times'
 import {
@@ -24,8 +24,7 @@ const dirKind: Record<string, string> = { silhouette: 'go', front: 'go', side: '
 export default function SpotDetailScreen() {
   const { id } = useParams()
   const nav = useNavigate()
-  const { spots, loading } = useRegionSpots()
-  const spot = spots.find((s) => s.id === id)
+  const { spot, loading } = useSpotById(id)
   const home = useStore((s) => s.home)
   const units = useStore((s) => s.units)
   const mapsApp = useStore((s) => s.mapsApp)
