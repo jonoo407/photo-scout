@@ -6,7 +6,7 @@ import BrowseScreen from '../../src/ui/Browse/BrowseScreen'
 import { useStore, EMPTY_FILTERS } from '../../src/state/store'
 import { DEFAULT_HOME } from '../../src/data/home.config'
 
-beforeEach(() => { useStore.setState({ home: DEFAULT_HOME, filters: EMPTY_FILTERS, wishlist: [] }) })
+beforeEach(() => { useStore.setState({ home: DEFAULT_HOME, region: 'tampa-bay', filters: EMPTY_FILTERS, wishlist: [] }) })
 
 describe('Browse — max drive-time filter', () => {
   it('hides spots beyond the selected max drive time', async () => {
@@ -35,7 +35,7 @@ describe('Browse — light filter, count, and clear', () => {
   it('shows a result count and a dynamic spot total in the placeholder', () => {
     render(<MemoryRouter><BrowseScreen /></MemoryRouter>)
     expect(screen.getByText(/Showing 30 of 30/i)).toBeInTheDocument()
-    expect(screen.getByPlaceholderText(/30 Tampa spots/i)).toBeInTheDocument()
+    expect(screen.getByPlaceholderText(/30 Tampa Bay spots/i)).toBeInTheDocument()
   })
 
   it('shows Clear all only when a filter is active, and it resets', async () => {

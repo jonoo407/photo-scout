@@ -31,6 +31,20 @@ test('spot best-days (coastal, with tides)', async ({ page }) => {
   await page.screenshot({ path: `${SHOTS}/spot-bestdays.png`, fullPage: true })
 })
 
+test('switch city to Philadelphia (scoping)', async ({ page }) => {
+  await page.goto('/#/settings')
+  await page.waitForTimeout(400)
+  await page.getByRole('button', { name: 'Philadelphia' }).click()
+  await page.waitForTimeout(400)
+  await page.screenshot({ path: `${SHOTS}/settings-philly.png`, fullPage: true })
+  await page.goto('/')
+  await page.waitForTimeout(900)
+  await page.screenshot({ path: `${SHOTS}/today-philly.png`, fullPage: true })
+  await page.goto('/#/map')
+  await page.waitForTimeout(2600)
+  await page.screenshot({ path: `${SHOTS}/map-philly.png` })
+})
+
 test('dark theme (Today)', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' }) // theme=auto follows system → dark
   await page.goto('/')

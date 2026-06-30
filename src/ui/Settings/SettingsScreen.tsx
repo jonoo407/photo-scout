@@ -5,6 +5,7 @@ import {
   IconBellRinging, IconCameraPlus, IconCurrentLocation, IconChevronRight, IconMapPin, IconMoonStars,
 } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
+import { REGION_LIST } from '../../data/regions'
 import { geocodeAddress } from '../../spots/geocode'
 
 export default function SettingsScreen() {
@@ -17,6 +18,8 @@ export default function SettingsScreen() {
   const setMapsApp = useStore((s) => s.setMapsApp)
   const theme = useStore((s) => s.theme)
   const setTheme = useStore((s) => s.setTheme)
+  const region = useStore((s) => s.region)
+  const setRegion = useStore((s) => s.setRegion)
   const [locating, setLocating] = useState(false)
   const [addr, setAddr] = useState('')
   const [geoBusy, setGeoBusy] = useState(false)
@@ -75,7 +78,14 @@ export default function SettingsScreen() {
           <span className="rowleft" style={{ color: 'var(--terracotta)' }}><IconCurrentLocation size={18} /> {locating ? 'Locating…' : 'Use my current location'}</span>
           <IconChevronRight size={16} className="val" />
         </button>
-        <div className="row last"><span className="rowleft"><IconBuildingCommunity size={18} /> City</span><span className="val">Tampa Bay</span></div>
+        <div className="row last">
+          <span className="rowleft"><IconBuildingCommunity size={18} /> City</span>
+          <span style={{ display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+            {REGION_LIST.map((r) => (
+              <button key={r.id} className={`chip ${region === r.id ? 'on' : ''}`} onClick={() => setRegion(r.id)}>{r.label}</button>
+            ))}
+          </span>
+        </div>
       </div>
 
       <p className="shdr">GETTING THERE</p>

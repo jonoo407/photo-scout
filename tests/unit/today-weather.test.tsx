@@ -7,7 +7,7 @@ import { useStore, EMPTY_FILTERS } from '../../src/state/store'
 import { DEFAULT_HOME } from '../../src/data/home.config'
 
 beforeEach(() => {
-  useStore.setState({ home: DEFAULT_HOME, units: 'imperial', wishlist: [], filters: EMPTY_FILTERS })
+  useStore.setState({ home: DEFAULT_HOME, region: 'tampa-bay', units: 'imperial', wishlist: [], filters: EMPTY_FILTERS })
 })
 afterEach(() => { vi.restoreAllMocks() })
 

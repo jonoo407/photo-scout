@@ -5,7 +5,7 @@ import {
   IconBellRinging, IconCar, IconPointFilled, IconArrowRight, IconStack2, IconSettings,
 } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
-import { SPOTS } from '../../data/spots'
+import { useRegion, useRegionSpots } from '../../state/useRegion'
 import { nextUp, type RankedSpot } from '../../spots/next-up'
 import { computeSunTimes } from '../../astro/sun-times'
 import { moonInfo } from '../../astro/moon'
@@ -33,6 +33,8 @@ export default function TodayScreen() {
   const wishlistArr = useStore((s) => s.wishlist)
   const wishlist = useMemo(() => new Set(wishlistArr), [wishlistArr])
   const units = useStore((s) => s.units)
+  const region = useRegion()
+  const spots = useRegionSpots()
   const now = useMemo(() => new Date(), [])
 
   const [weather, setWeather] = useState<WeatherNow | null>(null)
@@ -48,8 +50,8 @@ export default function TodayScreen() {
 
   const verdict = weather ? weatherVerdict({ cloudCover: weather.cloudCover, precipProbability: weather.precipProb }) : undefined
   const result = useMemo(
-    () => nextUp({ now, lat: home.lat, lng: home.lng, home, spots: SPOTS, wishlist, verdict }),
-    [now, home, wishlist, verdict],
+    () => nextUp({ now, lat: home.lat, lng: home.lng, home, spots, wishlist, verdict }),
+    [now, home, spots, wishlist, verdict],
   )
   const setFilters = useStore((s) => s.setFilters)
   const moon = moonInfo(now, home.lat, home.lng)
@@ -101,30 +103,42 @@ export default function TodayScreen() {
           Starts {fmtTime(result.window.start)} · {untilString(result.window.start, now)} · sunset {fmtTime(sun.sunset)}
         </p>
       </div>
-      <p className="small tertiary" style={{ margin: '0 2px 10px' }}>
-        <IconStack2 size={13} /> Ranked by light fit · open now · drive time
-      </p>
+      {spots.length === 0 ? (
+        <div className="empty">
+          <IconStack2 size={28} />
+          <p className="et">No spots in {region.label} yet</p>
+          <p className="es">This city is set up but has no locations seeded — switch city in Settings, or check back soon.</p>
+        </div>
+      ) : (
+        <>
+          <p className="small tertiary" style={{ margin: '0 2px 10px' }}>
+            <IconStack2 size={13} /> Ranked by light fit · open now · drive time
+          </p>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {top.map((r) => (
-          <SpotCard
-            key={r.spot.id}
-            spot={r.spot}
-            badge={{ label: r.verdict === 'go' ? 'Go' : r.verdict === 'maybe' ? 'Maybe' : 'Skip', kind: r.verdict }}
-            reason={r.reason}
-            meta={<><span><IconCar size={14} /> {r.driveMinutes} min</span>{openMeta(r)}</>}
-          />
-        ))}
-      </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {top.map((r) => (
+              <SpotCard
+                key={r.spot.id}
+                spot={r.spot}
+                badge={{ label: r.verdict === 'go' ? 'Go' : r.verdict === 'maybe' ? 'Maybe' : 'Skip', kind: r.verdict }}
+                reason={r.reason}
+                meta={<><span><IconCar size={14} /> {r.driveMinutes} min</span>{openMeta(r)}</>}
+              />
+            ))}
+          </div>
+        </>
+      )}
 
-      <button
-        className="linkrow"
-        style={{ margin: '12px 0', color: 'var(--terracotta)' }}
-        onClick={() => { setFilters({ lights: [result.window.light] }); nav('/browse') }}
-      >
-        <span>See all {result.ranked.length} spots for this window</span>
-        <IconChevronRight size={16} />
-      </button>
+      {spots.length > 0 && (
+        <button
+          className="linkrow"
+          style={{ margin: '12px 0', color: 'var(--terracotta)' }}
+          onClick={() => { setFilters({ lights: [result.window.light] }); nav('/browse') }}
+        >
+          <span>See all {result.ranked.length} spots for this window</span>
+          <IconChevronRight size={16} />
+        </button>
+      )}
 
       <div className="stats">
         <div className="stat">

@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { IconSearch, IconStar, IconMoodEmpty, IconCar, IconPointFilled, IconX } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
-import { SPOTS } from '../../data/spots'
+import { useRegion, useRegionSpots } from '../../state/useRegion'
 import { CATEGORIES, CATEGORY_LABEL, type Category, type Light } from '../../spots/types'
 import { liveOpen, milesFromHome, driveMinutes } from '../../spots/live'
 import { matchesLight } from '../../spots/next-up'
@@ -19,12 +19,14 @@ export default function BrowseScreen() {
   const setFilters = useStore((s) => s.setFilters)
   const resetFilters = useStore((s) => s.resetFilters)
   const home = useStore((s) => s.home)
+  const region = useRegion()
+  const spots = useRegionSpots()
   const wishlistArr = useStore((s) => s.wishlist)
   const wishlist = useMemo(() => new Set(wishlistArr), [wishlistArr])
   const now = useMemo(() => new Date(), [])
 
   const rows = useMemo(() => {
-    const enriched = SPOTS.map((spot) => ({
+    const enriched = spots.map((spot) => ({
       spot,
       open: liveOpen(spot, now, home.lat, home.lng),
       miles: milesFromHome(spot, home),
@@ -50,7 +52,7 @@ export default function BrowseScreen() {
       return a.miles - b.miles
     })
     return out
-  }, [filters, home, wishlist, now])
+  }, [filters, home, wishlist, now, spots])
 
   const toggleCat = (c: Category) =>
     setFilters({ categories: filters.categories.includes(c) ? filters.categories.filter((x) => x !== c) : [...filters.categories, c] })
@@ -75,7 +77,7 @@ export default function BrowseScreen() {
         <input
           value={filters.query}
           onChange={(e) => setFilters({ query: e.target.value })}
-          placeholder={`Search ${SPOTS.length} Tampa spots…`}
+          placeholder={`Search ${spots.length} ${region.label} spots…`}
           style={{ border: 0, background: 'transparent', outline: 'none', font: 'inherit', fontSize: 14, color: 'var(--ink)', width: '100%' }}
         />
       </label>
@@ -117,7 +119,7 @@ export default function BrowseScreen() {
       </div>
 
       <div className="row-spread" style={{ margin: '0 2px 10px' }}>
-        <span className="small tertiary">Showing {rows.length} of {SPOTS.length}</span>
+        <span className="small tertiary">Showing {rows.length} of {spots.length}</span>
         {active && <button className="chip" onClick={resetFilters}>Clear all</button>}
       </div>
 

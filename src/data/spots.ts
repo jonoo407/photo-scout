@@ -1,5 +1,6 @@
 import type { Spot } from '../spots/types'
 import type { DaySchedule, Hours, OpenInterval, TimeRef, Weekday } from '../spots/hours'
+import type { RegionId } from './regions'
 import { SPOT_MEDIA } from './spot-media'
 
 /* ---- hours helpers (keep the dataset compact + readable) ---- */
@@ -605,3 +606,6 @@ for (const s of SPOTS) {
   const m = SPOT_MEDIA[s.id]
   if (m && m.length) s.media = m
 }
+
+/** Spots belonging to one region (the app scopes to one active region at a time). */
+export const regionSpots = (region: RegionId): Spot[] => SPOTS.filter((s) => s.region === region)

@@ -5,7 +5,7 @@ import {
   IconMoonStars, IconStars, IconMoon, IconRoute, IconBuildingArch,
 } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
-import { SPOTS } from '../../data/spots'
+import { useRegionSpots } from '../../state/useRegion'
 import { computeSunTimes } from '../../astro/sun-times'
 import { moonInfo } from '../../astro/moon'
 import { fmtTime, fmtRange } from '../../util/format'
@@ -13,7 +13,7 @@ import type { Light } from '../../spots/types'
 
 function SpotLinks({ pred }: { pred: (l: Light[]) => boolean }) {
   const nav = useNavigate()
-  const list = SPOTS.filter((s) => pred(s.bestLight))
+  const list = useRegionSpots().filter((s) => pred(s.bestLight))
   if (!list.length) return <div className="bcard tertiary">None today</div>
   return (
     <div className="bcard spotlinks">

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { IconArrowLeft, IconCar, IconMoodEmpty, IconArrowsShuffle, IconStar, IconCheck, IconX, IconCloudRain, IconCloud } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
-import { SPOTS } from '../../data/spots'
+import { useRegionSpots } from '../../state/useRegion'
 import { planDay, rankForBlock, dayBlocks, type PlanStop, type BlockKey } from '../../spots/day-plan'
 import { fetchBlockConditions, type BlockConditions } from '../../weather/open-meteo'
 import { weatherVerdict, type WeatherVerdict } from '../../weather/verdict'
@@ -26,6 +26,7 @@ export default function DayScreen() {
   const anchorId = params.get('anchor') ?? undefined
   const home = useStore((s) => s.home)
   const wishlistArr = useStore((s) => s.wishlist)
+  const spots = useRegionSpots()
   const [picked, setPicked] = useState<Record<string, string>>({}) // blockKey -> spot id
   const [sheet, setSheet] = useState<string | null>(null) // open chooser for this block
   const [conditions, setConditions] = useState<BlockConditions[] | null>(null)
@@ -54,8 +55,8 @@ export default function DayScreen() {
   }, [conditions, blocks])
 
   const plan = useMemo(
-    () => planDay({ date, home, spots: SPOTS, wishlist: new Set(wishlistArr), anchorId, blockWeather }),
-    [date, home, wishlistArr, anchorId, blockWeather],
+    () => planDay({ date, home, spots, wishlist: new Set(wishlistArr), anchorId, blockWeather }),
+    [date, home, spots, wishlistArr, anchorId, blockWeather],
   )
 
   const Header = (

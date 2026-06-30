@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import type { Category, Light } from '../spots/types'
 import { DEFAULT_HOME, type HomeLocation } from '../data/home.config'
+import { REGIONS, regionContains, type RegionId } from '../data/regions'
 
 export type SortKey = 'nearest' | 'az' | 'category'
 export type ThemeChoice = 'auto' | 'light' | 'dark'
@@ -42,6 +43,7 @@ interface AppState {
   checklist: Record<string, string[]>
   filters: Filters
   home: HomeLocation
+  region: RegionId
   units: 'imperial' | 'metric'
   mapsApp: 'apple' | 'google'
   theme: ThemeChoice
@@ -55,6 +57,7 @@ interface AppState {
   setUnits: (u: 'imperial' | 'metric') => void
   setMapsApp: (m: 'apple' | 'google') => void
   setTheme: (t: ThemeChoice) => void
+  setRegion: (r: RegionId) => void
 }
 
 const toggle = (list: string[], id: string) =>
@@ -82,6 +85,7 @@ export const useStore = create<AppState>()(
       checklist: {},
       filters: EMPTY_FILTERS,
       home: DEFAULT_HOME,
+      region: 'tampa-bay',
       units: 'imperial',
       mapsApp: 'apple',
       theme: 'auto',
@@ -96,6 +100,12 @@ export const useStore = create<AppState>()(
       setUnits: (units) => set({ units }),
       setMapsApp: (mapsApp) => set({ mapsApp }),
       setTheme: (theme) => { applyTheme(theme); set({ theme }) },
+      // Switch city; move home to the new region's default unless the current
+      // home is already in that region (user's own in-city pin is kept).
+      setRegion: (region) => set((s) => {
+        const r = REGIONS[region]
+        return { region, home: regionContains(r, s.home.lat, s.home.lng) ? s.home : r.defaultHome }
+      }),
     }),
     {
       name: 'photo-scout',

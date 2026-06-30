@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { useStore, EMPTY_FILTERS, healStaleHome, applyTheme } from '../../src/state/store'
 import { DEFAULT_HOME } from '../../src/data/home.config'
+import { REGIONS } from '../../src/data/regions'
 
 beforeEach(() => {
   useStore.setState({ wishlist: [], visited: [], checklist: {}, filters: EMPTY_FILTERS })
@@ -69,5 +70,22 @@ describe('theme', () => {
     expect(document.documentElement.getAttribute('data-theme')).toBe('light')
     applyTheme('auto')
     expect(document.documentElement.getAttribute('data-theme')).toBeNull()
+  })
+})
+
+describe('region switching', () => {
+  beforeEach(() => { useStore.setState({ region: 'tampa-bay', home: DEFAULT_HOME }) })
+
+  it('moves home to the new region default when the current home is out of region', () => {
+    useStore.getState().setRegion('philadelphia')
+    expect(useStore.getState().region).toBe('philadelphia')
+    expect(useStore.getState().home).toEqual(REGIONS.philadelphia.defaultHome)
+  })
+
+  it('keeps an in-region home when switching to that region', () => {
+    const phillyHome = { label: 'My Philly place', address: '123 Market St, Philadelphia, PA', lat: 39.96, lng: -75.16 }
+    useStore.setState({ home: phillyHome, region: 'tampa-bay' })
+    useStore.getState().setRegion('philadelphia')
+    expect(useStore.getState().home).toBe(phillyHome)
   })
 })

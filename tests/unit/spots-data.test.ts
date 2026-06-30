@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { SPOTS } from '../../src/data/spots'
 import { CATEGORIES, type Light } from '../../src/spots/types'
+import { REGIONS, REGION_IDS, regionContains } from '../../src/data/regions'
 
 const WEEKDAYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
 const LIGHTS: Light[] = [
@@ -23,11 +24,8 @@ describe('Tampa spot dataset', () => {
     for (const s of SPOTS) {
       expect(s.name.length).toBeGreaterThan(0)
       expect(CATEGORIES).toContain(s.category)
-      expect(s.region).toBe('tampa-bay')
-      expect(s.lat).toBeGreaterThan(26.5)
-      expect(s.lat).toBeLessThan(28.6)
-      expect(s.lng).toBeGreaterThan(-83.3)
-      expect(s.lng).toBeLessThan(-82.0)
+      expect(REGION_IDS, `${s.id} region`).toContain(s.region)
+      expect(regionContains(REGIONS[s.region], s.lat, s.lng), `${s.id} within ${s.region} bounds`).toBe(true)
       expect(s.facing === null || (s.facing >= 0 && s.facing < 360)).toBe(true)
       expect(s.feeUSD).toBeGreaterThanOrEqual(0)
       expect(typeof s.isFree).toBe('boolean')

@@ -1,15 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { SPOTS } from '../../data/spots'
 import { CATEGORIES, CATEGORY_COLOR, CATEGORY_LABEL, type Category } from '../../spots/types'
 import { useStore } from '../../state/store'
+import { useRegion, useRegionSpots } from '../../state/useRegion'
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string))
 
 export default function MapScreen() {
   const home = useStore((s) => s.home)
+  const region = useRegion()
+  const spots = useRegionSpots()
   const ref = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
   const layerRef = useRef<L.LayerGroup | null>(null)
@@ -42,7 +44,7 @@ export default function MapScreen() {
       }),
     }).addTo(layer).bindTooltip('Home', { direction: 'top' })
 
-    for (const spot of SPOTS) {
+    for (const spot of spots) {
       if (!shown.has(spot.category)) continue
       pts.push([spot.lat, spot.lng])
       L.circleMarker([spot.lat, spot.lng], {
@@ -54,7 +56,8 @@ export default function MapScreen() {
     }
 
     if (pts.length > 1) map.fitBounds(L.latLngBounds(pts).pad(0.12))
-  }, [shown, home.lat, home.lng])
+    else map.setView([home.lat, home.lng], 11) // empty region → center on home
+  }, [shown, home.lat, home.lng, spots])
 
   const toggle = (c: Category) => setShown((prev) => {
     const next = new Set(prev)
@@ -73,7 +76,7 @@ export default function MapScreen() {
           </button>
         ))}
       </div>
-      <div id="map" ref={ref} role="application" aria-label="Map of Tampa Bay photo spots" />
+      <div id="map" ref={ref} role="application" aria-label={`Map of ${region.label} photo spots`} />
       <p className="small tertiary" style={{ marginTop: 8 }}>Tap a pin for a preview · ⌂ is your home base</p>
     </div>
   )

@@ -1,4 +1,5 @@
 import type { Hours } from './hours'
+import type { RegionId } from '../data/regions'
 
 export type Category =
   | 'skyline' | 'rooftop' | 'architecture' | 'interiors'
@@ -58,7 +59,7 @@ export interface Spot {
   name: string
   category: Category
   city: string
-  region: 'tampa-bay'
+  region: RegionId
   bestFor: string[]
   bestLight: Light[]
   lat: number

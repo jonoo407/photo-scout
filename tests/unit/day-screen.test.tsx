@@ -6,7 +6,7 @@ import DayScreen from '../../src/ui/Plan/DayScreen'
 import { useStore } from '../../src/state/store'
 import { DEFAULT_HOME } from '../../src/data/home.config'
 
-beforeEach(() => { useStore.setState({ home: DEFAULT_HOME, wishlist: [] }) })
+beforeEach(() => { useStore.setState({ home: DEFAULT_HOME, region: 'tampa-bay', wishlist: [] }) })
 afterEach(() => { vi.restoreAllMocks() })
 
 function renderDay(entry: string) {
