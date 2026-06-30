@@ -5,6 +5,8 @@
    close is written as a 24h+ clock, e.g. "27:00" = 03:00 next day), closed days,
    tour-only and call-ahead. */
 
+import { zoneParts, startOfDayInZone, zonedWallToInstant, deviceTimeZone } from '../util/tz'
+
 export type Weekday = 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat'
 const WEEK: Weekday[] = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
 
@@ -41,14 +43,11 @@ export interface OpenStatus {
   closesAt?: Date | null
 }
 
-function startOfDay(d: Date): Date {
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate())
-}
-
-function resolveTimeRef(ref: TimeRef, dayStart: Date, sun: DaySun): Date {
+function resolveTimeRef(ref: TimeRef, dayStart: Date, sun: DaySun, tz: string): Date {
   if (ref.at === 'clock') {
     const [h, m] = ref.time.split(':').map(Number)
-    return new Date(dayStart.getTime() + (h * 60 + m) * 60000)
+    const z = zoneParts(dayStart, tz)
+    return zonedWallToInstant(z.year, z.month - 1, z.day, h, m, tz) // h may be >= 24 (past midnight)
   }
   const base = ref.at === 'sunrise' ? sun.sunrise : sun.sunset
   return new Date(base.getTime() + (ref.offsetMin ?? 0) * 60000)
@@ -59,36 +58,40 @@ interface Concrete {
   to: Date
 }
 
-function dayIntervals(sched: DaySchedule, dayStart: Date, sun: DaySun): Concrete[] {
+function dayIntervals(sched: DaySchedule, dayStart: Date, sun: DaySun, tz: string): Concrete[] {
   if (sched.open === '24h') {
-    return [{ from: dayStart, to: new Date(dayStart.getTime() + 24 * 3600 * 1000) }]
+    const z = zoneParts(dayStart, tz)
+    return [{ from: dayStart, to: zonedWallToInstant(z.year, z.month - 1, z.day + 1, 0, 0, tz) }]
   }
   if (sched.open === 'hours') {
     return sched.intervals.map((iv) => ({
-      from: resolveTimeRef(iv.from, dayStart, sun),
-      to: resolveTimeRef(iv.to, dayStart, sun),
+      from: resolveTimeRef(iv.from, dayStart, sun, tz),
+      to: resolveTimeRef(iv.to, dayStart, sun, tz),
     }))
   }
   return []
 }
 
+const weekdayOf = (instant: Date, tz: string): Weekday => WEEK[zoneParts(instant, tz).weekday]
+
 export function resolveOpenStatus(
   hours: Hours,
   now: Date,
   sunTimesFor: (date: Date) => DaySun,
+  timeZone: string = deviceTimeZone(),
 ): OpenStatus {
-  const todaySched = hours.days[WEEK[now.getDay()]]
+  const tz = timeZone
+  const todaySched = hours.days[weekdayOf(now, tz)]
 
   if (todaySched.open === 'tour-only') return { state: 'tour-only' }
   if (todaySched.open === 'call-ahead') return { state: 'call-ahead' }
 
-  const today = startOfDay(now)
-  const todayIv = dayIntervals(todaySched, today, sunTimesFor(today))
+  const today = startOfDayInZone(now, tz)
+  const todayIv = dayIntervals(todaySched, today, sunTimesFor(today), tz)
 
-  // Previous day's intervals can spill past midnight into today.
-  const yest = startOfDay(new Date(today.getTime() - 12 * 3600 * 1000))
-  const yestSched = hours.days[WEEK[yest.getDay()]]
-  const yestIv = dayIntervals(yestSched, yest, sunTimesFor(yest)).filter(
+  // Previous local day's intervals can spill past midnight into today.
+  const yest = startOfDayInZone(new Date(today.getTime() - 12 * 3600 * 1000), tz)
+  const yestIv = dayIntervals(hours.days[weekdayOf(yest, tz)], yest, sunTimesFor(yest), tz).filter(
     (iv) => iv.to.getTime() > today.getTime(),
   )
 
@@ -97,12 +100,12 @@ export function resolveOpenStatus(
   const current = todayAll.find((iv) => now.getTime() >= iv.from.getTime() && now.getTime() < iv.to.getTime())
   if (current) return { state: 'open', closesAt: current.to }
 
-  // Find the next opening within the next 7 days.
+  // Find the next opening within the next 7 local days.
   for (let offset = 0; offset <= 7; offset++) {
-    const day = startOfDay(new Date(today.getTime() + offset * 24 * 3600 * 1000))
-    const sched = hours.days[WEEK[day.getDay()]]
+    const day = startOfDayInZone(new Date(today.getTime() + offset * 24 * 3600 * 1000), tz)
+    const sched = hours.days[weekdayOf(day, tz)]
     if (sched.open === 'tour-only' || sched.open === 'call-ahead') continue
-    const ivs = dayIntervals(sched, day, sunTimesFor(day)).sort((a, b) => a.from.getTime() - b.from.getTime())
+    const ivs = dayIntervals(sched, day, sunTimesFor(day), tz).sort((a, b) => a.from.getTime() - b.from.getTime())
     const next = ivs.find((iv) => iv.from.getTime() > now.getTime())
     if (next) return { state: 'closed', opensAt: next.from }
   }

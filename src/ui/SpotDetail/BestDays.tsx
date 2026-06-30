@@ -3,11 +3,13 @@ import type { Spot } from '../../spots/types'
 import { rankBestDays, windowTimeFor } from '../../spots/best-days'
 import { fetchSkyForecast, skyScoreAt, type SkyHourly } from '../../weather/open-meteo'
 import { fetchMarineTides, lowTideMinutesNear, type TideSeries } from '../../weather/tides'
+import { getRegion } from '../../data/regions'
+import { fmtDay } from '../../util/format'
 
-const fmtDay = (d: Date) => d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })
 const chipKind = (score: number) => (score >= 75 ? 'go' : score >= 55 ? 'maybe' : 'info')
 
 export default function BestDays({ spot }: { spot: Spot }) {
+  const tz = getRegion(spot.region).timeZone
   const [sky, setSky] = useState<SkyHourly | null>(null)
   const [tides, setTides] = useState<TideSeries | null>(null)
 
@@ -41,7 +43,7 @@ export default function BestDays({ spot }: { spot: Spot }) {
         {days.map((d) => (
           <div key={d.date.toISOString()} className="row" style={{ alignItems: 'center' }}>
             <span className="rowleft" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 2, minWidth: 0 }}>
-              <span style={{ fontWeight: 500 }}>{fmtDay(d.date)}</span>
+              <span style={{ fontWeight: 500 }}>{fmtDay(d.date, tz)}</span>
               <span className="small tertiary">
                 {d.reasons.length ? d.reasons.join(' · ') : 'Open · workable light'}{!d.forecast ? ' · no forecast yet' : ''}
               </span>

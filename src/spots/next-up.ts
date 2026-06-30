@@ -3,6 +3,7 @@ import { sunPosition } from '../astro/sun-position'
 import { classifyLightDirection } from '../astro/sun-direction'
 import { resolveOpenStatus, type OpenStatus } from './hours'
 import { haversineMiles } from './distance'
+import { getRegion } from '../data/regions'
 import type { Spot, Light } from './types'
 import type { HomeLocation } from '../data/home.config'
 import type { WeatherVerdict } from '../weather/verdict'
@@ -84,7 +85,7 @@ export function nextUp({ now, lat, lng, home, spots, wishlist, verdict }: NextUp
 
   const ranked: RankedSpot[] = []
   for (const spot of spots) {
-    const open = resolveOpenStatus(spot.hours, window.start, sunTimesFor)
+    const open = resolveOpenStatus(spot.hours, window.start, sunTimesFor, getRegion(spot.region).timeZone)
     if (open.state === 'closed') continue
 
     let score = 0

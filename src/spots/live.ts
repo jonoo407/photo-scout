@@ -3,6 +3,7 @@ import { sunPosition } from '../astro/sun-position'
 import { classifyLightDirection, type LightDirection } from '../astro/sun-direction'
 import { resolveOpenStatus, type OpenStatus } from './hours'
 import { haversineMiles } from './distance'
+import { getRegion } from '../data/regions'
 import type { Spot } from './types'
 import type { HomeLocation } from '../data/home.config'
 
@@ -14,7 +15,7 @@ export function sunTimesForFactory(lat: number, lng: number) {
 }
 
 export function liveOpen(spot: Spot, now: Date, lat: number, lng: number): OpenStatus {
-  return resolveOpenStatus(spot.hours, now, sunTimesForFactory(lat, lng))
+  return resolveOpenStatus(spot.hours, now, sunTimesForFactory(lat, lng), getRegion(spot.region).timeZone)
 }
 
 export function milesFromHome(spot: Spot, home: HomeLocation): number {

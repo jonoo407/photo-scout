@@ -20,6 +20,7 @@ export default function BrowseScreen() {
   const resetFilters = useStore((s) => s.resetFilters)
   const home = useStore((s) => s.home)
   const region = useRegion()
+  const tz = region.timeZone
   const spots = useRegionSpots()
   const wishlistArr = useStore((s) => s.wishlist)
   const wishlist = useMemo(() => new Set(wishlistArr), [wishlistArr])
@@ -138,7 +139,7 @@ export default function BrowseScreen() {
               spot={spot}
               badge={badgeFor(open.state)}
               reason={`${CATEGORY_LABEL[spot.category]} · ${spot.isFree ? 'Free' : `$${spot.feeUSD}`} · ${spot.city}`}
-              meta={<><span><IconCar size={14} /> {drive} min</span>{open.state === 'open' && <span style={{ color: 'var(--go-ink)' }}><IconPointFilled size={12} /> till {fmtTime(open.closesAt)}</span>}</>}
+              meta={<><span><IconCar size={14} /> {drive} min</span>{open.state === 'open' && <span style={{ color: 'var(--go-ink)' }}><IconPointFilled size={12} /> till {fmtTime(open.closesAt, tz)}</span>}</>}
             />
           ))}
         </div>

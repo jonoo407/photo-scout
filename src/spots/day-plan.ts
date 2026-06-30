@@ -4,6 +4,7 @@ import { classifyLightDirection } from '../astro/sun-direction'
 import { resolveOpenStatus, type OpenStatus } from './hours'
 import { haversineMiles } from './distance'
 import { matchesLight } from './next-up'
+import { getRegion } from '../data/regions'
 import type { Spot, Light } from './types'
 import type { HomeLocation } from '../data/home.config'
 import type { WeatherVerdict, WeatherMood } from '../weather/verdict'
@@ -118,7 +119,7 @@ function bestBlockFor(spot: Spot, blocks: PlanBlock[]): BlockKey {
 export function planDay({ date, home, spots, wishlist, anchorId, blockWeather }: PlanDayInput): PlanStop[] {
   const blocks = dayBlocks(date, home.lat, home.lng)
   const sunTimesFor = (d: Date) => {
-    const tt = computeSunTimes(d, home.lat, home.lng)
+    const tt = computeSunTimes(new Date(d.getTime() + 12 * 3600 * 1000), home.lat, home.lng) // local-noon to avoid the midnight roll
     return { sunrise: tt.sunrise, sunset: tt.sunset }
   }
   const anchor = anchorId ? spots.find((s) => s.id === anchorId) : undefined
@@ -136,7 +137,7 @@ export function planDay({ date, home, spots, wishlist, anchorId, blockWeather }:
     const ranked = rankForBlock(
       spots.filter((s) => {
         if (used.has(s.id)) return false
-        if (resolveOpenStatus(s.hours, block.time, sunTimesFor).state === 'closed') return false
+        if (resolveOpenStatus(s.hours, block.time, sunTimesFor, getRegion(s.region).timeZone).state === 'closed') return false
         if (lightFit(s, block) > 0) return true
         // When it's raining, the golden light is washed out — allow sheltered
         // spots (interiors/gardens/architecture) even if they don't fit the block.
@@ -164,7 +165,7 @@ export function planDay({ date, home, spots, wishlist, anchorId, blockWeather }:
       block,
       spot: chosen,
       reason: anchored ? 'Your anchor for the day' : BLOCK_REASON[block.key],
-      open: resolveOpenStatus(chosen.hours, block.time, sunTimesFor),
+      open: resolveOpenStatus(chosen.hours, block.time, sunTimesFor, getRegion(chosen.region).timeZone),
       driveMin,
       anchored,
       alternatives: ranked.filter((s) => s.id !== chosen!.id).slice(0, 8),

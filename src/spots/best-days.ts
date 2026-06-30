@@ -2,6 +2,8 @@ import { computeSunTimes, type SunTimes } from '../astro/sun-times'
 import { sunPosition } from '../astro/sun-position'
 import { moonInfo } from '../astro/moon'
 import { resolveOpenStatus } from './hours'
+import { getRegion } from '../data/regions'
+import { zonedWallToInstant } from '../util/tz'
 import type { Spot } from './types'
 
 export type WindowKind = 'morning' | 'evening' | 'night' | 'daytime'
@@ -41,7 +43,8 @@ function windowTime(kind: WindowKind, t: SunTimes): Date {
 
 /** The exact moment a spot's prime window peaks on a given day — for sampling sky/tide. */
 export function windowTimeFor(spot: Spot, date: Date, lat: number, lng: number): Date {
-  const day = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0)
+  const tz = getRegion(spot.region).timeZone
+  const day = zonedWallToInstant(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, tz)
   return windowTime(primeWindow(spot), computeSunTimes(day, lat, lng))
 }
 
@@ -49,18 +52,18 @@ const angDist = (a: number, b: number) => { const d = (((a - b) % 360) + 360) % 
 const clamp = (x: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, x))
 
 export function scoreBestDay(spot: Spot, date: Date, lat: number, lng: number, inputs: DayInputs = {}): BestDay {
-  // Compute sun/moon from local noon so suncalc resolves THIS calendar day's
-  // events (a midnight date lands on the boundary and can roll to the day before).
-  const day = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0)
+  // Compute sun/moon from the spot's local noon so suncalc resolves THIS
+  // calendar day's events in the spot's own timezone (not the device's).
+  const tz = getRegion(spot.region).timeZone
+  const day = zonedWallToInstant(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, tz)
   const t = computeSunTimes(day, lat, lng)
   const kind = primeWindow(spot)
   const wt = windowTime(kind, t)
   const sunTimesFor = (d: Date) => {
-    const noon = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0) // avoid the midnight roll-over
-    const tt = computeSunTimes(noon, lat, lng)
+    const tt = computeSunTimes(new Date(d.getTime() + 12 * 3600 * 1000), lat, lng) // +12h → local noon
     return { sunrise: tt.sunrise, sunset: tt.sunset }
   }
-  const open = resolveOpenStatus(spot.hours, wt, sunTimesFor).state !== 'closed'
+  const open = resolveOpenStatus(spot.hours, wt, sunTimesFor, tz).state !== 'closed'
 
   if (!open) {
     return { date, windowKind: kind, windowStart: wt, score: 6, reasons: ['Closed at the prime window'], open: false, forecast: false }

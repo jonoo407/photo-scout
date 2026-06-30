@@ -17,6 +17,7 @@ import {
   directionsUrl, placeUrl,
 } from '../../spots/live'
 import { fmtTime, fmtRange, fmtDistance } from '../../util/format'
+import { getRegion } from '../../data/regions'
 
 const dirKind: Record<string, string> = { silhouette: 'go', front: 'go', side: 'info', back: 'maybe' }
 
@@ -44,6 +45,7 @@ export default function SpotDetailScreen() {
     )
   }
 
+  const tz = getRegion(spot.region).timeZone
   const sun = computeSunTimes(now, spot.lat, spot.lng)
   const open = liveOpen(spot, now, spot.lat, spot.lng)
   const drive = driveMinutes(spot, home)
@@ -60,10 +62,10 @@ export default function SpotDetailScreen() {
   ]
 
   const openLabel =
-    open.state === 'open' ? `Open${open.closesAt ? ` till ${fmtTime(open.closesAt)}` : ''}`
+    open.state === 'open' ? `Open${open.closesAt ? ` till ${fmtTime(open.closesAt, tz)}` : ''}`
       : open.state === 'tour-only' ? 'Tour only'
         : open.state === 'call-ahead' ? 'Call ahead'
-          : open.opensAt ? `Opens ${fmtTime(open.opensAt)}` : 'Closed'
+          : open.opensAt ? `Opens ${fmtTime(open.opensAt, tz)}` : 'Closed'
   const openGood = open.state === 'open'
 
   return (
@@ -99,7 +101,7 @@ export default function SpotDetailScreen() {
           const dir = lightDirectionAt(spot, new Date((w.a.getTime() + w.b.getTime()) / 2), spot.lat, spot.lng)
           return (
             <div key={w.label} className="row">
-              <span className="rowleft">{w.label} · {fmtRange(w.a, w.b)}</span>
+              <span className="rowleft">{w.label} · {fmtRange(w.a, w.b, tz)}</span>
               {dir && <span className={`pill ${dirKind[dir]}`}>{DIRECTION_LABEL[dir]}</span>}
             </div>
           )

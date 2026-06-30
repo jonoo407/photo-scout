@@ -17,13 +17,13 @@ import { SpotCard } from '../SpotCard'
 
 const GRADE_COLOR = { great: 'var(--go-ink)', decent: 'var(--maybe-ink)', meh: 'var(--ink-2)' } as const
 
-function openMeta(r: RankedSpot) {
+function openMeta(r: RankedSpot, tz: string) {
   if (r.open.state === 'open') {
     return <span style={{ color: 'var(--go-ink)' }}><IconPointFilled size={12} /> Open</span>
   }
   if (r.open.state === 'tour-only') return <span style={{ color: 'var(--maybe-ink)' }}>Tour only</span>
   if (r.open.state === 'call-ahead') return <span style={{ color: 'var(--maybe-ink)' }}>Call ahead</span>
-  if (r.open.opensAt) return <span style={{ color: 'var(--maybe-ink)' }}>Opens {fmtTime(r.open.opensAt)}</span>
+  if (r.open.opensAt) return <span style={{ color: 'var(--maybe-ink)' }}>Opens {fmtTime(r.open.opensAt, tz)}</span>
   return <span style={{ color: 'var(--skip-ink)' }}>Closed</span>
 }
 
@@ -34,6 +34,7 @@ export default function TodayScreen() {
   const wishlist = useMemo(() => new Set(wishlistArr), [wishlistArr])
   const units = useStore((s) => s.units)
   const region = useRegion()
+  const tz = region.timeZone
   const spots = useRegionSpots()
   const now = useMemo(() => new Date(), [])
 
@@ -100,7 +101,7 @@ export default function TodayScreen() {
           <span className="t">{result.window.label}</span>
         </div>
         <p className="hero-sub">
-          Starts {fmtTime(result.window.start)} · {untilString(result.window.start, now)} · sunset {fmtTime(sun.sunset)}
+          Starts {fmtTime(result.window.start, tz)} · {untilString(result.window.start, now)} · sunset {fmtTime(sun.sunset, tz)}
         </p>
       </div>
       {spots.length === 0 ? (
@@ -122,7 +123,7 @@ export default function TodayScreen() {
                 spot={r.spot}
                 badge={{ label: r.verdict === 'go' ? 'Go' : r.verdict === 'maybe' ? 'Maybe' : 'Skip', kind: r.verdict }}
                 reason={r.reason}
-                meta={<><span><IconCar size={14} /> {r.driveMinutes} min</span>{openMeta(r)}</>}
+                meta={<><span><IconCar size={14} /> {r.driveMinutes} min</span>{openMeta(r, tz)}</>}
               />
             ))}
           </div>
@@ -160,11 +161,11 @@ export default function TodayScreen() {
 
       <h3 className="h3">Today's light</h3>
       <div className="card list">
-        <div className="row"><span className="rowleft">Sunrise</span><span className="muted">{fmtTime(sun.sunrise)}</span></div>
-        <div className="row"><span className="rowleft">Morning golden</span><span className="muted">{fmtTime(sun.goldenHourMorning.start)} – {fmtTime(sun.goldenHourMorning.end)}</span></div>
-        <div className="row"><span className="rowleft">Evening golden</span><span className="muted">{fmtTime(sun.goldenHourEvening.start)} – {fmtTime(sun.goldenHourEvening.end)}</span></div>
-        <div className="row"><span className="rowleft">Sunset</span><span className="muted">{fmtTime(sun.sunset)}</span></div>
-        <div className="row last"><span className="rowleft">Blue hour</span><span className="muted">{fmtTime(sun.blueHourEvening.start)} – {fmtTime(sun.blueHourEvening.end)}</span></div>
+        <div className="row"><span className="rowleft">Sunrise</span><span className="muted">{fmtTime(sun.sunrise, tz)}</span></div>
+        <div className="row"><span className="rowleft">Morning golden</span><span className="muted">{fmtTime(sun.goldenHourMorning.start, tz)} – {fmtTime(sun.goldenHourMorning.end, tz)}</span></div>
+        <div className="row"><span className="rowleft">Evening golden</span><span className="muted">{fmtTime(sun.goldenHourEvening.start, tz)} – {fmtTime(sun.goldenHourEvening.end, tz)}</span></div>
+        <div className="row"><span className="rowleft">Sunset</span><span className="muted">{fmtTime(sun.sunset, tz)}</span></div>
+        <div className="row last"><span className="rowleft">Blue hour</span><span className="muted">{fmtTime(sun.blueHourEvening.start, tz)} – {fmtTime(sun.blueHourEvening.end, tz)}</span></div>
       </div>
     </div>
   )

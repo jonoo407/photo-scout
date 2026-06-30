@@ -1,19 +1,25 @@
 import { DEFAULT_HOME, type HomeLocation } from './home.config'
 
-export type RegionId = 'tampa-bay' | 'philadelphia'
+// Data-driven: a region id is any string keyed in REGIONS (ready to grow to
+// hundreds of US cities, then worldwide). Add a city = add one entry here.
+export type RegionId = string
 
 export interface Region {
   id: RegionId
   label: string
+  timeZone: string // IANA, e.g. 'America/New_York' — times + hours resolve in this zone
   center: { lat: number; lng: number }
   bounds: { latMin: number; latMax: number; lngMin: number; lngMax: number }
   defaultHome: HomeLocation
 }
 
+export const DEFAULT_REGION: RegionId = 'tampa-bay'
+
 export const REGIONS: Record<RegionId, Region> = {
   'tampa-bay': {
     id: 'tampa-bay',
     label: 'Tampa Bay',
+    timeZone: 'America/New_York',
     center: { lat: 27.94, lng: -82.55 },
     bounds: { latMin: 27.4, latMax: 28.3, lngMin: -83.0, lngMax: -82.25 },
     defaultHome: DEFAULT_HOME,
@@ -21,6 +27,7 @@ export const REGIONS: Record<RegionId, Region> = {
   philadelphia: {
     id: 'philadelphia',
     label: 'Philadelphia',
+    timeZone: 'America/New_York',
     center: { lat: 39.9526, lng: -75.1652 },
     bounds: { latMin: 39.8, latMax: 40.15, lngMin: -75.45, lngMax: -74.9 },
     defaultHome: {
@@ -30,6 +37,11 @@ export const REGIONS: Record<RegionId, Region> = {
       lng: -75.1635,
     },
   },
+}
+
+/** Safe lookup — falls back to the default region for an unknown/stale id. */
+export function getRegion(id: RegionId | undefined): Region {
+  return (id && REGIONS[id]) || REGIONS[DEFAULT_REGION]
 }
 
 export const REGION_LIST: Region[] = Object.values(REGIONS)

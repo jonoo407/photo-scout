@@ -1,4 +1,8 @@
-export function fmtTime(d: Date | null | undefined): string {
+import { fmtClock } from './tz'
+
+/** Time as "h:mm AM/PM". Pass the city's IANA `tz` to show it in that zone. */
+export function fmtTime(d: Date | null | undefined, tz?: string): string {
+  if (tz) return fmtClock(d, tz)
   if (!d) return '—'
   let h = d.getHours()
   const m = d.getMinutes()
@@ -8,8 +12,13 @@ export function fmtTime(d: Date | null | undefined): string {
   return `${h}:${m.toString().padStart(2, '0')} ${ampm}`
 }
 
-export function fmtRange(a: Date, b: Date): string {
-  return `${fmtTime(a)} – ${fmtTime(b)}`
+export function fmtRange(a: Date, b: Date, tz?: string): string {
+  return `${fmtTime(a, tz)} – ${fmtTime(b, tz)}`
+}
+
+/** Date as "Tue, Jun 30", in the city's zone if given. */
+export function fmtDay(d: Date, tz?: string): string {
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', ...(tz ? { timeZone: tz } : {}) })
 }
 
 export function fmtDrive(min: number): string {

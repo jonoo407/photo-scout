@@ -16,6 +16,14 @@ const everyDay = (sched: Hours['days'][keyof Hours['days']]): Hours => ({
 })
 
 describe('resolveOpenStatus', () => {
+  it('resolves open hours in the given timezone, not the device', () => {
+    const h = everyDay({ open: 'hours', intervals: [{ from: { at: 'clock', time: '09:00' }, to: { at: 'clock', time: '17:00' } }] })
+    const sun = (d: Date) => ({ sunrise: d, sunset: d }) // unused for clock hours
+    const instant = new Date('2026-06-30T14:00:00Z') // 10:00 EDT / 07:00 PDT
+    expect(resolveOpenStatus(h, instant, sun, 'America/New_York').state).toBe('open') // 10am ET → open
+    expect(resolveOpenStatus(h, instant, sun, 'America/Los_Angeles').state).toBe('closed') // 7am PT → not yet
+  })
+
   it('24h is always open', () => {
     const h = everyDay({ open: '24h' })
     expect(resolveOpenStatus(h, monday(3), sunTimesFor).state).toBe('open')

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { IconArrowLeft, IconCar, IconMoodEmpty, IconArrowsShuffle, IconStar, IconCheck, IconX, IconCloudRain, IconCloud } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
-import { useRegionSpots } from '../../state/useRegion'
+import { useRegion, useRegionSpots } from '../../state/useRegion'
 import { planDay, rankForBlock, dayBlocks, type PlanStop, type BlockKey } from '../../spots/day-plan'
 import { fetchBlockConditions, type BlockConditions } from '../../weather/open-meteo'
 import { weatherVerdict, type WeatherVerdict } from '../../weather/verdict'
@@ -27,6 +27,7 @@ export default function DayScreen() {
   const home = useStore((s) => s.home)
   const wishlistArr = useStore((s) => s.wishlist)
   const spots = useRegionSpots()
+  const tz = useRegion().timeZone
   const [picked, setPicked] = useState<Record<string, string>>({}) // blockKey -> spot id
   const [sheet, setSheet] = useState<string | null>(null) // open chooser for this block
   const [conditions, setConditions] = useState<BlockConditions[] | null>(null)
@@ -116,7 +117,7 @@ export default function DayScreen() {
           const b = badge(s.open.state)
           return (
             <div key={s.block.key}>
-              <p className="bucket" style={{ margin: '6px 0 2px' }}>{s.block.label} · {fmtTime(s.block.start)}</p>
+              <p className="bucket" style={{ margin: '6px 0 2px' }}>{s.block.label} · {fmtTime(s.block.start, tz)}</p>
               <div style={{ display: 'flex', gap: 8, alignItems: 'stretch' }}>
                 <button className="spotcard" style={{ flex: 1 }} onClick={() => nav(`/spot/${s.spot.id}`)}>
                   <div className="row-spread" style={{ gap: 8 }}>
@@ -125,8 +126,8 @@ export default function DayScreen() {
                   </div>
                   <p className="sub">
                     {s.anchored
-                      ? <><IconStar size={12} style={{ verticalAlign: '-1px' }} /> Your anchor for the day · {fmtTime(s.block.time)}</>
-                      : <>{s.reason} · {fmtTime(s.block.time)}</>}
+                      ? <><IconStar size={12} style={{ verticalAlign: '-1px' }} /> Your anchor for the day · {fmtTime(s.block.time, tz)}</>
+                      : <>{s.reason} · {fmtTime(s.block.time, tz)}</>}
                   </p>
                   {s.weather && (
                     <span className={`wxchip ${s.weather.mood}`}>

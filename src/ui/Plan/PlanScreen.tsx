@@ -5,7 +5,7 @@ import {
   IconMoonStars, IconStars, IconMoon, IconRoute, IconBuildingArch,
 } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
-import { useRegionSpots } from '../../state/useRegion'
+import { useRegion, useRegionSpots } from '../../state/useRegion'
 import { computeSunTimes } from '../../astro/sun-times'
 import { moonInfo } from '../../astro/moon'
 import { fmtTime, fmtRange } from '../../util/format'
@@ -27,20 +27,21 @@ function SpotLinks({ pred }: { pred: (l: Light[]) => boolean }) {
 export default function PlanScreen() {
   const nav = useNavigate()
   const home = useStore((s) => s.home)
+  const tz = useRegion().timeZone
   const [day, setDay] = useState<0 | 1>(0)
   const date = useMemo(() => new Date(Date.now() + day * 86400000), [day])
   const t = computeSunTimes(date, home.lat, home.lng)
   const moon = moonInfo(date, home.lat, home.lng)
 
   const rows: [React.ReactNode, string, string][] = [
-    [<IconMoon2 size={18} color="var(--amber)" />, 'Morning blue hour', fmtRange(t.blueHourMorning.start, t.blueHourMorning.end)],
-    [<IconSunrise size={18} color="var(--amber)" />, 'Sunrise', fmtTime(t.sunrise)],
-    [<IconSunHigh size={18} color="var(--amber)" />, 'Morning golden', fmtRange(t.goldenHourMorning.start, t.goldenHourMorning.end)],
-    [<IconSun size={18} color="var(--amber)" />, 'Solar noon', fmtTime(t.solarNoon)],
-    [<IconSunset2 size={18} color="var(--amber)" />, 'Evening golden', fmtRange(t.goldenHourEvening.start, t.goldenHourEvening.end)],
-    [<IconSunset size={18} color="var(--amber)" />, 'Sunset', fmtTime(t.sunset)],
-    [<IconMoonStars size={18} color="var(--amber)" />, 'Evening blue hour', fmtRange(t.blueHourEvening.start, t.blueHourEvening.end)],
-    [<IconStars size={18} color="var(--amber)" />, 'Night / astro', `${fmtTime(t.astronomicalDusk)} →`],
+    [<IconMoon2 size={18} color="var(--amber)" />, 'Morning blue hour', fmtRange(t.blueHourMorning.start, t.blueHourMorning.end, tz)],
+    [<IconSunrise size={18} color="var(--amber)" />, 'Sunrise', fmtTime(t.sunrise, tz)],
+    [<IconSunHigh size={18} color="var(--amber)" />, 'Morning golden', fmtRange(t.goldenHourMorning.start, t.goldenHourMorning.end, tz)],
+    [<IconSun size={18} color="var(--amber)" />, 'Solar noon', fmtTime(t.solarNoon, tz)],
+    [<IconSunset2 size={18} color="var(--amber)" />, 'Evening golden', fmtRange(t.goldenHourEvening.start, t.goldenHourEvening.end, tz)],
+    [<IconSunset size={18} color="var(--amber)" />, 'Sunset', fmtTime(t.sunset, tz)],
+    [<IconMoonStars size={18} color="var(--amber)" />, 'Evening blue hour', fmtRange(t.blueHourEvening.start, t.blueHourEvening.end, tz)],
+    [<IconStars size={18} color="var(--amber)" />, 'Night / astro', `${fmtTime(t.astronomicalDusk, tz)} →`],
   ]
 
   return (
@@ -66,7 +67,7 @@ export default function PlanScreen() {
       </div>
       <div className="card" style={{ padding: '11px 12px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, fontSize: 13 }}>
         <span><IconMoon size={15} /> Moon {moon.illumination}% · {moon.phaseName}</span>
-        <span className="muted">Rise {fmtTime(moon.rise)} · Set {fmtTime(moon.set)}</span>
+        <span className="muted">Rise {fmtTime(moon.rise, tz)} · Set {fmtTime(moon.set, tz)}</span>
       </div>
 
       <h3 className="h3">Spots by light</h3>
