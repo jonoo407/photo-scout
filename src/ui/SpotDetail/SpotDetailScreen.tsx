@@ -25,6 +25,7 @@ export default function SpotDetailScreen() {
   const { id } = useParams()
   const nav = useNavigate()
   const { spot, loading } = useSpotById(id)
+  const activeRegion = useStore((s) => s.region)
   const home = useStore((s) => s.home)
   const units = useStore((s) => s.units)
   const mapsApp = useStore((s) => s.mapsApp)
@@ -48,8 +49,12 @@ export default function SpotDetailScreen() {
   const tz = getRegion(spot.region).timeZone
   const sun = computeSunTimes(now, spot.lat, spot.lng)
   const open = liveOpen(spot, now, spot.lat, spot.lng)
-  const drive = driveMinutes(spot, home)
-  const miles = milesFromHome(spot, home)
+  // Home-relative drive/distance only makes sense within the active city. For a
+  // cross-city deep link, measure from that city's default home so the figures are
+  // locally consistent (e.g. "8 min · 0.8 mi") instead of "8 min · 931.5 mi".
+  const refHome = spot.region === activeRegion ? home : getRegion(spot.region).defaultHome
+  const drive = driveMinutes(spot, refHome)
+  const miles = milesFromHome(spot, refHome)
   const wanted = wishlist.includes(spot.id)
   const been = visited.includes(spot.id)
   const doneShots = checklist[spot.id] ?? []
