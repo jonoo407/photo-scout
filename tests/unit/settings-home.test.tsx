@@ -7,7 +7,7 @@ import { useStore } from '../../src/state/store'
 import { DEFAULT_HOME } from '../../src/data/home.config'
 
 beforeEach(() => {
-  useStore.setState({ home: DEFAULT_HOME, theme: 'auto' })
+  useStore.setState({ home: DEFAULT_HOME, region: 'tampa-bay', theme: 'auto' })
   document.documentElement.removeAttribute('data-theme')
 })
 afterEach(() => { vi.restoreAllMocks() })
@@ -57,5 +57,13 @@ describe('Settings — set home by typing an address', () => {
     await user.click(screen.getByRole('button', { name: /^dark$/i }))
     expect(useStore.getState().theme).toBe('dark')
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark')
+  })
+
+  it('switches city from the picker (and moves home to that city)', async () => {
+    const user = userEvent.setup()
+    renderSettings()
+    await user.click(screen.getByRole('button', { name: 'Philadelphia' }))
+    expect(useStore.getState().region).toBe('philadelphia')
+    expect(useStore.getState().home.label).toMatch(/Philadelphia/i)
   })
 })

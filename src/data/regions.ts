@@ -1,4 +1,5 @@
 import { DEFAULT_HOME, type HomeLocation } from './home.config'
+import { haversineMiles } from '../spots/distance'
 
 // Data-driven: a region id is any string keyed in REGIONS (ready to grow to
 // hundreds of US cities, then worldwide). Add a city = add one entry here.
@@ -55,4 +56,17 @@ export function regionContains(region: Region, lat: number, lng: number): boolea
 /** Which region a point falls in, or null if it's outside every region. */
 export function regionForPoint(lat: number, lng: number): RegionId | null {
   return REGION_LIST.find((r) => regionContains(r, lat, lng))?.id ?? null
+}
+
+/** The best city for a point: the one whose bounds contain it, else the closest center. */
+export function nearestRegion(lat: number, lng: number): RegionId {
+  const inside = regionForPoint(lat, lng)
+  if (inside) return inside
+  let best = REGION_LIST[0]
+  let bestMiles = Infinity
+  for (const r of REGION_LIST) {
+    const miles = haversineMiles(r.center, { lat, lng })
+    if (miles < bestMiles) { bestMiles = miles; best = r }
+  }
+  return best.id
 }

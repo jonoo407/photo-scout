@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  IconArrowLeft, IconHome, IconBuildingCommunity, IconNavigation, IconRuler2,
+  IconArrowLeft, IconHome, IconNavigation, IconRuler2,
   IconBellRinging, IconCameraPlus, IconCurrentLocation, IconChevronRight, IconMapPin, IconMoonStars,
 } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
-import { REGION_LIST } from '../../data/regions'
+import { REGION_LIST, nearestRegion } from '../../data/regions'
 import { geocodeAddress } from '../../spots/geocode'
 
 export default function SettingsScreen() {
@@ -24,6 +24,23 @@ export default function SettingsScreen() {
   const [addr, setAddr] = useState('')
   const [geoBusy, setGeoBusy] = useState(false)
   const [geoErr, setGeoErr] = useState('')
+  const [citySearch, setCitySearch] = useState('')
+  const [detecting, setDetecting] = useState(false)
+
+  const detectCity = () => {
+    if (!navigator.geolocation) { setGeoErr('Location unavailable — pick a city below.'); return }
+    setGeoErr(''); setDetecting(true)
+    navigator.geolocation.getCurrentPosition(
+      (p) => { setRegion(nearestRegion(p.coords.latitude, p.coords.longitude)); setDetecting(false) },
+      () => { setGeoErr("Couldn't get your location — pick a city below."); setDetecting(false) },
+      { timeout: 8000 },
+    )
+  }
+
+  const manyCities = REGION_LIST.length > 8
+  const cityList = manyCities
+    ? REGION_LIST.filter((r) => r.label.toLowerCase().includes(citySearch.trim().toLowerCase()))
+    : REGION_LIST
 
   const useCurrent = () => {
     if (!navigator.geolocation) {
@@ -52,6 +69,29 @@ export default function SettingsScreen() {
       <button className="back" onClick={() => nav(-1)}><IconArrowLeft size={18} /> Back</button>
       <h1>Settings</h1>
 
+      <p className="shdr">CITY</p>
+      <div className="card list">
+        <button className="row" onClick={detectCity}>
+          <span className="rowleft" style={{ color: 'var(--terracotta)' }}><IconCurrentLocation size={18} /> {detecting ? 'Detecting…' : 'Use my location'}</span>
+          <IconChevronRight size={16} className="val" />
+        </button>
+        {manyCities && (
+          <div className="row">
+            <input
+              className="addrinput" style={{ width: '100%', maxWidth: 'none' }} type="text"
+              placeholder="Search cities" aria-label="Search cities"
+              value={citySearch} onChange={(e) => setCitySearch(e.target.value)}
+            />
+          </div>
+        )}
+        <div className="row last" style={{ flexWrap: 'wrap', gap: 6, justifyContent: 'flex-start' }}>
+          {cityList.map((r) => (
+            <button key={r.id} className={`chip ${region === r.id ? 'on' : ''}`} onClick={() => setRegion(r.id)}>{r.label}</button>
+          ))}
+          {!cityList.length && <span className="small tertiary">No matching city</span>}
+        </div>
+      </div>
+
       <p className="shdr">HOME &amp; LOCATION</p>
       <div className="card list">
         <div className="row"><span className="rowleft"><IconHome size={18} /> Home base</span><span className="val">{home.label}</span></div>
@@ -78,14 +118,6 @@ export default function SettingsScreen() {
           <span className="rowleft" style={{ color: 'var(--terracotta)' }}><IconCurrentLocation size={18} /> {locating ? 'Locating…' : 'Use my current location'}</span>
           <IconChevronRight size={16} className="val" />
         </button>
-        <div className="row last">
-          <span className="rowleft"><IconBuildingCommunity size={18} /> City</span>
-          <span style={{ display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-            {REGION_LIST.map((r) => (
-              <button key={r.id} className={`chip ${region === r.id ? 'on' : ''}`} onClick={() => setRegion(r.id)}>{r.label}</button>
-            ))}
-          </span>
-        </div>
       </div>
 
       <p className="shdr">GETTING THERE</p>
