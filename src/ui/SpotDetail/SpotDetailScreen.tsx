@@ -9,7 +9,7 @@ import {
 import SpotHero from './SpotHero'
 import BestDays from './BestDays'
 import { useStore } from '../../state/store'
-import { SPOTS } from '../../data/spots'
+import { useRegionSpots } from '../../state/useRegion'
 import { CATEGORY_LABEL } from '../../spots/types'
 import { computeSunTimes } from '../../astro/sun-times'
 import {
@@ -24,7 +24,8 @@ const dirKind: Record<string, string> = { silhouette: 'go', front: 'go', side: '
 export default function SpotDetailScreen() {
   const { id } = useParams()
   const nav = useNavigate()
-  const spot = SPOTS.find((s) => s.id === id)
+  const { spots, loading } = useRegionSpots()
+  const spot = spots.find((s) => s.id === id)
   const home = useStore((s) => s.home)
   const units = useStore((s) => s.units)
   const mapsApp = useStore((s) => s.mapsApp)
@@ -40,7 +41,7 @@ export default function SpotDetailScreen() {
     return (
       <div className="screen">
         <button className="back" onClick={() => nav(-1)}><IconArrowLeft size={18} /> Back</button>
-        <p className="center-note">Spot not found.</p>
+        <p className="center-note">{loading ? 'Loading…' : 'Spot not found.'}</p>
       </div>
     )
   }

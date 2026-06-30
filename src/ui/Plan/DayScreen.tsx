@@ -26,7 +26,7 @@ export default function DayScreen() {
   const anchorId = params.get('anchor') ?? undefined
   const home = useStore((s) => s.home)
   const wishlistArr = useStore((s) => s.wishlist)
-  const spots = useRegionSpots()
+  const { spots } = useRegionSpots()
   const tz = useRegion().timeZone
   const [picked, setPicked] = useState<Record<string, string>>({}) // blockKey -> spot id
   const [sheet, setSheet] = useState<string | null>(null) // open chooser for this block

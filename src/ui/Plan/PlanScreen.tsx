@@ -13,7 +13,7 @@ import type { Light } from '../../spots/types'
 
 function SpotLinks({ pred }: { pred: (l: Light[]) => boolean }) {
   const nav = useNavigate()
-  const list = useRegionSpots().filter((s) => pred(s.bestLight))
+  const list = useRegionSpots().spots.filter((s) => pred(s.bestLight))
   if (!list.length) return <div className="bcard tertiary">None today</div>
   return (
     <div className="bcard spotlinks">

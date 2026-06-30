@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { planDay, dayBlocks, rankForBlock, scoreSpot } from '../../src/spots/day-plan'
 import { matchesLight } from '../../src/spots/next-up'
 import { weatherVerdict } from '../../src/weather/verdict'
-import { SPOTS } from '../../src/data/spots'
+import SPOTS from '../../src/data/spots/tampa-bay'
 import { DEFAULT_HOME } from '../../src/data/home.config'
 
 // Fixed date (Thu Jun 25 2026, local noon) so the plan is deterministic.

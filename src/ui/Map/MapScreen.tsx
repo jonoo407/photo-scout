@@ -11,7 +11,7 @@ const esc = (s: string) => s.replace(/[&<>"']/g, (c) =>
 export default function MapScreen() {
   const home = useStore((s) => s.home)
   const region = useRegion()
-  const spots = useRegionSpots()
+  const { spots } = useRegionSpots()
   const ref = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
   const layerRef = useRef<L.LayerGroup | null>(null)

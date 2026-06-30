@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { scoreBestDay, primeWindow, rankBestDays } from '../../src/spots/best-days'
-import { SPOTS } from '../../src/data/spots'
+import SPOTS from '../../src/data/spots/tampa-bay'
 
 const spot = (id: string) => SPOTS.find((s) => s.id === id)!
 const TAMPA = { lat: 27.95, lng: -82.46 }

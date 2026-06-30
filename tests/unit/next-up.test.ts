@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { nextUp } from '../../src/spots/next-up'
-import { SPOTS } from '../../src/data/spots'
+import SPOTS from '../../src/data/spots/tampa-bay'
 import { DEFAULT_HOME } from '../../src/data/home.config'
 import { weatherVerdict } from '../../src/weather/verdict'
 

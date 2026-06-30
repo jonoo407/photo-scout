@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { SpotCard } from '../../src/ui/SpotCard'
-import { SPOTS } from '../../src/data/spots'
+import SPOTS from '../../src/data/spots/tampa-bay'
 
 describe('SpotCard — address on each card', () => {
   it('shows the spot street address', () => {

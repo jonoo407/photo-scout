@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { SPOTS } from '../../src/data/spots'
+import tampa from '../../src/data/spots/tampa-bay'
+import philadelphia from '../../src/data/spots/philadelphia'
+const SPOTS = [...tampa, ...philadelphia]
 import { type Light } from '../../src/spots/types'
 
 const LIGHTS: Light[] = [

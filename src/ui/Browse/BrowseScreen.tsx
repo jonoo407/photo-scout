@@ -21,7 +21,7 @@ export default function BrowseScreen() {
   const home = useStore((s) => s.home)
   const region = useRegion()
   const tz = region.timeZone
-  const spots = useRegionSpots()
+  const { spots } = useRegionSpots()
   const wishlistArr = useStore((s) => s.wishlist)
   const wishlist = useMemo(() => new Set(wishlistArr), [wishlistArr])
   const now = useMemo(() => new Date(), [])

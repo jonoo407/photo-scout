@@ -1,7 +1,7 @@
 import { describe, it, expect, afterEach, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import BestDays from '../../src/ui/SpotDetail/BestDays'
-import { SPOTS } from '../../src/data/spots'
+import SPOTS from '../../src/data/spots/tampa-bay'
 
 afterEach(() => { vi.restoreAllMocks() })
 

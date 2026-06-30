@@ -35,7 +35,7 @@ export default function TodayScreen() {
   const units = useStore((s) => s.units)
   const region = useRegion()
   const tz = region.timeZone
-  const spots = useRegionSpots()
+  const { spots } = useRegionSpots()
   const now = useMemo(() => new Date(), [])
 
   const [weather, setWeather] = useState<WeatherNow | null>(null)
