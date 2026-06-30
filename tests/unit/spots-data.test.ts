@@ -93,6 +93,11 @@ describe('Tampa spot dataset', () => {
     }
   })
 
+  it('Philadelphia has a real set of spots', () => {
+    expect(philadelphia.length).toBeGreaterThanOrEqual(12)
+    for (const s of philadelphia) expect(s.region).toBe('philadelphia')
+  })
+
   it('St. Paul AME is named explicitly as a church with verified coords', () => {
     const s = SPOTS.find((x) => x.id === 'st-paul-ame')
     expect(s).toBeDefined()
