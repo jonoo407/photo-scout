@@ -94,7 +94,7 @@ describe('Tampa spot dataset', () => {
   })
 
   it('Philadelphia has a real set of spots', () => {
-    expect(philadelphia.length).toBeGreaterThanOrEqual(12)
+    expect(philadelphia.length).toBeGreaterThanOrEqual(30)
     for (const s of philadelphia) expect(s.region).toBe('philadelphia')
   })
 
