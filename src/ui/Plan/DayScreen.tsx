@@ -9,7 +9,7 @@ import { weatherVerdict, type WeatherVerdict } from '../../weather/verdict'
 import { haversineMiles } from '../../spots/distance'
 import { driveMinutes } from '../../spots/live'
 import { CATEGORY_LABEL } from '../../spots/types'
-import { fmtTime } from '../../util/format'
+import { fmtTime, fmtDrive } from '../../util/format'
 import type { Spot } from '../../spots/types'
 
 function badge(state: string): { label: string; kind: string } {
@@ -117,7 +117,10 @@ export default function DayScreen() {
           const b = badge(s.open.state)
           return (
             <div key={s.block.key}>
-              <p className="bucket" style={{ margin: '6px 0 2px' }}>{s.block.label} · {fmtTime(s.block.start, tz)}</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--ink-3)', fontSize: 11, margin: '4px 0 2px 18px', paddingLeft: 14, borderLeft: '1px dashed var(--line-strong)' }}>
+                <IconCar size={13} /> drive {fmtDrive(leg(i))}{i === 0 ? ' from home' : ''}
+              </div>
+              <p className="bucket" style={{ margin: '2px 0 2px' }}>{s.block.label} · {fmtTime(s.block.start, tz)}</p>
               <div style={{ display: 'flex', gap: 8, alignItems: 'stretch' }}>
                 <button className="spotcard" style={{ flex: 1 }} onClick={() => nav(`/spot/${s.spot.id}`)}>
                   <div className="row-spread" style={{ gap: 8 }}>
@@ -146,11 +149,6 @@ export default function DayScreen() {
                   </button>
                 )}
               </div>
-              {i < display.length - 1 && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--ink-3)', fontSize: 11, margin: '2px 0 2px 18px', paddingLeft: 14, borderLeft: '1px dashed var(--line-strong)' }}>
-                  <IconCar size={13} /> drive {leg(i + 1)} min
-                </div>
-              )}
             </div>
           )
         })}

@@ -30,6 +30,15 @@ describe('resolveOpenStatus', () => {
     expect(resolveOpenStatus(h, monday(23, 30), sunTimesFor).state).toBe('open')
   })
 
+  it('24h open is flagged allDay (so the UI can say "Open 24h", not "till 12:00 AM")', () => {
+    const r = resolveOpenStatus(everyDay({ open: '24h' }), monday(3), sunTimesFor)
+    expect(r.state).toBe('open')
+    expect(r.allDay).toBe(true)
+    // a normal fixed-range open must NOT be flagged allDay
+    const fixed = everyDay({ open: 'hours', intervals: [{ from: { at: 'clock', time: '09:00' }, to: { at: 'clock', time: '17:00' } }] })
+    expect(resolveOpenStatus(fixed, monday(10), sunTimesFor).allDay).toBeFalsy()
+  })
+
   it('closed day is closed', () => {
     const h = everyDay({ open: 'closed' })
     expect(resolveOpenStatus(h, monday(12), sunTimesFor).state).toBe('closed')

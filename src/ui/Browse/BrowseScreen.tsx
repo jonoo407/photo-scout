@@ -5,7 +5,7 @@ import { useRegion, useRegionSpots } from '../../state/useRegion'
 import { CATEGORIES, CATEGORY_LABEL, type Category, type Light } from '../../spots/types'
 import { liveOpen, milesFromHome, driveMinutes } from '../../spots/live'
 import { matchesLight } from '../../spots/next-up'
-import { fmtTime } from '../../util/format'
+import { fmtTime, fmtDrive } from '../../util/format'
 import { SpotCard, type Badge } from '../SpotCard'
 
 const LIGHT_LABEL: Record<Light, string> = {
@@ -139,7 +139,7 @@ export default function BrowseScreen() {
               spot={spot}
               badge={badgeFor(open.state)}
               reason={`${CATEGORY_LABEL[spot.category]} · ${spot.isFree ? 'Free' : `$${spot.feeUSD}`} · ${spot.city}`}
-              meta={<><span><IconCar size={14} /> {drive} min</span>{open.state === 'open' && <span style={{ color: 'var(--go-ink)' }}><IconPointFilled size={12} /> till {fmtTime(open.closesAt, tz)}</span>}</>}
+              meta={<><span><IconCar size={14} /> {fmtDrive(drive)}</span>{open.state === 'open' && <span style={{ color: 'var(--go-ink)' }}><IconPointFilled size={12} /> {open.allDay ? 'Open 24h' : `till ${fmtTime(open.closesAt, tz)}`}</span>}</>}
             />
           ))}
         </div>

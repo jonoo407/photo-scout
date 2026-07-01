@@ -21,8 +21,10 @@ export function fmtDay(d: Date, tz?: string): string {
   return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', ...(tz ? { timeZone: tz } : {}) })
 }
 
+/** Drive-time label; avoids the wonky "0 min" for spots at your doorstep. */
 export function fmtDrive(min: number): string {
-  return `${Math.round(min)} min`
+  const m = Math.round(min)
+  return m <= 0 ? 'under 1 min' : `${m} min`
 }
 
 export function fmtDistance(miles: number, units: 'imperial' | 'metric'): string {

@@ -16,7 +16,7 @@ import {
   liveOpen, lightDirectionAt, DIRECTION_LABEL, driveMinutes, milesFromHome,
   directionsUrl, placeUrl,
 } from '../../spots/live'
-import { fmtTime, fmtRange, fmtDistance } from '../../util/format'
+import { fmtTime, fmtRange, fmtDistance, fmtDrive } from '../../util/format'
 import { getRegion } from '../../data/regions'
 
 const dirKind: Record<string, string> = { silhouette: 'go', front: 'go', side: 'info', back: 'maybe' }
@@ -67,7 +67,7 @@ export default function SpotDetailScreen() {
   ]
 
   const openLabel =
-    open.state === 'open' ? `Open${open.closesAt ? ` till ${fmtTime(open.closesAt, tz)}` : ''}`
+    open.state === 'open' ? (open.allDay ? 'Open 24h' : `Open${open.closesAt ? ` till ${fmtTime(open.closesAt, tz)}` : ''}`)
       : open.state === 'tour-only' ? 'Tour only'
         : open.state === 'call-ahead' ? 'Call ahead'
           : open.opensAt ? `Opens ${fmtTime(open.opensAt, tz)}` : 'Closed'
@@ -96,7 +96,7 @@ export default function SpotDetailScreen() {
       <div className="facts">
         <span className="fact"><IconCoin size={15} /> {spot.isFree ? 'Free' : `$${spot.feeUSD}`}</span>
         <span className={`fact ${openGood ? 'good' : 'warn'}`}><IconClock size={15} /> {openLabel}</span>
-        <span className="fact"><IconCar size={15} /> {drive} min · {fmtDistance(miles, units)}</span>
+        <span className="fact"><IconCar size={15} /> {fmtDrive(drive)} · {fmtDistance(miles, units)}</span>
         {spot.facing != null && <span className="fact"><IconCompass size={15} /> {compass(spot.facing)}</span>}
       </div>
 

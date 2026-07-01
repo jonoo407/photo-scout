@@ -41,6 +41,7 @@ export interface OpenStatus {
   state: 'open' | 'closed' | 'tour-only' | 'call-ahead'
   opensAt?: Date | null
   closesAt?: Date | null
+  allDay?: boolean // currently open under a 24h schedule (UI shows "Open 24h")
 }
 
 function resolveTimeRef(ref: TimeRef, dayStart: Date, sun: DaySun, tz: string): Date {
@@ -56,12 +57,13 @@ function resolveTimeRef(ref: TimeRef, dayStart: Date, sun: DaySun, tz: string): 
 interface Concrete {
   from: Date
   to: Date
+  allDay?: boolean
 }
 
 function dayIntervals(sched: DaySchedule, dayStart: Date, sun: DaySun, tz: string): Concrete[] {
   if (sched.open === '24h') {
     const z = zoneParts(dayStart, tz)
-    return [{ from: dayStart, to: zonedWallToInstant(z.year, z.month - 1, z.day + 1, 0, 0, tz) }]
+    return [{ from: dayStart, to: zonedWallToInstant(z.year, z.month - 1, z.day + 1, 0, 0, tz), allDay: true }]
   }
   if (sched.open === 'hours') {
     return sched.intervals.map((iv) => ({
@@ -98,7 +100,7 @@ export function resolveOpenStatus(
   const todayAll = [...yestIv, ...todayIv].sort((a, b) => a.from.getTime() - b.from.getTime())
 
   const current = todayAll.find((iv) => now.getTime() >= iv.from.getTime() && now.getTime() < iv.to.getTime())
-  if (current) return { state: 'open', closesAt: current.to }
+  if (current) return { state: 'open', closesAt: current.to, allDay: current.allDay }
 
   // Find the next opening within the next 7 local days.
   for (let offset = 0; offset <= 7; offset++) {

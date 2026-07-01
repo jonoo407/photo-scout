@@ -12,7 +12,7 @@ import { moonInfo } from '../../astro/moon'
 import { fetchWeather, weatherText, type WeatherNow } from '../../weather/open-meteo'
 import { weatherVerdict } from '../../weather/verdict'
 import { sunsetScore, sunsetLabel } from '../../weather/sunset-score'
-import { fmtTime, untilString } from '../../util/format'
+import { fmtTime, fmtDrive, untilString } from '../../util/format'
 import { SpotCard } from '../SpotCard'
 
 const GRADE_COLOR = { great: 'var(--go-ink)', decent: 'var(--maybe-ink)', meh: 'var(--ink-2)' } as const
@@ -123,7 +123,7 @@ export default function TodayScreen() {
                 spot={r.spot}
                 badge={{ label: r.verdict === 'go' ? 'Go' : r.verdict === 'maybe' ? 'Maybe' : 'Skip', kind: r.verdict }}
                 reason={r.reason}
-                meta={<><span><IconCar size={14} /> {r.driveMinutes} min</span>{openMeta(r, tz)}</>}
+                meta={<><span><IconCar size={14} /> {fmtDrive(r.driveMinutes)}</span>{openMeta(r, tz)}</>}
               />
             ))}
           </div>

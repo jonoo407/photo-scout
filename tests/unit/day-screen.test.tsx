@@ -25,6 +25,14 @@ describe('DayScreen', () => {
     expect(screen.getAllByText(/min$/).length).toBeGreaterThanOrEqual(2)
   })
 
+  it('shows the drive from home to the first stop (and no bare "0 min" leg)', () => {
+    renderDay('/day')
+    // The home → first-stop leg must be visible, not just hidden inside the total.
+    expect(screen.getByText(/from home/i)).toBeInTheDocument()
+    // A 0-minute drive should never render as the wonky "drive 0 min".
+    expect(screen.queryByText(/\bdrive 0 min\b/i)).not.toBeInTheDocument()
+  })
+
   it('plans around an anchor spot and flags it', () => {
     renderDay('/day?anchor=dali-museum')
     expect(screen.getByText('The Dalí Museum')).toBeInTheDocument()
