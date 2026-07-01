@@ -31,7 +31,14 @@ export default function SettingsScreen() {
     if (!navigator.geolocation) { setGeoErr('Location unavailable — pick a city below.'); return }
     setGeoErr(''); setDetecting(true)
     navigator.geolocation.getCurrentPosition(
-      (p) => { setRegion(nearestRegion(p.coords.latitude, p.coords.longitude)); setDetecting(false) },
+      (p) => {
+        const lat = p.coords.latitude, lng = p.coords.longitude
+        // Pick the nearest city AND pin home to where the user actually is, so
+        // drive times/distances are from their location — not the city default.
+        setRegion(nearestRegion(lat, lng))
+        setHome({ label: 'Current location', lat, lng })
+        setDetecting(false)
+      },
       () => { setGeoErr("Couldn't get your location — pick a city below."); setDetecting(false) },
       { timeout: 8000 },
     )
@@ -49,7 +56,12 @@ export default function SettingsScreen() {
     }
     setGeoErr(''); setLocating(true)
     navigator.geolocation.getCurrentPosition(
-      (p) => { setHome({ label: 'Current location', lat: p.coords.latitude, lng: p.coords.longitude }); setLocating(false) },
+      (p) => {
+        const lat = p.coords.latitude, lng = p.coords.longitude
+        setRegion(nearestRegion(lat, lng)) // keep the active city in sync with home
+        setHome({ label: 'Current location', lat, lng })
+        setLocating(false)
+      },
       () => { setGeoErr("Couldn't get your location — check permissions, or type an address instead."); setLocating(false) },
       { timeout: 8000 },
     )

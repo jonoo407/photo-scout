@@ -157,9 +157,7 @@ export function planDay({ date, home, spots, wishlist, anchorId, blockWeather }:
     if (!chosen) continue
 
     used.add(chosen.id)
-    const driveMin = from === home
-      ? (chosen.driveMinutes ?? Math.round(haversineMiles(home, chosen) * 2.2))
-      : Math.round(haversineMiles(from, chosen) * 2.2)
+    const driveMin = Math.round(haversineMiles(from, chosen) * 2.2)
     const significant = verdict && (verdict.mood === 'rainy' || verdict.mood === 'cloudy')
     stops.push({
       block,

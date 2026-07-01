@@ -70,6 +70,9 @@ export interface Spot {
   feeUSD: number
   isFree: boolean
   feeNote?: string
+  /** @deprecated Not used for display — drive time is computed from the user's
+   *  actual home (see live.ts `driveMinutes`). A stored value here is ignored so
+   *  distances stay location-aware. Don't add it to new spots. */
   driveMinutes?: number
   hours: Hours
   phone: string | null

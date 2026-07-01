@@ -128,7 +128,7 @@ export function nextUp({ now, lat, lng, home, spots, wishlist, verdict }: NextUp
     if (wishlist?.has(spot.id)) score += 0.2
 
     const verdictLabel: Verdict = score >= 0.9 ? 'go' : score >= 0.65 ? 'maybe' : 'skip'
-    const driveMinutes = spot.driveMinutes ?? Math.round(miles * 2.2)
+    const driveMinutes = Math.round(miles * 2.2) // from the actual home, not a stored constant
     ranked.push({ spot, score: Math.round(score * 1000) / 1000, verdict: verdictLabel, reason, driveMinutes, open })
   }
 

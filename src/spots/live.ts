@@ -23,7 +23,9 @@ export function milesFromHome(spot: Spot, home: HomeLocation): number {
 }
 
 export function driveMinutes(spot: Spot, home: HomeLocation): number {
-  return spot.driveMinutes ?? Math.round(milesFromHome(spot, home) * 2.2)
+  // Always estimate from the actual home so drive times respond to the user's
+  // location. (~2.2 min per straight-line mile approximates urban road time.)
+  return Math.round(milesFromHome(spot, home) * 2.2)
 }
 
 /** Light direction for a spot at a given moment (null if the spot has no facing). */

@@ -44,6 +44,17 @@ describe('nextUp', () => {
     expect(boosted).toBeGreaterThan(base)
   })
 
+  it('computes drive time from the actual home, not a hardcoded per-spot value', () => {
+    // A spot may carry a legacy stored driveMinutes, but the displayed drive must
+    // reflect where the user actually is (this is what "use my location" changes).
+    const farHome = { label: 'Far', lat: 28.6, lng: -82.0 } // ~50 mi NE of downtown Tampa
+    const far = nextUp({ now: NOW, lat: LAT, lng: LNG, home: farHome, spots: SPOTS })
+    const id = 'curtis-hixon-waterfront-park'
+    const nearDrive = res.ranked.find((r) => r.spot.id === id)!.driveMinutes
+    const farDrive = far.ranked.find((r) => r.spot.id === id)!.driveMinutes
+    expect(farDrive).toBeGreaterThan(nearDrive)
+  })
+
   it('accepts an optional weather verdict without error', () => {
     const v = weatherVerdict({ cloudCover: 10, precipProbability: 0 })
     const r = nextUp({ now: NOW, lat: LAT, lng: LNG, home: DEFAULT_HOME, spots: SPOTS, verdict: v })

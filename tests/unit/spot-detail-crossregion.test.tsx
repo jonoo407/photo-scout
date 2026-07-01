@@ -32,9 +32,9 @@ describe('SpotDetailScreen — cross-region deep links', () => {
   it('shows a locally-consistent drive·distance for a cross-city spot, not the active-home distance', () => {
     // Active region (and home) is Tampa Bay; Independence Hall is in Philadelphia,
     // ~0.8 mi from Philly's City Hall default home. The pill must read as a short
-    // local hop (8 min · <1 mi), NOT "8 min · 931.5 mi" (Tampa-home distance).
+    // local hop (a few min · <1 mi), NOT the Tampa-home distance ("931.5 mi").
     renderSpot('independence-hall')
-    expect(document.body.textContent).toMatch(/8 min · \d(\.\d)? mi/)
+    expect(document.body.textContent).toMatch(/\d min · 0\.\d mi/)
     expect(document.body.textContent).not.toMatch(/9\d\d\.\d mi/)
   })
 })
