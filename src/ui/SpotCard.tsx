@@ -20,11 +20,14 @@ export function SpotCard({
 }) {
   const nav = useNavigate()
   const Icon = CategoryIcon[spot.category]
+  const photo = spot.media[0]?.thumb ?? spot.media[0]?.src
   return (
     <button className="spotcard" onClick={() => nav(`/spot/${spot.id}`)}>
       <div className="body">
-        <div className="thumbicon" style={{ background: 'var(--surface-2)' }}>
-          <Icon size={22} color={CATEGORY_COLOR[spot.category]} />
+        <div className="thumbicon" style={photo ? undefined : { background: 'var(--surface-2)' }}>
+          {photo
+            ? <img src={photo} alt="" loading="lazy" decoding="async" />
+            : <Icon size={22} color={CATEGORY_COLOR[spot.category]} />}
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="row-spread" style={{ gap: 8 }}>
