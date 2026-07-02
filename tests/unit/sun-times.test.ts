@@ -65,3 +65,29 @@ describe('computeSunTimes — PhotoPills angle parity', () => {
     expect(t.sunset.getTime()).toBeLessThan(t.goldenHourEvening.end.getTime())
   })
 })
+
+/* The app anchors per-day sun lookups at "local midnight + 12h" (see
+   sunTimesFor in best-days.ts / day-plan.ts). On DST-transition days that
+   anchor lands at 11:00 or 13:00 wall time instead of noon — which is still
+   safely inside the same local day, so suncalc must resolve the SAME day's
+   events. Pins the behavior so nobody "fixes" the +12h into a DST bug. */
+describe('midnight+12h day anchor survives DST transitions', () => {
+  const dayInET = (d: Date) =>
+    +new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', day: '2-digit' })
+      .formatToParts(d).find((p) => p.type === 'day')!.value
+
+  const cases: [string, number, number][] = [
+    // [label, ET-midnight as UTC ms, expected local day]
+    ['spring forward 2026-03-08', Date.UTC(2026, 2, 8, 5, 0), 8], // 00:00 EST
+    ['fall back 2026-11-01', Date.UTC(2026, 10, 1, 4, 0), 1],     // 00:00 EDT
+  ]
+
+  for (const [label, midnightUtc, day] of cases) {
+    it(label, () => {
+      const t = computeSunTimes(new Date(midnightUtc + 12 * 3600 * 1000), LAT, LNG)
+      expect(dayInET(t.sunrise)).toBe(day)
+      expect(dayInET(t.sunset)).toBe(day)
+      expect(t.sunrise.getTime()).toBeLessThan(t.sunset.getTime())
+    })
+  }
+})

@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import type { Category, Light } from '../spots/types'
 import { DEFAULT_HOME, type HomeLocation } from '../data/home.config'
-import { REGIONS, regionContains, type RegionId } from '../data/regions'
+import { DEFAULT_REGION, REGIONS, regionContains, type RegionId } from '../data/regions'
 
 export type SortKey = 'nearest' | 'az' | 'category'
 export type ThemeChoice = 'auto' | 'light' | 'dark'
@@ -102,15 +102,23 @@ export const useStore = create<AppState>()(
       setTheme: (theme) => { applyTheme(theme); set({ theme }) },
       // Switch city; move home to the new region's default unless the current
       // home is already in that region (user's own in-city pin is kept).
+      // Unknown ids (stale persisted value, removed city) fall back to default.
       setRegion: (region) => set((s) => {
-        const r = REGIONS[region]
-        return { region, home: regionContains(r, s.home.lat, s.home.lng) ? s.home : r.defaultHome }
+        const r = REGIONS[region] ?? REGIONS[DEFAULT_REGION]
+        const id = REGIONS[region] ? region : DEFAULT_REGION
+        return { region: id, home: regionContains(r, s.home.lat, s.home.lng) ? s.home : r.defaultHome }
       }),
     }),
     {
       name: 'photo-scout',
       storage: createJSONStorage(() => localStorage),
       version: 1,
+      // Filters (search text, chips, sort) are transient session UI — persisting
+      // them meant a days-old "Sunset" filter still narrowed Browse on relaunch.
+      partialize: (s) => {
+        const { filters: _filters, ...rest } = s
+        return rest
+      },
       migrate: (persisted: unknown) => {
         const s = persisted as AppState | undefined
         if (s && typeof s === 'object') s.home = healStaleHome(s.home)

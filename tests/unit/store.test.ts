@@ -88,4 +88,24 @@ describe('region switching', () => {
     useStore.getState().setRegion('philadelphia')
     expect(useStore.getState().home).toBe(phillyHome)
   })
+
+  it('an unknown region id falls back to the default region instead of crashing', () => {
+    // e.g. a stale persisted deep link or a removed city id
+    useStore.getState().setRegion('atlantis')
+    expect(useStore.getState().region).toBe('tampa-bay')
+    expect(useStore.getState().home).toEqual(REGIONS['tampa-bay'].defaultHome)
+  })
+})
+
+describe('persistence shape', () => {
+  it('does not persist transient filters (a stale search/filter must not survive a restart)', () => {
+    const opts = useStore.persist.getOptions()
+    expect(opts.partialize).toBeDefined()
+    const persisted = opts.partialize!(useStore.getState()) as Record<string, unknown>
+    expect(persisted).not.toHaveProperty('filters')
+    // durable prefs must still persist
+    for (const key of ['wishlist', 'visited', 'checklist', 'home', 'region', 'units', 'mapsApp', 'theme']) {
+      expect(persisted, key).toHaveProperty(key)
+    }
+  })
 })

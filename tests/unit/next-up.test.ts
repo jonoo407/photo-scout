@@ -44,6 +44,23 @@ describe('nextUp', () => {
     expect(boosted).toBeGreaterThan(base)
   })
 
+  it('does not double-count the light-tag match for spots without a facing', () => {
+    // A no-facing spot's base score IS the light-tag match (0.85). The +0.1 tag
+    // kicker must not stack on top of it — that double-counts one signal and
+    // lets unverifiable spots outrank ones with a verified sun direction.
+    const spot = {
+      ...SPOTS[0],
+      id: 'synthetic-nofacing', name: 'Synthetic', facing: null,
+      lat: DEFAULT_HOME.lat, lng: DEFAULT_HOME.lng, // 0 mi → full +0.1 distance
+      bestLight: ['evening-golden' as const],
+      hours: { days: { sun: { open: '24h' as const }, mon: { open: '24h' as const }, tue: { open: '24h' as const }, wed: { open: '24h' as const }, thu: { open: '24h' as const }, fri: { open: '24h' as const }, sat: { open: '24h' as const } } },
+    }
+    const r = nextUp({ now: NOW, lat: LAT, lng: LNG, home: DEFAULT_HOME, spots: [spot] })
+    expect(r.window.kind).toBe('evening-golden')
+    // 0.85 (tag match) + 0.1 (distance) = 0.95; the buggy double-count gave 1.05
+    expect(r.ranked[0].score).toBeCloseTo(0.95, 5)
+  })
+
   it('computes drive time from the actual home, not a hardcoded per-spot value', () => {
     // A spot may carry a legacy stored driveMinutes, but the displayed drive must
     // reflect where the user actually is (this is what "use my location" changes).

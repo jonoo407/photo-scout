@@ -107,13 +107,15 @@ export function nextUp({ now, lat, lng, home, spots, wishlist, verdict }: NextUp
         score += 0.5
         reason = 'Backlit rim light'
       }
+      // Light-tag kicker on top of the direction score. Only in this branch —
+      // the no-facing branch's base score IS the tag match; adding it again
+      // would double-count one signal and inflate unverifiable spots.
+      if (matchesLight(spot, window.light)) score += 0.1
     } else {
       const match = matchesLight(spot, window.light)
       score += match ? 0.85 : 0.5
       reason = match ? `Great in ${window.label.toLowerCase()}` : 'Workable light'
     }
-
-    if (matchesLight(spot, window.light)) score += 0.1
     if (verdict) {
       if (verdict.favors.includes(spot.category)) score += 0.15
       if (verdict.avoid.includes(spot.category)) score -= 0.3
