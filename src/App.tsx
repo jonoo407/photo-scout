@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 import { useStore, applyTheme } from './state/store'
+import { initAuth } from './auth/useAuth'
 import Layout from './ui/Layout'
 import TodayScreen from './ui/Today/TodayScreen'
 import BrowseScreen from './ui/Browse/BrowseScreen'
@@ -28,5 +29,6 @@ const router = createHashRouter([
 export default function App() {
   const theme = useStore((s) => s.theme)
   useEffect(() => { applyTheme(theme) }, [theme])
+  useEffect(() => { void initAuth() }, []) // no-op until auth env vars are set
   return <RouterProvider router={router} />
 }

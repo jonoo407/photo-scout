@@ -81,6 +81,14 @@ describe('Settings — set home by typing an address', () => {
     }
   })
 
+  it('hides the ACCOUNT section entirely when auth is not configured', () => {
+    // No VITE_SUPABASE_* env in tests → authAvailable() is false → the app
+    // must look exactly as it did before login existed.
+    renderSettings()
+    expect(screen.queryByText('ACCOUNT')).not.toBeInTheDocument()
+    expect(screen.queryByPlaceholderText(/your email/i)).not.toBeInTheDocument()
+  })
+
   it('switches city from the picker (and moves home to that city)', async () => {
     const user = userEvent.setup()
     renderSettings()

@@ -7,6 +7,7 @@ import {
 import { useStore } from '../../state/store'
 import { REGION_LIST, nearestRegion } from '../../data/regions'
 import { geocodeAddress } from '../../spots/geocode'
+import AccountSection from './AccountSection'
 
 export default function SettingsScreen() {
   const nav = useNavigate()
@@ -80,6 +81,8 @@ export default function SettingsScreen() {
     <div className="screen">
       <button className="back" onClick={() => nav(-1)}><IconArrowLeft size={18} /> Back</button>
       <h1>Settings</h1>
+
+      <AccountSection />
 
       <p className="shdr">CITY</p>
       <div className="card list">
