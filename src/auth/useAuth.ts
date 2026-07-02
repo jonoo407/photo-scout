@@ -13,6 +13,7 @@ interface AuthState {
   status: 'idle' | 'ready' | 'sending' | 'sent' | 'error'
   errorMsg: string | null
   signInWithEmail: (email: string) => Promise<void>
+  signInWithGoogle: () => Promise<void>
   signOut: () => Promise<void>
 }
 
@@ -37,6 +38,22 @@ export const useAuth = create<AuthState>((set) => ({
       set({ status: 'sent' })
     } catch (e) {
       set({ status: 'error', errorMsg: e instanceof Error ? e.message : 'Could not send the link' })
+    }
+  },
+
+  signInWithGoogle: async () => {
+    set({ errorMsg: null })
+    try {
+      const supabase = await getSupabase()
+      // Full-page redirect to Google, then back here as ?code= (PKCE) which
+      // detectSessionInUrl exchanges automatically.
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin + window.location.pathname },
+      })
+      if (error) throw error
+    } catch (e) {
+      set({ status: 'error', errorMsg: e instanceof Error ? e.message : 'Google sign-in failed' })
     }
   },
 

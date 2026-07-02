@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { IconUserCircle, IconMailForward, IconCloudCheck, IconLogout } from '@tabler/icons-react'
-import { authAvailable } from '../../auth/supabase'
+import { IconUserCircle, IconMailForward, IconCloudCheck, IconLogout, IconBrandGoogleFilled } from '@tabler/icons-react'
+import { authAvailable, googleEnabled } from '../../auth/supabase'
 import { useAuth } from '../../auth/useAuth'
 
 /* Passwordless account row for Settings. Hidden entirely until auth is
@@ -11,6 +11,7 @@ export default function AccountSection() {
   const status = useAuth((s) => s.status)
   const errorMsg = useAuth((s) => s.errorMsg)
   const signInWithEmail = useAuth((s) => s.signInWithEmail)
+  const signInWithGoogle = useAuth((s) => s.signInWithGoogle)
   const signOut = useAuth((s) => s.signOut)
   const [email, setEmail] = useState('')
 
@@ -40,6 +41,13 @@ export default function AccountSection() {
           </p>
         ) : (
           <>
+            {googleEnabled() && (
+              <button className="row" onClick={() => void signInWithGoogle()}>
+                <span className="rowleft" style={{ color: 'var(--terracotta)' }}>
+                  <IconBrandGoogleFilled size={18} /> Continue with Google
+                </span>
+              </button>
+            )}
             <div className="row">
               <span className="rowleft"><IconUserCircle size={18} /> Sign in</span>
               <span className="addrset">

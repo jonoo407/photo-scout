@@ -7,15 +7,16 @@ import { useAuth } from '../../src/auth/useAuth'
 import { DEFAULT_HOME } from '../../src/data/home.config'
 
 // Mock the supabase module: auth "configured", no network.
+const mockAuth = {
+  signInWithOtp: vi.fn(async () => ({ error: null })),
+  signInWithOAuth: vi.fn(async () => ({ error: null })),
+  signOut: vi.fn(async () => ({})),
+  onAuthStateChange: vi.fn(),
+}
 vi.mock('../../src/auth/supabase', () => ({
   authAvailable: () => true,
-  getSupabase: vi.fn(async () => ({
-    auth: {
-      signInWithOtp: vi.fn(async () => ({ error: null })),
-      signOut: vi.fn(async () => ({})),
-      onAuthStateChange: vi.fn(),
-    },
-  })),
+  googleEnabled: () => true,
+  getSupabase: vi.fn(async () => ({ auth: mockAuth })),
 }))
 
 import SettingsScreen from '../../src/ui/Settings/SettingsScreen'
@@ -38,6 +39,17 @@ describe('Settings — account (signed out)', () => {
     await user.type(screen.getByPlaceholderText(/your email/i), 'jon@example.com')
     await user.click(screen.getByRole('button', { name: /send sign-in link/i }))
     expect(await screen.findByText(/check your email/i)).toBeInTheDocument()
+  })
+})
+
+describe('Settings — account (Google SSO)', () => {
+  it('offers Continue with Google and starts the OAuth redirect', async () => {
+    const user = userEvent.setup()
+    renderSettings()
+    await user.click(screen.getByRole('button', { name: /continue with google/i }))
+    expect(mockAuth.signInWithOAuth).toHaveBeenCalledWith(
+      expect.objectContaining({ provider: 'google' }),
+    )
   })
 })
 

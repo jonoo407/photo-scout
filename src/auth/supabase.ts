@@ -18,6 +18,13 @@ export function authAvailable(): boolean {
   return Boolean(URL && KEY)
 }
 
+/** Show "Continue with Google" only when the provider is actually configured
+ *  (Google Cloud OAuth client + Supabase provider enabled) — flagged via
+ *  VITE_AUTH_GOOGLE=1 so a half-configured project never shows a dead button. */
+export function googleEnabled(): boolean {
+  return authAvailable() && Boolean(import.meta.env.VITE_AUTH_GOOGLE)
+}
+
 let client: Promise<SupabaseClient> | null = null
 
 export function getSupabase(): Promise<SupabaseClient> {
