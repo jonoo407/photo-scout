@@ -80,4 +80,4 @@ Landscape: PhotoPills/TPE/PlanIt own sun-moon *calculation*; Locationscout owns 
 Deliberately skipped: DoF/exposure calculators (commodity; PhotoPills owns), 3D terrain shadows (server-heavy, breaks keyless), offline map tiles (storage-heavy), native widgets (impossible in PWA). Also noted: custom SMTP (Resend) for magic-link email before promoting broadly — built-in sender is a-few-emails/hour.
 
 ## Adding a spot
-Append a `Spot` object to `src/data/spots.ts` (DRY hours helpers at the top). The data-integrity test (`tests/unit/spots-data.test.ts`) enforces the contract — run it after.
+Full playbook: **`docs/ADDING_SPOTS.md`** (selection criteria, two-source fact verification, photo licensing + mandatory eyeball step, craft-guide standards, quality gates, live verification, new-city checklist). Mechanical enforcement lives in `tests/unit/spots-data.test.ts` + `spots-media.test.ts`.
