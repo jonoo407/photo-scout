@@ -24,6 +24,23 @@ export function useRegionSpots(): { spots: Spot[]; loading: boolean } {
   return { spots: spots ?? [], loading: spots === undefined }
 }
 
+/** Every city's spots combined (for cross-region views like Saved). */
+export function useAllSpots(): { spots: Spot[]; loading: boolean } {
+  const [, tick] = useState(0)
+  const ids = allRegionIds()
+  const missing = ids.filter((r) => !cachedRegionSpots(r))
+  useEffect(() => {
+    if (!missing.length) return
+    let alive = true
+    void Promise.all(missing.map((r) => loadRegionSpots(r))).then(() => { if (alive) tick((x) => x + 1) })
+    return () => { alive = false }
+  }, [missing.length]) // eslint-disable-line react-hooks/exhaustive-deps
+  return {
+    spots: ids.flatMap((r) => cachedRegionSpots(r) ?? []),
+    loading: missing.length > 0,
+  }
+}
+
 /**
  * Resolve a single spot by id across every city. Checks the active region first
  * (the common case — tapping from the list, no extra load), then any other

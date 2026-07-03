@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { Outlet, NavLink } from 'react-router-dom'
-import { IconSun, IconListSearch, IconMap2, IconCalendarEvent } from '@tabler/icons-react'
+import { IconSun, IconListSearch, IconMap2, IconCalendarEvent, IconStar } from '@tabler/icons-react'
 
 function Tab({ to, icon, label }: { to: string; icon: ReactNode; label: string }) {
   return (
@@ -20,6 +20,7 @@ export default function Layout() {
         <Tab to="/browse" icon={<IconListSearch size={22} />} label="Browse" />
         <Tab to="/map" icon={<IconMap2 size={22} />} label="Map" />
         <Tab to="/plan" icon={<IconCalendarEvent size={22} />} label="Plan" />
+        <Tab to="/saved" icon={<IconStar size={22} />} label="Saved" />
       </nav>
     </>
   )
