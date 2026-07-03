@@ -12,6 +12,21 @@ export default defineConfig({
       registerType: 'autoUpdate',
       devOptions: { enabled: false },
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
+      workbox: {
+        // Cache viewed spot photos so heroes/thumbnails survive spotty signal
+        // in the field (they're hotlinked from Wikimedia/Flickr, not bundled).
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/(upload\.wikimedia\.org|live\.staticflickr\.com)\/.*/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'spot-photos',
+              expiration: { maxEntries: 300, maxAgeSeconds: 60 * 24 * 3600, purgeOnQuotaError: true },
+              cacheableResponse: { statuses: [0, 200] }, // opaque cross-origin OK
+            },
+          },
+        ],
+      },
       manifest: {
         name: 'Vantage — Photo Scout',
         short_name: 'Vantage',

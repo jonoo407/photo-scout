@@ -1,15 +1,17 @@
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 import { useStore, applyTheme } from './state/store'
 import { initAuth } from './auth/useAuth'
 import Layout from './ui/Layout'
 import TodayScreen from './ui/Today/TodayScreen'
 import BrowseScreen from './ui/Browse/BrowseScreen'
-import MapScreen from './ui/Map/MapScreen'
 import PlanScreen from './ui/Plan/PlanScreen'
 import DayScreen from './ui/Plan/DayScreen'
 import SpotDetailScreen from './ui/SpotDetail/SpotDetailScreen'
 import SettingsScreen from './ui/Settings/SettingsScreen'
+
+// Leaflet is ~150KB — load the Map screen only when it's opened.
+const MapScreen = lazy(() => import('./ui/Map/MapScreen'))
 
 const router = createHashRouter([
   {
@@ -17,7 +19,7 @@ const router = createHashRouter([
     children: [
       { path: '/', element: <TodayScreen /> },
       { path: '/browse', element: <BrowseScreen /> },
-      { path: '/map', element: <MapScreen /> },
+      { path: '/map', element: <Suspense fallback={<div className="screen"><p className="center-note">Loading map…</p></div>}><MapScreen /></Suspense> },
       { path: '/plan', element: <PlanScreen /> },
       { path: '/day', element: <DayScreen /> },
       { path: '/spot/:id', element: <SpotDetailScreen /> },
