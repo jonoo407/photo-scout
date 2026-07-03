@@ -6,11 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b --noEmit && vite build",
-    "preview": "vite preview --port 4173",
+    "preview": "npm run build && wrangler dev",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.0",
@@ -25,6 +26,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",
+    "@cloudflare/vite-plugin": "^1.43.0",
     "@playwright/test": "^1.61.1",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
@@ -39,6 +41,7 @@
     "typescript": "^5.7.2",
     "vite": "^6.0.5",
     "vite-plugin-pwa": "^0.21.2",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.8",
+    "wrangler": "^4.107.0"
   }
 }
