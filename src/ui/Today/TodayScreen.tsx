@@ -14,6 +14,7 @@ import { weatherVerdict } from '../../weather/verdict'
 import { sunsetScore, sunsetLabel } from '../../weather/sunset-score'
 import { fmtTime, fmtDrive, untilString } from '../../util/format'
 import { SpotCard } from '../SpotCard'
+import IntroCard from './IntroCard'
 
 const GRADE_COLOR = { great: 'var(--go-ink)', decent: 'var(--maybe-ink)', meh: 'var(--ink-2)' } as const
 
@@ -77,6 +78,8 @@ export default function TodayScreen() {
           <IconSettings size={22} />
         </button>
       </div>
+
+      <IntroCard />
 
       {sScore !== null && sScore >= 80 && eveningSunset && top[0] && (
         <button className="alert" style={{ border: 0, cursor: 'pointer', width: '100%' }} onClick={() => nav(`/spot/${top[0].spot.id}`)}>

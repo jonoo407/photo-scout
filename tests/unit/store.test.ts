@@ -54,6 +54,24 @@ describe('healStaleHome (persisted-home migration)', () => {
   it('falls back to the default for a missing home', () => {
     expect(healStaleHome(undefined)).toEqual(DEFAULT_HOME)
   })
+
+  it('the shipped default is a neutral public place, not a personal address', () => {
+    // The original default was the developer's real street address — it must
+    // never ship to users again, in any field.
+    const s = JSON.stringify(DEFAULT_HOME)
+    expect(s).not.toMatch(/Leona/i)
+    expect(DEFAULT_HOME.label).toBe('Downtown Tampa')
+  })
+
+  it('migrates a persisted copy of the old personal-address default to the neutral one', () => {
+    const oldDefault = { label: '3812 W Leona St, Tampa', address: '3812 W Leona St, Tampa, FL 33629', lat: 27.9147, lng: -82.5064 }
+    expect(healStaleHome(oldDefault)).toEqual(DEFAULT_HOME)
+  })
+
+  it('still keeps a genuine user-set home (typed address)', () => {
+    const mine = { label: '123 Main St, Tampa', address: '123 Main St, Tampa', lat: 27.93, lng: -82.46 }
+    expect(healStaleHome(mine)).toBe(mine)
+  })
 })
 
 describe('theme', () => {

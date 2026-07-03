@@ -27,7 +27,7 @@ describe('SpotDetailScreen — address on the detail page', () => {
     // 27.9512,-82.4555 was the coord that reverse-geocoded to the Firefighters Museum
     expect(href).not.toContain('27.9512')
     // origin starts from the home address, not the old 5000-S-Crescent coord (27.8916)
-    expect(href).toContain(encodeURIComponent('3812 W Leona St, Tampa, FL 33629'))
+    expect(href).toContain(encodeURIComponent('Downtown Tampa, Tampa, FL'))
     expect(href).not.toContain('27.8916')
   })
 

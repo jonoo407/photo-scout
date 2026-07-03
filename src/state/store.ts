@@ -47,6 +47,7 @@ interface AppState {
   units: 'imperial' | 'metric'
   mapsApp: 'apple' | 'google'
   theme: ThemeChoice
+  introSeen: boolean
 
   toggleWishlist: (id: string) => void
   toggleVisited: (id: string) => void
@@ -58,6 +59,7 @@ interface AppState {
   setMapsApp: (m: 'apple' | 'google') => void
   setTheme: (t: ThemeChoice) => void
   setRegion: (r: RegionId) => void
+  dismissIntro: () => void
 }
 
 const toggle = (list: string[], id: string) =>
@@ -74,6 +76,9 @@ const toggle = (list: string[], id: string) =>
 export function healStaleHome(home: HomeLocation | undefined): HomeLocation {
   if (!home) return DEFAULT_HOME
   if (home.label !== 'Current location' && !home.address) return DEFAULT_HOME
+  // The pre-2026-07 default was a personal street address; migrate any
+  // persisted copy of it to the neutral downtown default.
+  if (/Leona/i.test(home.address ?? '') || /Leona/i.test(home.label)) return DEFAULT_HOME
   return home
 }
 
@@ -89,6 +94,7 @@ export const useStore = create<AppState>()(
       units: 'imperial',
       mapsApp: 'apple',
       theme: 'auto',
+      introSeen: false,
 
       toggleWishlist: (id) => set((s) => ({ wishlist: toggle(s.wishlist, id) })),
       toggleVisited: (id) => set((s) => ({ visited: toggle(s.visited, id) })),
@@ -108,6 +114,7 @@ export const useStore = create<AppState>()(
         const id = REGIONS[region] ? region : DEFAULT_REGION
         return { region: id, home: regionContains(r, s.home.lat, s.home.lng) ? s.home : r.defaultHome }
       }),
+      dismissIntro: () => set({ introSeen: true }),
     }),
     {
       name: 'photo-scout',
