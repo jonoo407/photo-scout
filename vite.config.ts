@@ -4,26 +4,25 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { manifestIcons } from './src/brand/icons'
 
+import { cloudflare } from "@cloudflare/vite-plugin";
+
 export default defineConfig({
   base: './',
-  plugins: [
-    react(),
-    VitePWA({
-      registerType: 'autoUpdate',
-      devOptions: { enabled: false },
-      includeAssets: ['icon.svg', 'apple-touch-icon.png'],
-      manifest: {
-        name: 'Vantage — Photo Scout',
-        short_name: 'Vantage',
-        description: 'Find great places to shoot, with the right light, access and craft for each one.',
-        theme_color: '#faf1e2',
-        background_color: '#faf1e2',
-        display: 'standalone',
-        start_url: './',
-        icons: manifestIcons,
-      },
-    }),
-  ],
+  plugins: [react(), VitePWA({
+    registerType: 'autoUpdate',
+    devOptions: { enabled: false },
+    includeAssets: ['icon.svg', 'apple-touch-icon.png'],
+    manifest: {
+      name: 'Vantage — Photo Scout',
+      short_name: 'Vantage',
+      description: 'Find great places to shoot, with the right light, access and craft for each one.',
+      theme_color: '#faf1e2',
+      background_color: '#faf1e2',
+      display: 'standalone',
+      start_url: './',
+      icons: manifestIcons,
+    },
+  }), cloudflare()],
   test: {
     globals: true,
     environment: 'jsdom',
