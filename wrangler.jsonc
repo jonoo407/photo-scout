@@ -1,0 +1,17 @@
+// Cloudflare Workers deploy config (Workers Builds uses this when present).
+// name MUST stay "vantage" — it targets the existing Worker that owns
+// shootvantage.com. Custom-domain routes auto-create their DNS records in
+// the zone on deploy (both hosts serve the app; index.html carries the
+// canonical link to the apex).
+{
+  "name": "vantage",
+  "compatibility_date": "2026-07-03",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  },
+  "routes": [
+    { "pattern": "shootvantage.com", "custom_domain": true },
+    { "pattern": "www.shootvantage.com", "custom_domain": true }
+  ]
+}
