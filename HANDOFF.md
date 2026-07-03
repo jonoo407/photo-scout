@@ -66,5 +66,18 @@ Today (Next Up + live weather/moon + alert), Browse (filters/sort/open-now + emp
 7. **Tests**: add Playwright e2e + axe a11y at iPhone viewport (only unit tests exist now).
 8. **Persistence**: upgrade store from localStorage → IndexedDB (idb) when the photo shot-log lands.
 
+## Backlog — competitive research (2026-07-03)
+Landscape: PhotoPills/TPE/PlanIt own sun-moon *calculation*; Locationscout owns community breadth (274k UGC spots); Explorest is the closest philosophical competitor (100% curated + photo specs); Cascable's "Photo Scout" charges $25–40/**yr** solely for condition-watch notifications. Nobody combines curation + craft + light-aware planning like Vantage. Ranked adds:
+
+1. **Conditions alerts (push)** 🔥 — watch a saved spot, web-push when Best-Days conditions align (sunset score, henge dates). Engine already computes it; needs PWA push + a Cloudflare Worker cron. Converts "app you check" → "app that calls you". (Competitors charge a yearly sub for exactly this; the Settings "Conditions alerts v2" stub becomes real.)
+2. **Sun-path lines on the map** — sunrise/sunset azimuth lines from a spot pin for any date (suncalc, nearly free). PhotoPills' signature look.
+3. **"Sun-behind-X" alignment finder** — generalize the existing henge scorer: "next 5 dates the sun sets within ±2° of this spot's facing."
+4. **Photo specs on reference photos** — media schema already has `focalLengthMm`; extend to camera/ISO/aperture/shutter and surface on the hero carousel (Explorest's best idea).
+5. **Milky Way / astro layer** — galactic-core visibility windows + per-spot dark-sky field for `night-astro` spots.
+6. **Visited-progress gamification** — "14/30 Tampa · 2/33 Philadelphia" progress on Saved (Locationscout's achievement hook).
+7. **Compass mode (web-AR-lite)** — device-orientation arrow to where the sun will be at the chosen window, from the spot.
+
+Deliberately skipped: DoF/exposure calculators (commodity; PhotoPills owns), 3D terrain shadows (server-heavy, breaks keyless), offline map tiles (storage-heavy), native widgets (impossible in PWA). Also noted: custom SMTP (Resend) for magic-link email before promoting broadly — built-in sender is a-few-emails/hour.
+
 ## Adding a spot
 Append a `Spot` object to `src/data/spots.ts` (DRY hours helpers at the top). The data-integrity test (`tests/unit/spots-data.test.ts`) enforces the contract — run it after.
