@@ -1,5 +1,6 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import SpotDetailScreen from '../../src/ui/SpotDetail/SpotDetailScreen'
 import { useStore } from '../../src/state/store'
@@ -27,6 +28,18 @@ describe('SpotDetailScreen — cross-region deep links', () => {
   it('still resolves an active-region spot', () => {
     renderSpot('curtis-hixon-waterfront-park')
     expect(screen.queryByText('Spot not found.')).not.toBeInTheDocument()
+  })
+
+  it('offers a Share action that copies the spot deep link', async () => {
+    // jsdom has no navigator.share → the clipboard fallback path.
+    // (Spy must be installed AFTER userEvent.setup, which stubs clipboard.)
+    const user = userEvent.setup()
+    const writeText = vi.fn(async () => {})
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+    renderSpot('independence-hall')
+    await user.click(screen.getByRole('button', { name: /share/i }))
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('#/spot/independence-hall'))
+    expect(await screen.findByText(/link copied/i)).toBeInTheDocument()
   })
 
   it('shows a locally-consistent drive·distance for a cross-city spot, not the active-home distance', () => {

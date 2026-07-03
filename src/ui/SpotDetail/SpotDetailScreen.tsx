@@ -1,10 +1,10 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   IconArrowLeft, IconCoin, IconClock, IconCar, IconCompass,
   IconCamera, IconAperture, IconDeviceCctv, IconParking, IconBath, IconUsers,
   IconSquare, IconSquareCheck, IconStar, IconCircleCheck, IconNavigation,
-  IconExternalLink, IconPhone, IconCalendarEvent, IconMapPin,
+  IconExternalLink, IconPhone, IconCalendarEvent, IconMapPin, IconShare2, IconCheck,
 } from '@tabler/icons-react'
 import SpotHero from './SpotHero'
 import BestDays from './BestDays'
@@ -36,6 +36,7 @@ export default function SpotDetailScreen() {
   const toggleVisited = useStore((s) => s.toggleVisited)
   const toggleShot = useStore((s) => s.toggleShot)
   const now = useMemo(() => new Date(), [])
+  const [copied, setCopied] = useState(false)
 
   if (!spot) {
     return (
@@ -59,6 +60,18 @@ export default function SpotDetailScreen() {
   const been = visited.includes(spot.id)
   const doneShots = checklist[spot.id] ?? []
   const c = spot.craft
+
+  const shareUrl = `https://shootvantage.com/#/spot/${spot.id}`
+  const share = async () => {
+    // Native share sheet on mobile; clipboard fallback on desktop.
+    if (navigator.share) {
+      await navigator.share({ title: `${spot.name} — Vantage`, url: shareUrl }).catch(() => {})
+    } else {
+      await navigator.clipboard?.writeText(shareUrl)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
+  }
 
   const windows = [
     { label: 'Morning golden', a: sun.goldenHourMorning.start, b: sun.goldenHourMorning.end },
@@ -91,7 +104,15 @@ export default function SpotDetailScreen() {
             <IconMapPin size={13} /> {spot.address}
           </a>
         </div>
+        <button
+          aria-label="Share this spot"
+          onClick={() => void share()}
+          style={{ border: 0, background: 'none', cursor: 'pointer', color: copied ? 'var(--go-ink)' : 'var(--ink-2)', padding: 8, flex: 'none' }}
+        >
+          {copied ? <IconCheck size={20} /> : <IconShare2 size={20} />}
+        </button>
       </div>
+      {copied && <p className="small" style={{ color: 'var(--go-ink)', margin: '2px 0 0' }}>Link copied</p>}
 
       <div className="facts">
         <span className="fact"><IconCoin size={15} /> {spot.isFree ? 'Free' : `$${spot.feeUSD}`}</span>
