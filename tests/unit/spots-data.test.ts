@@ -94,8 +94,14 @@ describe('Tampa spot dataset', () => {
   })
 
   it('Philadelphia has a real set of spots', () => {
-    expect(philadelphia.length).toBeGreaterThanOrEqual(30)
+    expect(philadelphia.length).toBeGreaterThanOrEqual(45)
     for (const s of philadelphia) expect(s.region).toBe('philadelphia')
+  })
+
+  it('covers the Manayunk area with at least 4 spots', () => {
+    // Manayunk neighborhood + the three canal/bridge/dam spots along the Schuylkill NW corridor
+    const manayunkArea = philadelphia.filter((s) => s.lat > 40.01 && s.lat < 40.05 && s.lng < -75.2)
+    expect(manayunkArea.length).toBeGreaterThanOrEqual(4)
   })
 
   it('St. Paul AME is named explicitly as a church with verified coords', () => {
