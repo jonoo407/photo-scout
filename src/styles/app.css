@@ -98,6 +98,7 @@ button.row, button.linkrow { appearance: none; background: var(--surface); curso
 .slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .slide-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 26px 14px 10px; background: linear-gradient(to top, rgba(28, 18, 8, 0.82), rgba(28, 18, 8, 0)); pointer-events: none; }
 .slide-cap .cap-text { display: block; font-size: 13px; font-weight: 500; color: #fff3e6; }
+.slide-cap .cap-specs { display: block; font-size: 11px; color: #ffd9a8; margin-top: 2px; font-variant-numeric: tabular-nums; }
 .slide-cap .cap-credit { display: block; font-size: 10px; color: #f3dcc4; opacity: 0.9; margin-top: 2px; pointer-events: auto; text-decoration: none; }
 .carousel-dots { position: absolute; top: 6px; right: 6px; display: flex; gap: 2px; }
 .carousel-dots .dot { appearance: none; border: 0; cursor: pointer; width: 7px; height: 7px; padding: 5px; box-sizing: content-box; background-clip: content-box; border-radius: var(--radius-pill); background-color: rgba(255, 243, 230, 0.55); }

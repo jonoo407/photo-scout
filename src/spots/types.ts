@@ -16,7 +16,12 @@ export interface SpotMedia {
   credit: string
   license: string
   sourceUrl?: string
+  // Photo specs (Explorest-style) — shown as a spec line on the hero carousel.
+  camera?: string
   focalLengthMm?: number
+  fNumber?: number
+  shutter?: string // '1/125' or '30' (seconds); trailing 's' optional
+  iso?: number
   light?: Light
 }
 

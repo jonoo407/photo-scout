@@ -33,6 +33,22 @@ describe('spot media (seeded reference photos)', () => {
         expect(FREE_LICENSE.test(m.license), `${s.id} license "${m.license}" must be free/attribution`).toBe(true)
         if (m.sourceUrl) expect(m.sourceUrl, `${s.id} sourceUrl`).toMatch(/^https:\/\//)
         if (m.light) expect(LIGHTS, `${s.id} light`).toContain(m.light)
+        // Photo specs (EXIF-sourced) must be plausible camera values when present.
+        if (m.camera) expect(m.camera.trim().length, `${s.id} camera`).toBeGreaterThan(0)
+        if (m.focalLengthMm != null) {
+          expect(m.focalLengthMm, `${s.id} focal`).toBeGreaterThan(0)
+          expect(m.focalLengthMm, `${s.id} focal`).toBeLessThan(2000)
+        }
+        if (m.fNumber != null) {
+          expect(m.fNumber, `${s.id} fNumber`).toBeGreaterThanOrEqual(0.7)
+          expect(m.fNumber, `${s.id} fNumber`).toBeLessThanOrEqual(64)
+        }
+        if (m.shutter) expect(m.shutter, `${s.id} shutter`).toMatch(/^\d+(\.\d+)?(\/\d+(\.\d+)?)?s?$/)
+        if (m.iso != null) {
+          expect(Number.isInteger(m.iso), `${s.id} iso integer`).toBe(true)
+          expect(m.iso, `${s.id} iso`).toBeGreaterThanOrEqual(25)
+          expect(m.iso, `${s.id} iso`).toBeLessThanOrEqual(409600)
+        }
       }
     }
   })

@@ -12,7 +12,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Original uploader was user:Tampa Gator at en.wikipedia",
       "license": "Public domain",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ASkyline_of_Tampa%2C_Florida_from_Bayshore_Blvd.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "E885",
+      "focalLengthMm": 8,
+      "fNumber": 7.6,
+      "shutter": "1/289",
+      "iso": 100
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Tampa_Bayshore_Blvd_looking_north01.jpg/1280px-Tampa_Bayshore_Blvd_looking_north01.jpg",
@@ -21,7 +26,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Ebyabe",
       "license": "CC BY 2.5",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ATampa_Bayshore_Blvd_looking_north01.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "KODAK C875 ZOOM DIGITAL CAMERA",
+      "focalLengthMm": 7.8,
+      "fNumber": 4,
+      "shutter": "1/640",
+      "iso": 64
     }
   ],
   "ballast-point-park": [
@@ -32,7 +42,11 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Heditor6",
       "license": "CC BY-SA 3.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AView_of_Downtown_Tampa_from_the_Pier_at_Ballast_Point_Park.JPG",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "Canon PowerShot S3 IS",
+      "focalLengthMm": 19,
+      "fNumber": 8,
+      "shutter": "1/250"
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Fishing_Pier_at_Ballast_Point_Park.JPG/1280px-Fishing_Pier_at_Ballast_Point_Park.JPG",
@@ -41,7 +55,11 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Heditor6",
       "license": "CC BY-SA 3.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AFishing_Pier_at_Ballast_Point_Park.JPG",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "Canon PowerShot S3 IS",
+      "focalLengthMm": 7.6,
+      "fNumber": 4.5,
+      "shutter": "1/2000"
     }
   ],
   "davis-islands-beach": [
@@ -52,7 +70,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Roman Eugeniusz",
       "license": "CC BY-SA 3.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ADavis_Islands%2CTampa%2CFlorida%2CUSA._-_panoramio.jpg",
-      "light": "evening-golden"
+      "light": "evening-golden",
+      "camera": "NIKON D5100",
+      "focalLengthMm": 125,
+      "fNumber": 8,
+      "shutter": "1/250",
+      "iso": 110
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Davis_Islands%2CTampa%2CFlorida%2CUSA._-_panoramio_%281%29.jpg/1280px-Davis_Islands%2CTampa%2CFlorida%2CUSA._-_panoramio_%281%29.jpg",
@@ -61,7 +84,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Roman Eugeniusz",
       "license": "CC BY-SA 3.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ADavis_Islands%2CTampa%2CFlorida%2CUSA._-_panoramio_(1).jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "NIKON D5100",
+      "focalLengthMm": 48,
+      "fNumber": 8,
+      "shutter": "1/250",
+      "iso": 180
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/0/04/Summer_Storm_rolling_behind_downtown_Tampa_from_Davis_Island.jpg",
@@ -70,7 +98,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Robert Neff",
       "license": "CC BY 2.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ASummer_Storm_rolling_behind_downtown_Tampa_from_Davis_Island.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "NIKON D7000",
+      "focalLengthMm": 24,
+      "fNumber": 5,
+      "shutter": "1/100",
+      "iso": 400
     }
   ],
   "curtis-hixon-waterfront-park": [
@@ -81,7 +114,11 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Michelle Maria",
       "license": "CC BY 3.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ACurtis_Hixon_Park_Tampa_Florida_United_States_-_panoramio_(2).jpg",
-      "light": "blue-hour"
+      "light": "blue-hour",
+      "camera": "Galaxy Nexus",
+      "focalLengthMm": 3.4,
+      "fNumber": 2.8,
+      "shutter": "1/8"
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Curtis_Hixon_Park_Tampa_Florida_United_States_-_panoramio_%281%29.jpg/1280px-Curtis_Hixon_Park_Tampa_Florida_United_States_-_panoramio_%281%29.jpg",
@@ -90,7 +127,11 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Michelle Maria",
       "license": "CC BY 3.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ACurtis_Hixon_Park_Tampa_Florida_United_States_-_panoramio_(1).jpg",
-      "light": "blue-hour"
+      "light": "blue-hour",
+      "camera": "Galaxy Nexus",
+      "focalLengthMm": 3.4,
+      "fNumber": 2.8,
+      "shutter": "1/15"
     }
   ],
   "tampa-riverwalk": [
@@ -101,7 +142,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Miosotis Jade",
       "license": "CC BY-SA 4.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ATampa_Riverwalk_01.jpg",
-      "light": "blue-hour"
+      "light": "blue-hour",
+      "camera": "Canon PowerShot SX130 IS",
+      "focalLengthMm": 8.7,
+      "fNumber": 8,
+      "shutter": "1.6",
+      "iso": 200
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Tampa_Riverwalk_03.jpg/1280px-Tampa_Riverwalk_03.jpg",
@@ -110,7 +156,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Miosotis Jade",
       "license": "CC BY-SA 4.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ATampa_Riverwalk_03.jpg",
-      "light": "blue-hour"
+      "light": "blue-hour",
+      "camera": "Canon PowerShot SX130 IS",
+      "focalLengthMm": 5,
+      "fNumber": 8,
+      "shutter": "5",
+      "iso": 200
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Tampa_Riverwalk_02.jpg/1280px-Tampa_Riverwalk_02.jpg",
@@ -119,7 +170,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Miosotis Jade",
       "license": "CC BY-SA 4.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ATampa_Riverwalk_02.jpg",
-      "light": "blue-hour"
+      "light": "blue-hour",
+      "camera": "Canon PowerShot SX130 IS",
+      "focalLengthMm": 5,
+      "fNumber": 8,
+      "shutter": "3.2",
+      "iso": 200
     }
   ],
   "plant-park-ut-minarets": [
@@ -130,7 +186,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Ebyabe",
       "license": "CC BY 2.5",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AOld_Tampa_Bay_Hotel_spire04.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "KODAK C875 ZOOM DIGITAL CAMERA",
+      "focalLengthMm": 24,
+      "fNumber": 5,
+      "shutter": "1/800",
+      "iso": 64
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/e/ee/Tampa_Bay_Hotel_2.jpg",
@@ -139,7 +200,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Zeng8r at English Wikipedia",
       "license": "CC BY-SA 3.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ATampa_Bay_Hotel_2.jpg",
-      "light": "evening-golden"
+      "light": "evening-golden",
+      "camera": "X550,D545Z,C480Z",
+      "focalLengthMm": 13,
+      "fNumber": 4,
+      "shutter": "1/200",
+      "iso": 50
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Old_Tampa_Bay_Hotel_spire02.jpg/1280px-Old_Tampa_Bay_Hotel_spire02.jpg",
@@ -148,7 +214,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Ebyabe",
       "license": "CC BY 2.5",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AOld_Tampa_Bay_Hotel_spire02.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "KODAK C875 ZOOM DIGITAL CAMERA",
+      "focalLengthMm": 15,
+      "fNumber": 4.5,
+      "shutter": "1/500",
+      "iso": 64
     }
   ],
   "henry-b-plant-museum": [
@@ -159,7 +230,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Ebyabe",
       "license": "CC BY 2.5",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AOld_Tampa_Bay_Hotel.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "KODAK C875 ZOOM DIGITAL CAMERA",
+      "focalLengthMm": 7.8,
+      "fNumber": 2.8,
+      "shutter": "1/640",
+      "iso": 64
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Henry_B_Plant_Museum.jpg/1280px-Henry_B_Plant_Museum.jpg",
@@ -168,7 +244,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Tsya 42",
       "license": "CC BY-SA 4.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AHenry_B_Plant_Museum.jpg",
-      "light": "evening-golden"
+      "light": "evening-golden",
+      "camera": "COOLPIX S9900",
+      "focalLengthMm": 5.2,
+      "fNumber": 3.7,
+      "shutter": "1/500",
+      "iso": 125
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Henry_Plant_Museum_Fletcher_Lounge_ballroom_rotunda.jpg/1280px-Henry_Plant_Museum_Fletcher_Lounge_ballroom_rotunda.jpg",
@@ -177,7 +258,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "PeaceLoveHarmony",
       "license": "CC BY-SA 4.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AHenry_Plant_Museum_Fletcher_Lounge_ballroom_rotunda.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "SM-G930VL",
+      "focalLengthMm": 4.2,
+      "fNumber": 1.7,
+      "shutter": "1/60",
+      "iso": 160
     }
   ],
   "sacred-heart-catholic-church": [
@@ -196,7 +282,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "caption": "Ornate nave and marble columns to altar",
       "credit": "Boston Public Library",
       "license": "CC BY 2.0",
-      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AInterior_Sacred_Heart_Catholic_Church%2C_Tampa%2C_Florida.jpg"
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AInterior_Sacred_Heart_Catholic_Church%2C_Tampa%2C_Florida.jpg",
+      "camera": "Exp10000XL10000"
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Tampa_Sacred_Heart_Church06.jpg/1280px-Tampa_Sacred_Heart_Church06.jpg",
@@ -205,7 +292,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Ebyabe",
       "license": "CC BY-SA 3.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ATampa_Sacred_Heart_Church06.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "KODAK EASYSHARE C195 Digital Camera",
+      "focalLengthMm": 5.9,
+      "fNumber": 8,
+      "shutter": "1/160",
+      "iso": 64
     }
   ],
   "tampa-theatre": [
@@ -216,7 +308,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "MarieG33",
       "license": "CC BY-SA 3.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ATampa_Theatre_2013.jpg",
-      "light": "night-astro"
+      "light": "night-astro",
+      "camera": "NIKON D60",
+      "focalLengthMm": 18,
+      "fNumber": 3.5,
+      "shutter": "1/15",
+      "iso": 400
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/TampaTheatre_front05.jpg/1280px-TampaTheatre_front05.jpg",
@@ -225,7 +322,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Ebyabe",
       "license": "CC BY 2.5",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ATampaTheatre_front05.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "KODAK C875 ZOOM DIGITAL CAMERA",
+      "focalLengthMm": 7.8,
+      "fNumber": 2.8,
+      "shutter": "1/100",
+      "iso": 64
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/a/a4/TampaTheatre01.jpg",
@@ -245,7 +347,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "psyberartist",
       "license": "CC BY 2.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AWhite_tower_in_Ybor_City%2C_Tampa_Florida.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "Canon EOS 6D",
+      "focalLengthMm": 62,
+      "fNumber": 22,
+      "shutter": "1/160",
+      "iso": 400
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Centro_Ybor%2C_Ybor_City%2C_Tampa%2C_Florida.jpg/1280px-Centro_Ybor%2C_Ybor_City%2C_Tampa%2C_Florida.jpg",
@@ -254,7 +361,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Peter K Burian",
       "license": "CC BY-SA 4.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ACentro_Ybor%2C_Ybor_City%2C_Tampa%2C_Florida.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "NIKON D800",
+      "focalLengthMm": 38,
+      "fNumber": 4,
+      "shutter": "1/1250",
+      "iso": 500
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Ybor_City_Museum_State_Park%2C_Tampa%2C_Florida.jpg/1280px-Ybor_City_Museum_State_Park%2C_Tampa%2C_Florida.jpg",
@@ -263,7 +375,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Peter K Burian",
       "license": "CC BY-SA 4.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AYbor_City_Museum_State_Park%2C_Tampa%2C_Florida.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "NIKON D800",
+      "focalLengthMm": 40,
+      "fNumber": 6.3,
+      "shutter": "1/400",
+      "iso": 400
     }
   ],
   "lettuce-lake-park": [
@@ -274,7 +391,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Trish Hartmann from Tampa, Florida, USA",
       "license": "CC BY 2.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AGreat_Blue_Heron_(49111167428).jpg",
-      "light": "morning-golden"
+      "light": "morning-golden",
+      "camera": "NIKON D850",
+      "focalLengthMm": 300,
+      "fNumber": 5.6,
+      "shutter": "1/750",
+      "iso": 160
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Kayaking_on_the_Hillsborough_River.jpg/1280px-Kayaking_on_the_Hillsborough_River.jpg",
@@ -292,7 +414,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Trish Hartmann from Tampa, Florida, USA",
       "license": "CC BY 2.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ABarred_Owl_at_Lettuce_Lake_(12735495095).jpg",
-      "light": "open-shade"
+      "light": "open-shade",
+      "camera": "NIKON D5100",
+      "focalLengthMm": 200,
+      "fNumber": 5.6,
+      "shutter": "1/320",
+      "iso": 400
     }
   ],
   "usf-botanical-gardens": [
@@ -303,7 +430,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Asit K. Ghosh Thaumaturgist",
       "license": "CC BY-SA 3.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ADyckia_Red2_USF_Asit.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "DSC-H9",
+      "focalLengthMm": 6.8,
+      "fNumber": 4,
+      "shutter": "1/200",
+      "iso": 100
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/BalsamPear02_USF_Asit.JPG/1280px-BalsamPear02_USF_Asit.JPG",
@@ -312,7 +444,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "asitkghosh@yahoo.com Thaumaturgist",
       "license": "CC BY-SA 3.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ABalsamPear02_USF_Asit.JPG",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "DSC-H9",
+      "focalLengthMm": 19,
+      "fNumber": 4.5,
+      "shutter": "1/500",
+      "iso": 100
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/BalsamPear04_USF_Asit.JPG/1280px-BalsamPear04_USF_Asit.JPG",
@@ -321,7 +458,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "asitkghosh@yahoo.com Thaumaturgist",
       "license": "CC BY-SA 3.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ABalsamPear04_USF_Asit.JPG",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "DSC-H9",
+      "focalLengthMm": 14,
+      "fNumber": 4.5,
+      "shutter": "1/400",
+      "iso": 100
     }
   ],
   "sunken-gardens": [
@@ -350,7 +492,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Ebyabe",
       "license": "CC BY-SA 3.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ASt._Petersburg_FL_Sunken_Gardens_gate01.jpg",
-      "light": "open-shade"
+      "light": "open-shade",
+      "camera": "KODAK EASYSHARE C195 Digital Camera",
+      "focalLengthMm": 5.9,
+      "fNumber": 3.3,
+      "shutter": "1/60",
+      "iso": 64
     }
   ],
   "fort-de-soto-park": [
@@ -361,7 +508,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Christopher Hollis",
       "license": "Public domain",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ASunset_on_North_Beach_at_Fort_De_Soto_Park.jpg",
-      "light": "sunset"
+      "light": "sunset",
+      "camera": "CYBERSHOT",
+      "focalLengthMm": 7,
+      "fNumber": 4.8,
+      "shutter": "1/470",
+      "iso": 100
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Fort_de_Soto_Park_%40_St.Petersburg_%28Florida_-_Gulfcoast%29_%2815684290600%29.jpg/1280px-Fort_de_Soto_Park_%40_St.Petersburg_%28Florida_-_Gulfcoast%29_%2815684290600%29.jpg",
@@ -370,7 +522,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Reinhard Link from Germany",
       "license": "CC BY-SA 2.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AFort_de_Soto_Park_%40_St.Petersburg_(Florida_-_Gulfcoast)_(15684290600).jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "EX-H15",
+      "focalLengthMm": 22,
+      "fNumber": 5.2,
+      "shutter": "1/800",
+      "iso": 64
     }
   ],
   "honeymoon-island-sp": [
@@ -381,7 +538,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Christopher Hollis",
       "license": "Public domain",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AHoneymoon_Island_State_Park_(Image_1).jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "CYBERSHOT",
+      "focalLengthMm": 7,
+      "fNumber": 8,
+      "shutter": "1/985",
+      "iso": 100
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Honeymoon_Island_State_Park_%28Image_3%29.jpg/1280px-Honeymoon_Island_State_Park_%28Image_3%29.jpg",
@@ -390,7 +552,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Christopher Hollis",
       "license": "Public domain",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AHoneymoon_Island_State_Park_(Image_3).jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "CYBERSHOT",
+      "focalLengthMm": 7,
+      "fNumber": 8,
+      "shutter": "1/985",
+      "iso": 100
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Honeymoon_Island_State_Park_%28Image_2%29.jpg/1280px-Honeymoon_Island_State_Park_%28Image_2%29.jpg",
@@ -399,7 +566,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Christopher Hollis",
       "license": "Public domain",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AHoneymoon_Island_State_Park_(Image_2).jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "CYBERSHOT",
+      "focalLengthMm": 7,
+      "fNumber": 8,
+      "shutter": "1/985",
+      "iso": 100
     }
   ],
   "sunshine-skyway-fishing-piers": [
@@ -419,7 +591,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Joe King",
       "license": "CC BY 2.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3A2010-09-10_Sunshine_Skyway_Bridge.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "u720SW,S720SW",
+      "focalLengthMm": 6.7,
+      "fNumber": 5,
+      "shutter": "1/320",
+      "iso": 64
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/a/ab/Sunshine_Skyway_Bridge_1SC_2563.jpg",
@@ -428,7 +605,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Robert Neff",
       "license": "CC BY 2.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ASunshine_Skyway_Bridge_1SC_2563.jpg",
-      "light": "evening-golden"
+      "light": "evening-golden",
+      "camera": "NIKON D7000",
+      "focalLengthMm": 60,
+      "fNumber": 16,
+      "shutter": "1/160",
+      "iso": 100
     }
   ],
   "st-pete-pier": [
@@ -439,7 +621,11 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Beyond My Ken",
       "license": "CC BY-SA 4.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3A2021_St._Pete_Pier_1.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "iPhone 8",
+      "focalLengthMm": 4,
+      "fNumber": 1.8,
+      "shutter": "1/2558"
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/St._Pete_Pier_-_West.jpg/1280px-St._Pete_Pier_-_West.jpg",
@@ -448,7 +634,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Jackdude101",
       "license": "CC BY-SA 4.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ASt._Pete_Pier_-_West.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "DSC-W830",
+      "focalLengthMm": 4.5,
+      "fNumber": 8,
+      "shutter": "1/200",
+      "iso": 80
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/St._Pete_Pier_head_structure.jpg/1280px-St._Pete_Pier_head_structure.jpg",
@@ -457,7 +648,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Adog",
       "license": "CC BY-SA 4.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ASt._Pete_Pier_head_structure.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "iPhone 11",
+      "focalLengthMm": 4.3,
+      "fNumber": 1.8,
+      "shutter": "1/2315",
+      "iso": 32
     }
   ],
   "vinoy-park": [
@@ -477,7 +673,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "MiaCass16",
       "license": "CC BY-SA 4.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AThe_Vinoy_Hotel_04.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "DSC-H300",
+      "focalLengthMm": 4.5,
+      "fNumber": 3,
+      "shutter": "1/1000",
+      "iso": 80
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/St._Pete_Vinoy_detail02.jpg/1280px-St._Pete_Vinoy_detail02.jpg",
@@ -486,7 +687,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Ebyabe",
       "license": "CC BY-SA 3.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ASt._Pete_Vinoy_detail02.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "KODAK C875 ZOOM DIGITAL CAMERA",
+      "focalLengthMm": 24,
+      "fNumber": 5,
+      "shutter": "1/500",
+      "iso": 64
     }
   ],
   "dali-museum": [
@@ -497,7 +703,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Art Anderson",
       "license": "CC BY-SA 3.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ASalvador_Dali_Museum_-_panoramio_(17).jpg",
-      "light": "evening-golden"
+      "light": "evening-golden",
+      "camera": "Canon PowerShot S120",
+      "focalLengthMm": 6,
+      "fNumber": 3.5,
+      "shutter": "1/2000",
+      "iso": 160
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Salvador_Dal%C3%AD_Museum.JPG/1280px-Salvador_Dal%C3%AD_Museum.JPG",
@@ -506,7 +717,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Taty2007",
       "license": "CC BY 3.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ASalvador_Dal%C3%AD_Museum.JPG",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "Canon EOS 50D",
+      "focalLengthMm": 28,
+      "fNumber": 7.1,
+      "shutter": "1/160",
+      "iso": 100
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/d/d0/Atrium_of_Salvador_Dal%C3%AD_Museum_in_Florida.jpg",
@@ -515,7 +731,11 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "LovelyLillith",
       "license": "CC BY-SA 4.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AAtrium_of_Salvador_Dal%C3%AD_Museum_in_Florida.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "Lumia 925",
+      "fNumber": 2,
+      "shutter": "1/1299",
+      "iso": 100
     }
   ],
   "weedon-island-preserve": [
@@ -526,7 +746,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "jesseasmith",
       "license": "CC BY-SA 3.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AWeedon_Island_preserve_-_panoramio.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "NIKON D5000",
+      "focalLengthMm": 10,
+      "fNumber": 10,
+      "shutter": "1/250",
+      "iso": 200
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Weedon_Island_preserve_-_panoramio_%282%29.jpg/1280px-Weedon_Island_preserve_-_panoramio_%282%29.jpg",
@@ -535,7 +760,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "jesseasmith",
       "license": "CC BY-SA 3.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AWeedon_Island_preserve_-_panoramio_(2).jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "NIKON D5000",
+      "focalLengthMm": 10,
+      "fNumber": 11,
+      "shutter": "1/640",
+      "iso": 200
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/3/3b/Weeden_Island01.jpg",
@@ -555,7 +785,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Jrozwado",
       "license": "CC BY-SA 4.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ASt_Petersburg%2C_FL_-_Downtown_St_Petersburg_Historic_District_-_Cathedral_Church_of_St_Peter_(Episcopal)_(3).jpg",
-      "light": "evening-golden"
+      "light": "evening-golden",
+      "camera": "NIKON D7100",
+      "focalLengthMm": 24,
+      "fNumber": 16,
+      "shutter": "1/1000",
+      "iso": 1250
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/St._Pete_Episc_Cathedral03.jpg/1280px-St._Pete_Episc_Cathedral03.jpg",
@@ -564,7 +799,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Ebyabe",
       "license": "CC BY-SA 3.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ASt._Pete_Episc_Cathedral03.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "KODAK C875 ZOOM DIGITAL CAMERA",
+      "focalLengthMm": 7.8,
+      "fNumber": 4,
+      "shutter": "1/800",
+      "iso": 64
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/c/c8/Cathedral_Church_of_St._Peter_at_140_4th_St._N._in_St._Petersburg%2C_Florida.jpg",
@@ -584,7 +824,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Nheyob",
       "license": "CC0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ACathedral_of_Saint_Jude_the_Apostle_(St._Petersburg%2C_Florida)_-_sanctuary_2.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "Canon PowerShot G9 X",
+      "focalLengthMm": 11,
+      "fNumber": 2.8,
+      "shutter": "1/30",
+      "iso": 125
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Cathedral_of_Saint_Jude_the_Apostle_%28St._Petersburg%2C_Florida%29_-_nave.jpg/1280px-Cathedral_of_Saint_Jude_the_Apostle_%28St._Petersburg%2C_Florida%29_-_nave.jpg",
@@ -593,7 +838,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Nheyob",
       "license": "CC0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ACathedral_of_Saint_Jude_the_Apostle_(St._Petersburg%2C_Florida)_-_nave.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "Canon PowerShot G9 X",
+      "focalLengthMm": 10,
+      "fNumber": 2.2,
+      "shutter": "1/60",
+      "iso": 125
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Cathedral_of_Saint_Jude_the_Apostle_%28St._Petersburg%2C_Florida%29_-_exterior.jpg/1280px-Cathedral_of_Saint_Jude_the_Apostle_%28St._Petersburg%2C_Florida%29_-_exterior.jpg",
@@ -602,7 +852,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Nheyob",
       "license": "CC0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ACathedral_of_Saint_Jude_the_Apostle_(St._Petersburg%2C_Florida)_-_exterior.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "Canon PowerShot G9 X",
+      "focalLengthMm": 10,
+      "fNumber": 4,
+      "shutter": "1/100",
+      "iso": 160
     }
   ],
   "stpete-shine-murals": [
@@ -613,7 +868,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Xrzt",
       "license": "CC BY-SA 4.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3ABefore_I_Die_Mural.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "NIKON D7000",
+      "focalLengthMm": 50,
+      "fNumber": 6.3,
+      "shutter": "1/2000",
+      "iso": 200
     }
   ],
   "fred-howard-park": [
@@ -624,7 +884,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "VitaleBaby at English Wikipedia",
       "license": "Public domain",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3AHoward_Park_Tarpon.jpg",
-      "light": "sunset"
+      "light": "sunset",
+      "camera": "Canon PowerShot ELPH 350 HS",
+      "focalLengthMm": 20,
+      "fNumber": 5,
+      "shutter": "1/500",
+      "iso": 250
     },
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Porsche_and_parasail.jpg/1280px-Porsche_and_parasail.jpg",
@@ -633,7 +898,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Xrzt",
       "license": "CC BY-SA 4.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File%3APorsche_and_parasail.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "NIKON D7000",
+      "focalLengthMm": 180,
+      "fNumber": 9,
+      "shutter": "1/1250",
+      "iso": 200
     }
   ],
   "azure-tampa-edition": [
@@ -655,7 +925,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Clément Bardot",
       "license": "CC BY-SA 4.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:Downtown_Tampa,_Florida.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "NIKON D5100",
+      "focalLengthMm": 22,
+      "fNumber": 7.1,
+      "shutter": "1/1600",
+      "iso": 400
     }
   ],
   "mbird-armature-works": [
@@ -666,7 +941,11 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Eric Statzer",
       "license": "CC BY-SA 4.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tampa_Skyline_-_Eric_Statzer.jpg",
-      "light": "daytime"
+      "light": "daytime",
+      "camera": "iPhone X",
+      "focalLengthMm": 4,
+      "fNumber": 1.8,
+      "shutter": "1/1919"
     }
   ],
   "edge-epicurean": [
@@ -677,7 +956,12 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "credit": "Steven Buehler",
       "license": "CC BY 3.0",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:Downtown_Tampa_(58977580).jpeg",
-      "light": "evening-golden"
+      "light": "evening-golden",
+      "camera": "COOLPIX L820",
+      "focalLengthMm": 76,
+      "fNumber": 5.7,
+      "shutter": "1/125",
+      "iso": 125
     }
   ],
   "tampa-murals": [

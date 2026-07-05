@@ -17,3 +17,17 @@ describe('SpotHero carousel dots', () => {
     await user.click(dot2) // must not throw even where scrollTo is unavailable
   })
 })
+
+describe('SpotHero photo specs', () => {
+  it('shows the spec line for a photo that has specs', () => {
+    render(<SpotHero media={[
+      { src: 'a.jpg', caption: 'First', credit: 'x', license: 'CC', focalLengthMm: 24, fNumber: 8, iso: 100 },
+    ]} />)
+    expect(screen.getByText('24mm · f/8 · ISO 100')).toBeInTheDocument()
+  })
+
+  it('shows nothing extra when the photo has no specs', () => {
+    render(<SpotHero media={media} />)
+    expect(screen.queryByText(/mm|f\/|ISO/)).not.toBeInTheDocument()
+  })
+})

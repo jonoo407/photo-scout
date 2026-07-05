@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import { IconPhoto } from '@tabler/icons-react'
 import type { SpotMedia } from '../../spots/types'
+import { mediaSpecs } from '../../spots/media-specs'
 
 // Swipeable hero photo carousel for the Spot detail page. Falls back to a warm
 // placeholder when a spot has no seeded photos yet (the user can add their own).
@@ -45,6 +46,7 @@ export default function SpotHero({ media }: { media: SpotMedia[] }) {
 
       <div className="slide-cap">
         <span className="cap-text">{cur.caption}</span>
+        {mediaSpecs(cur) && <span className="cap-specs">{mediaSpecs(cur)}</span>}
         {cur.sourceUrl ? (
           <a className="cap-credit" href={cur.sourceUrl} target="_blank" rel="noreferrer">
             {cur.credit} · {cur.license}
