@@ -11,18 +11,19 @@ export interface Badge {
 }
 
 export function SpotCard({
-  spot, badge, reason, meta,
+  spot, badge, reason, meta, onPress,
 }: {
   spot: Spot
   badge?: Badge
   reason?: string
   meta?: ReactNode
+  onPress?: () => void // overrides the default navigate-to-detail (e.g. shortlist pick mode)
 }) {
   const nav = useNavigate()
   const Icon = CategoryIcon[spot.category]
   const photo = spot.media[0]?.thumb ?? spot.media[0]?.src
   return (
-    <button className="spotcard" onClick={() => nav(`/spot/${spot.id}`)}>
+    <button className="spotcard" onClick={onPress ?? (() => nav(`/spot/${spot.id}`))}>
       <div className="body">
         <div className="thumbicon" style={photo ? undefined : { background: 'var(--surface-2)' }}>
           {photo

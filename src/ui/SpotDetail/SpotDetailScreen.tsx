@@ -17,6 +17,7 @@ import {
   directionsUrl, placeUrl,
 } from '../../spots/live'
 import { fmtTime, fmtRange, fmtDistance, fmtDrive } from '../../util/format'
+import { shareLink } from '../../util/share'
 import { getRegion } from '../../data/regions'
 
 const dirKind: Record<string, string> = { silhouette: 'go', front: 'go', side: 'info', back: 'maybe' }
@@ -63,11 +64,7 @@ export default function SpotDetailScreen() {
 
   const shareUrl = `https://shootvantage.com/#/spot/${spot.id}`
   const share = async () => {
-    // Native share sheet on mobile; clipboard fallback on desktop.
-    if (navigator.share) {
-      await navigator.share({ title: `${spot.name} — Vantage`, url: shareUrl }).catch(() => {})
-    } else {
-      await navigator.clipboard?.writeText(shareUrl)
+    if (await shareLink(`${spot.name} — Vantage`, shareUrl) === 'copied') {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     }

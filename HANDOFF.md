@@ -16,7 +16,7 @@ app for Tampa Bay. iPhone-form-factor web app now → native iOS later (Capacito
 - **Real photos seeded** (2026-06-15): 24 spots, 65 license-clean Wikimedia Commons photos in `src/data/spot-media.ts` (sourced via `scripts/*.mjs`), with the carousel wired into the Spot hero (`src/ui/SpotDetail/SpotHero.tsx`).
 - **Typecheck clean**, **production build passes**, **PWA** service worker + manifest generated.
 - Every screen verified working in the live iPhone-sized preview (not just tests).
-- **No git commits yet** (by request — commit only when asked). `git init` done; tree is staged/dirty.
+- Commits land on `main` (one per feature) and auto-deploy to shootvantage.com via Cloudflare Workers Builds.
 
 ## Run it
 ```
@@ -76,7 +76,7 @@ Landscape: PhotoPills/TPE/PlanIt own sun-moon *calculation*; Locationscout owns 
 5. **Milky Way / astro layer** — galactic-core visibility windows + per-spot dark-sky field for `night-astro` spots.
 6. **Visited-progress gamification** — "14/30 Tampa · 2/33 Philadelphia" progress on Saved (Locationscout's achievement hook).
 7. **Compass mode (web-AR-lite)** — device-orientation arrow to where the sun will be at the chosen window, from the spot.
-8. **Client shoot shortlist** (2026-07-03, user request) — a working photographer picks 3–5 candidate spots and sends the *client* one link showing the options: hero photo, name/address, best-light window, one-line why. **v1 needs no backend**: encode spot ids in the URL (e.g. `#/list?spots=a,b,c&title=Smith+family`) and render a clean client-facing page (no app chrome/nav; cross-region ids already resolve). Share via the existing share-sheet plumbing; OG meta makes it unfurl nicely in texts. **v2**: client taps a favorite → recorded via Supabase (anonymous row keyed to the list) so the photographer sees the pick; optional per-spot photographer notes ("shot here at golden hour, gorgeous backlight"). Nobody in the competitive set serves the client-communication loop — this is a pro-workflow differentiator.
+8. **Client shoot shortlist** — **v1 SHIPPED (2026-07-04)**: builder on Saved ("Client shortlist" → tap spots → title → Share link, capped at 10) produces `#/list?spots=a,b,c&title=…`; the `/list` route renders OUTSIDE Layout (no tab bar) with option numbers, hero photo, name, `bestFor` one-liner, primary-light window in the spot's own TZ (`src/spots/shortlist.ts` `bestLightWindow`), and a Google-Maps address link. Share plumbing extracted to `src/util/share.ts` (native sheet / clipboard fallback; SpotDetail reuses it). Tests: `shortlist.test.ts`, `client-list.test.tsx`, `saved-shortlist.test.tsx` (incl. a route-shape test that `/list` stays chrome-free). **v2 still open**: client taps a favorite → recorded via Supabase (anonymous row keyed to the list) so the photographer sees the pick; optional per-spot photographer notes. Nobody in the competitive set serves the client-communication loop — this is a pro-workflow differentiator.
 
 Deliberately skipped: DoF/exposure calculators (commodity; PhotoPills owns), 3D terrain shadows (server-heavy, breaks keyless), offline map tiles (storage-heavy), native widgets (impossible in PWA). Also noted: custom SMTP (Resend) for magic-link email before promoting broadly — built-in sender is a-few-emails/hour.
 
