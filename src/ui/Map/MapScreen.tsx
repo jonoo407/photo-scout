@@ -4,6 +4,7 @@ import 'leaflet/dist/leaflet.css'
 import { CATEGORIES, CATEGORY_COLOR, CATEGORY_LABEL, type Category } from '../../spots/types'
 import { useStore } from '../../state/store'
 import { useRegion, useRegionSpots } from '../../state/useRegion'
+import { sunPathLines } from '../../astro/sun-path'
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string))
@@ -15,6 +16,7 @@ export default function MapScreen() {
   const ref = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
   const layerRef = useRef<L.LayerGroup | null>(null)
+  const sunLayerRef = useRef<L.LayerGroup | null>(null)
   const [shown, setShown] = useState<Set<Category>>(() => new Set(CATEGORIES))
 
   // Create the map once.
@@ -24,10 +26,31 @@ export default function MapScreen() {
     mapRef.current = map
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map)
     layerRef.current = L.layerGroup().addTo(map)
+    sunLayerRef.current = L.layerGroup().addTo(map)
     map.setView([home.lat, home.lng], 10)
-    return () => { map.remove(); mapRef.current = null; layerRef.current = null }
+    map.on('popupclose', () => sunLayerRef.current?.clearLayers())
+    return () => { map.remove(); mapRef.current = null; layerRef.current = null; sunLayerRef.current = null }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // PhotoPills-style sun lines: tapping a pin shows where the sun rises and
+  // sets from that spot today.
+  const drawSunLines = (lat: number, lng: number) => {
+    const layer = sunLayerRef.current
+    if (!layer) return
+    layer.clearLayers()
+    const { sunrise, sunset } = sunPathLines(lat, lng, new Date())
+    const draw = (line: typeof sunrise, color: string, label: string) => {
+      if (!line) return
+      L.polyline([[lat, lng], [line.to.lat, line.to.lng]], {
+        color, weight: 3, opacity: 0.9, dashArray: '2 7', lineCap: 'round',
+      })
+        .addTo(layer)
+        .bindTooltip(`${label} · ${Math.round(line.bearing)}°`, { direction: 'top' })
+    }
+    draw(sunrise, '#f2b43c', 'Sunrise')
+    draw(sunset, '#a8431d', 'Sunset')
+  }
 
   // (Re)draw markers when the category filter or home changes.
   useEffect(() => {
@@ -53,6 +76,7 @@ export default function MapScreen() {
         .addTo(layer)
         .bindTooltip(spot.name, { direction: 'top' })
         .bindPopup(`<strong>${esc(spot.name)}</strong><br><a href="#/spot/${spot.id}" style="color:#c45a2c">View spot →</a>`)
+        .on('click', () => drawSunLines(spot.lat, spot.lng))
     }
 
     if (pts.length > 1) map.fitBounds(L.latLngBounds(pts).pad(0.12))
@@ -77,7 +101,11 @@ export default function MapScreen() {
         ))}
       </div>
       <div id="map" ref={ref} role="application" aria-label={`Map of ${region.label} photo spots`} />
-      <p className="small tertiary" style={{ marginTop: 8 }}>Tap a pin for a preview · ⌂ is your home base</p>
+      <p className="small tertiary" style={{ marginTop: 8 }}>
+        Tap a pin for a preview and today's sun lines —{' '}
+        <span style={{ color: 'var(--gold)' }}>sunrise</span> ·{' '}
+        <span style={{ color: 'var(--terracotta)' }}>sunset</span> · ⌂ is home
+      </p>
     </div>
   )
 }
