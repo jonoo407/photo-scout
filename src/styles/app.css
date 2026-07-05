@@ -169,7 +169,28 @@ button.row, button.linkrow { appearance: none; background: var(--surface); curso
 .clientfoot { text-align: center; margin-top: 22px; color: var(--ink-2); }
 .clientfoot a { color: var(--terracotta); }
 
+/* client page v2 — photographer note, picks, respond form */
+.clientnote { font-size: 13px; color: var(--ink); background: var(--surface-2); border-left: 3px solid var(--terracotta); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 8px 10px; margin: 10px 0 0; line-height: 1.5; }
+.pickbtn { appearance: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; font: inherit; font-size: 13px; font-weight: 500; min-height: 38px; padding: 8px 14px; border-radius: var(--radius-pill); border: 0.5px solid var(--line-strong); background: var(--surface); color: var(--ink-2); }
+.pickbtn.on { background: var(--go-bg); color: var(--go-ink); border-color: transparent; }
+.clientrespond { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 9px; }
+.clientrespond .ct { font-family: var(--font-serif); font-weight: 500; font-size: 16px; margin: 0; }
+.notearea { min-height: 64px; resize: vertical; font: inherit; font-size: 13px; }
+
 /* client-shortlist builder (Saved) */
 .picker { padding: 12px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 9px; }
 .pickertitle { width: 100%; max-width: none; box-sizing: border-box; }
 .chip:disabled { opacity: 0.5; cursor: default; }
+.noterow { display: flex; flex-direction: column; gap: 4px; }
+.noterow .notename { font-size: 12px; font-weight: 500; }
+
+/* client lists + responses (Saved, signed in) */
+.clist { padding: 12px; margin-bottom: 10px; }
+.clist-title { font-size: 14px; font-weight: 500; margin: 0; }
+.resp { border-top: 0.5px solid var(--line); margin-top: 9px; padding-top: 9px; }
+.resp-pick { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; font-size: 13px; font-weight: 500; margin: 0; }
+.resp-comment { font-size: 13px; color: var(--ink-2); margin: 3px 0 0; line-height: 1.5; }
+
+/* saved-tab notification dot */
+.tabicon { position: relative; display: inline-flex; }
+.tabdot { position: absolute; top: -1px; right: -4px; width: 8px; height: 8px; border-radius: 50%; background: var(--terracotta); border: 1.5px solid var(--surface); }

@@ -1,7 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { parseShortlist, shortlistUrl, bestLightWindow, MAX_SHORTLIST } from '../../src/spots/shortlist'
+import {
+  parseShortlist, shortlistUrl, bestLightWindow, MAX_SHORTLIST,
+  storedShortlistUrl, buildListSpots, hasNewResponses, NOTE_MAX,
+} from '../../src/spots/shortlist'
 import { computeSunTimes } from '../../src/astro/sun-times'
 import type { Light } from '../../src/spots/types'
+
+const UUID = '3f8a2c1e-4b5d-4e6f-8a9b-0c1d2e3f4a5b'
 
 describe('parseShortlist', () => {
   it('reads ids and title from a shortlist query string', () => {
@@ -34,6 +39,62 @@ describe('parseShortlist', () => {
     const ids = Array.from({ length: 14 }, (_, i) => `s${i}`)
     expect(MAX_SHORTLIST).toBe(10)
     expect(parseShortlist(`?spots=${ids.join(',')}`).ids).toHaveLength(MAX_SHORTLIST)
+  })
+})
+
+describe('parseShortlist — stored lists (v2)', () => {
+  it('reads a stored-list id', () => {
+    const r = parseShortlist(`?id=${UUID}`)
+    expect(r.listId).toBe(UUID)
+    expect(r.ids).toEqual([])
+  })
+
+  it('rejects a non-uuid id (no accidental API calls from mangled links)', () => {
+    expect(parseShortlist('?id=not-a-uuid').listId).toBeNull()
+    expect(parseShortlist('?spots=a,b').listId).toBeNull()
+  })
+
+  it('keeps inline spots as a fallback when both are present', () => {
+    const r = parseShortlist(`?spots=a,b&id=${UUID}`)
+    expect(r.listId).toBe(UUID)
+    expect(r.ids).toEqual(['a', 'b'])
+  })
+})
+
+describe('storedShortlistUrl', () => {
+  it('builds the short client URL for a stored list', () => {
+    expect(storedShortlistUrl(UUID)).toBe(`https://shootvantage.com/#/list?id=${UUID}`)
+  })
+})
+
+describe('buildListSpots', () => {
+  it('keeps pick order and attaches trimmed notes, dropping blank ones', () => {
+    expect(buildListSpots(['a', 'b'], { a: '  golden hour magic  ', b: '   ' }))
+      .toEqual([{ id: 'a', note: 'golden hour magic' }, { id: 'b' }])
+  })
+
+  it('ignores notes for unpicked spots and caps note length', () => {
+    const long = 'x'.repeat(NOTE_MAX + 50)
+    const out = buildListSpots(['a'], { a: long, zz: 'not picked' })
+    expect(out).toHaveLength(1)
+    expect(out[0].note).toHaveLength(NOTE_MAX)
+  })
+})
+
+describe('hasNewResponses', () => {
+  const lists = (times: string[]) => [{ responses: times.map((t, i) => ({ createdAt: t, id: `r${i}` })) }]
+
+  it('is true when any response is newer than the last-seen time', () => {
+    expect(hasNewResponses(lists(['2026-07-04T15:00:00Z']), '2026-07-01T00:00:00Z')).toBe(true)
+  })
+
+  it('is false when everything was already seen', () => {
+    expect(hasNewResponses(lists(['2026-07-01T00:00:00Z']), '2026-07-02T00:00:00Z')).toBe(false)
+  })
+
+  it('never-seen counts every response as new; no responses is never new', () => {
+    expect(hasNewResponses(lists(['2026-07-01T00:00:00Z']), null)).toBe(true)
+    expect(hasNewResponses(lists([]), null)).toBe(false)
   })
 })
 

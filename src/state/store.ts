@@ -48,6 +48,10 @@ interface AppState {
   mapsApp: 'apple' | 'google'
   theme: ThemeChoice
   introSeen: boolean
+  /** When the photographer last viewed the Client lists section (ISO). */
+  listsSeenAt: string | null
+  /** Transient: a client response arrived since listsSeenAt (Saved-tab dot). */
+  newClientResponse: boolean
 
   toggleWishlist: (id: string) => void
   toggleVisited: (id: string) => void
@@ -60,6 +64,8 @@ interface AppState {
   setTheme: (t: ThemeChoice) => void
   setRegion: (r: RegionId) => void
   dismissIntro: () => void
+  markListsSeen: () => void
+  setNewClientResponse: (v: boolean) => void
 }
 
 const toggle = (list: string[], id: string) =>
@@ -95,6 +101,8 @@ export const useStore = create<AppState>()(
       mapsApp: 'apple',
       theme: 'auto',
       introSeen: false,
+      listsSeenAt: null,
+      newClientResponse: false,
 
       toggleWishlist: (id) => set((s) => ({ wishlist: toggle(s.wishlist, id) })),
       toggleVisited: (id) => set((s) => ({ visited: toggle(s.visited, id) })),
@@ -115,6 +123,8 @@ export const useStore = create<AppState>()(
         return { region: id, home: regionContains(r, s.home.lat, s.home.lng) ? s.home : r.defaultHome }
       }),
       dismissIntro: () => set({ introSeen: true }),
+      markListsSeen: () => set({ listsSeenAt: new Date().toISOString(), newClientResponse: false }),
+      setNewClientResponse: (newClientResponse) => set({ newClientResponse }),
     }),
     {
       name: 'photo-scout',
@@ -122,8 +132,9 @@ export const useStore = create<AppState>()(
       version: 1,
       // Filters (search text, chips, sort) are transient session UI — persisting
       // them meant a days-old "Sunset" filter still narrowed Browse on relaunch.
+      // The new-response dot is recomputed from the server at each app open.
       partialize: (s) => {
-        const { filters: _filters, ...rest } = s
+        const { filters: _filters, newClientResponse: _dot, ...rest } = s
         return rest
       },
       migrate: (persisted: unknown) => {

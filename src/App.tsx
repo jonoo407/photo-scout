@@ -1,7 +1,8 @@
 import { lazy, Suspense, useEffect } from 'react'
 import { createHashRouter, RouterProvider, type RouteObject } from 'react-router-dom'
 import { useStore, applyTheme } from './state/store'
-import { initAuth } from './auth/useAuth'
+import { initAuth, useAuth } from './auth/useAuth'
+import { refreshResponsesBadge } from './spots/shortlist-api'
 import Layout from './ui/Layout'
 import TodayScreen from './ui/Today/TodayScreen'
 import BrowseScreen from './ui/Browse/BrowseScreen'
@@ -40,5 +41,14 @@ export default function App() {
   const theme = useStore((s) => s.theme)
   useEffect(() => { applyTheme(theme) }, [theme])
   useEffect(() => { void initAuth() }, []) // no-op until auth env vars are set
+  // Once per sign-in: check for client shortlist responses → Saved-tab dot.
+  useEffect(() => {
+    let prevId: string | null = null
+    return useAuth.subscribe((s) => {
+      const id = s.user?.id ?? null
+      if (id && id !== prevId) void refreshResponsesBadge()
+      prevId = id
+    })
+  }, [])
   return <RouterProvider router={router} />
 }

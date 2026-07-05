@@ -7,11 +7,21 @@ import type { Light } from './types'
    The /list page renders them client-facing (no app chrome). */
 
 export const MAX_SHORTLIST = 10
+export const NOTE_MAX = 280
 const LIST_BASE = 'https://shootvantage.com/#/list'
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+/** One entry of a stored list: a spot plus the photographer's client-facing note. */
+export interface ListSpot {
+  id: string
+  note?: string
+}
 
 export interface Shortlist {
   ids: string[]
   title: string | null
+  /** v2: uuid of a stored (Supabase) list — `#/list?id=…`. Null for inline v1 links. */
+  listId: string | null
 }
 
 /** Parse a shortlist link's query (string or URLSearchParams). Trims, dedupes,
@@ -27,7 +37,32 @@ export function parseShortlist(search: string | URLSearchParams): Shortlist {
     if (ids.length === MAX_SHORTLIST) break
   }
   const title = params.get('title')?.trim() || null
-  return { ids, title }
+  const rawId = params.get('id')?.trim() ?? ''
+  // Strict uuid check: a mangled id must not trigger API calls or a bogus fetch.
+  const listId = UUID_RE.test(rawId) ? rawId : null
+  return { ids, title, listId }
+}
+
+/** Share URL for a stored list — short enough to text comfortably. */
+export function storedShortlistUrl(id: string): string {
+  return `${LIST_BASE}?id=${id}`
+}
+
+/** Marry the picked ids (in pick order) with their trimmed notes. */
+export function buildListSpots(picked: string[], notes: Record<string, string>): ListSpot[] {
+  return picked.map((id) => {
+    const note = (notes[id] ?? '').trim().slice(0, NOTE_MAX)
+    return note ? { id, note } : { id }
+  })
+}
+
+/** Any client response newer than the photographer's last look? (ISO strings
+ *  compare lexicographically.) Never-seen counts everything as new. */
+export function hasNewResponses(
+  lists: Array<{ responses: Array<{ createdAt: string }> }>,
+  seenAt: string | null,
+): boolean {
+  return lists.some((l) => l.responses.some((r) => !seenAt || r.createdAt > seenAt))
 }
 
 /** Canonical share URL. Commas stay readable — they're the one separator this format promises. */
