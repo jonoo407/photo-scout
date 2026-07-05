@@ -10,6 +10,7 @@ import SpotHero from './SpotHero'
 import BestDays from './BestDays'
 import SunAlignment from './SunAlignment'
 import MilkyWay from './MilkyWay'
+import CompassMode from './CompassMode'
 import { useStore } from '../../state/store'
 import { useSpotById } from '../../state/useRegion'
 import { CATEGORY_LABEL } from '../../spots/types'
@@ -131,6 +132,9 @@ export default function SpotDetailScreen() {
             </div>
           )
         })}
+      </div>
+      <div style={{ marginTop: 8 }}>
+        <CompassMode spot={spot} />
       </div>
 
       <BestDays spot={spot} />
