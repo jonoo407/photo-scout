@@ -9,6 +9,7 @@ import {
 import SpotHero from './SpotHero'
 import BestDays from './BestDays'
 import SunAlignment from './SunAlignment'
+import MilkyWay from './MilkyWay'
 import { useStore } from '../../state/store'
 import { useSpotById } from '../../state/useRegion'
 import { CATEGORY_LABEL } from '../../spots/types'
@@ -135,6 +136,8 @@ export default function SpotDetailScreen() {
       <BestDays spot={spot} />
 
       <SunAlignment spot={spot} />
+
+      <MilkyWay spot={spot} />
 
       <h3 className="h3">How to shoot it</h3>
       <p className="muted" style={{ fontSize: 13, margin: '0 0 8px', lineHeight: 1.6 }}>{c.lightStrategy}</p>
