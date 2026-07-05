@@ -3,6 +3,9 @@ import { createRoot } from 'react-dom/client'
 import './styles/base.css'
 import './styles/app.css'
 import App from './App'
+import { initWatchSync } from './push/watch-sync'
+
+initWatchSync()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

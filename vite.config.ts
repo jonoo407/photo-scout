@@ -13,6 +13,8 @@ export default defineConfig({
       devOptions: { enabled: false },
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       workbox: {
+        // Conditions-alert push handlers ride inside the generated SW.
+        importScripts: ['push-sw.js'],
         // Cache viewed spot photos so heroes/thumbnails survive spotty signal
         // in the field (they're hotlinked from Wikimedia/Flickr, not bundled).
         runtimeCaching: [

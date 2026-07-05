@@ -3,13 +3,26 @@
 // shootvantage.com. Custom-domain routes auto-create their DNS records in
 // the zone on deploy (both hosts serve the app; index.html carries the
 // canonical link to the apex).
+//
+// worker/index.ts serves /api/push/* (conditions alerts: subscriptions,
+// VAPID, pending queue — all inside the AlertsDO SQLite Durable Object) and
+// falls through to the ASSETS binding for everything else. The cron scores
+// tonight's watched spots and sends web-push tickles (16:30 UTC ≈ lunchtime
+// Eastern, once the evening forecast is solid).
 {
   "name": "vantage",
+  "main": "worker/index.ts",
   "compatibility_date": "2026-07-03",
   "assets": {
     "directory": "./dist",
+    "binding": "ASSETS",
     "not_found_handling": "single-page-application"
   },
+  "durable_objects": {
+    "bindings": [{ "name": "ALERTS", "class_name": "AlertsDO" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["AlertsDO"] }],
+  "triggers": { "crons": ["30 16 * * *"] },
   "routes": [
     { "pattern": "shootvantage.com", "custom_domain": true },
     { "pattern": "www.shootvantage.com", "custom_domain": true }

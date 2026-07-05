@@ -2,12 +2,13 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   IconArrowLeft, IconHome, IconNavigation, IconRuler2,
-  IconBellRinging, IconCameraPlus, IconCurrentLocation, IconChevronRight, IconMapPin, IconMoonStars,
+  IconCameraPlus, IconCurrentLocation, IconChevronRight, IconMapPin, IconMoonStars,
 } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
 import { REGION_LIST, nearestRegion } from '../../data/regions'
 import { geocodeAddress } from '../../spots/geocode'
 import AccountSection from './AccountSection'
+import AlertsSection from './AlertsSection'
 
 export default function SettingsScreen() {
   const nav = useNavigate()
@@ -167,7 +168,7 @@ export default function SettingsScreen() {
 
       <p className="shdr">MORE</p>
       <div className="card list">
-        <div className="row"><span className="rowleft tertiary"><IconBellRinging size={18} /> Conditions alerts</span><span className="pill info">v2</span></div>
+        <AlertsSection />
         <div className="row last"><span className="rowleft tertiary"><IconCameraPlus size={18} /> Add your own photos</span><span className="pill info">soon</span></div>
       </div>
 
