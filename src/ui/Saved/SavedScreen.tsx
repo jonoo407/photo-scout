@@ -6,6 +6,7 @@ import { authAvailable } from '../../auth/supabase'
 import { useAllSpots } from '../../state/useRegion'
 import { SpotCard } from '../SpotCard'
 import { shortlistUrl, storedShortlistUrl, buildListSpots, MAX_SHORTLIST } from '../../spots/shortlist'
+import { regionProgress } from '../../spots/progress'
 import { createShortlist, deleteShortlist, fetchMyShortlists, type MyShortlist } from '../../spots/shortlist-api'
 import { shareLink } from '../../util/share'
 import { fmtDay } from '../../util/format'
@@ -173,6 +174,20 @@ export default function SavedScreen() {
       {been.length > 0 && (
         <>
           <p className="bucket"><IconCircleCheck size={15} color="var(--go-ink)" /> Been there</p>
+          <section aria-label="Shot progress" className="card progresscard">
+            {regionProgress(visited, spots).map((p) => (
+              <div key={p.regionId} className="progressrow">
+                <span className="progresslabel">{p.label}</span>
+                <span className="progressbar">
+                  <span
+                    className="progressfill"
+                    style={{ width: `${p.total ? Math.round((p.done / p.total) * 100) : 0}%` }}
+                  />
+                </span>
+                <span className="small muted progresscount">{p.done}/{p.total}</span>
+              </div>
+            ))}
+          </section>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {been.map(card)}
           </div>

@@ -194,3 +194,11 @@ button.row, button.linkrow { appearance: none; background: var(--surface); curso
 /* saved-tab notification dot */
 .tabicon { position: relative; display: inline-flex; }
 .tabdot { position: absolute; top: -1px; right: -4px; width: 8px; height: 8px; border-radius: 50%; background: var(--terracotta); border: 1.5px solid var(--surface); }
+
+/* saved — per-city shot progress (been-there counts vs each city's spots) */
+.progresscard { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; margin-bottom: 12px; }
+.progressrow { display: flex; align-items: center; gap: 10px; }
+.progresslabel { font-size: 13px; flex: none; min-width: 88px; }
+.progressbar { flex: 1; height: 6px; border-radius: var(--radius-pill); background: var(--line); overflow: hidden; }
+.progressfill { display: block; height: 100%; border-radius: var(--radius-pill); background: var(--go-ink); transition: width 240ms ease; }
+.progresscount { flex: none; font-variant-numeric: tabular-nums; }
