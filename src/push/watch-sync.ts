@@ -1,4 +1,5 @@
 import { useStore } from '../state/store'
+import { useAuth } from '../auth/useAuth'
 import { syncWatchedSpots } from './client'
 
 /**
@@ -11,6 +12,6 @@ export function initWatchSync(): () => void {
   return useStore.subscribe((s) => {
     if (s.wishlist === last) return
     last = s.wishlist
-    void syncWatchedSpots(s.wishlist)
+    void syncWatchedSpots(s.wishlist, useAuth.getState().user?.id ?? null)
   })
 }

@@ -13,16 +13,21 @@ import { scoreBestDay, windowTimeFor } from '../src/spots/best-days'
 import { fetchSkyForecast, skyScoreAt, type SkyHourly } from '../src/weather/open-meteo'
 import { shouldAlert, alertMessage, type AlertPayload } from '../src/push/alert-rules'
 import { generateVapidKeys, vapidAuthHeader, bytesToB64url, type VapidKeys } from '../src/push/vapid'
+import { listOgHtml } from '../src/spots/list-og'
 import type { Spot } from '../src/spots/types'
 
 const ALL_SPOTS = new Map<string, Spot>([...TAMPA, ...PHILLY].map((s) => [s.id, s]))
 const VAPID_SUBJECT = 'mailto:alerts@shootvantage.com'
 const MAX_WATCHED = 20
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 interface Subscription {
   endpoint: string
   spotIds: string[]
   createdAt: string
+  /** Supabase auth user id when the subscriber was signed in — routes
+      client-response notifications to the right device. */
+  userId?: string | null
 }
 
 /* Minimal structural types so the app's tsconfig never needs workers-types. */
@@ -40,6 +45,23 @@ interface DONamespace {
 interface Env {
   ALERTS: DONamespace
   ASSETS: { fetch(req: Request): Promise<Response> }
+  SUPABASE_URL: string
+  SUPABASE_PUBLISHABLE_KEY: string
+}
+
+/** Call a public (anon-executable) Supabase RPC. */
+async function supabaseRpc<T>(env: Env, fn: string, args: Record<string, unknown>): Promise<T | null> {
+  const res = await fetch(`${env.SUPABASE_URL}/rest/v1/rpc/${fn}`, {
+    method: 'POST',
+    headers: {
+      apikey: env.SUPABASE_PUBLISHABLE_KEY,
+      Authorization: `Bearer ${env.SUPABASE_PUBLISHABLE_KEY}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify(args),
+  }).catch(() => null)
+  if (!res || !res.ok) return null
+  return (await res.json()) as T
 }
 
 const json = (data: unknown, status = 200) =>
@@ -74,13 +96,44 @@ export class AlertsDO {
     }
 
     if (path === '/subscribe' && request.method === 'POST') {
-      const body = (await request.json()) as { endpoint?: string; spotIds?: string[] }
+      const body = (await request.json()) as { endpoint?: string; spotIds?: string[]; userId?: string | null }
       if (!body.endpoint || !/^https:\/\//.test(body.endpoint)) return json({ error: 'bad endpoint' }, 400)
       const spotIds = (body.spotIds ?? []).filter((id) => ALL_SPOTS.has(id)).slice(0, MAX_WATCHED)
       const key = await subKey(body.endpoint)
-      const sub: Subscription = { endpoint: body.endpoint, spotIds, createdAt: new Date().toISOString() }
+      const userId = typeof body.userId === 'string' && UUID_RE.test(body.userId) ? body.userId : null
+      const sub: Subscription = { endpoint: body.endpoint, spotIds, createdAt: new Date().toISOString(), userId }
       await this.storage.put(`sub:${key}`, sub)
       return json({ ok: true, watching: spotIds.length })
+    }
+
+    if (path === '/notify-owner' && request.method === 'POST') {
+      const body = (await request.json()) as { ownerId?: string; alert?: AlertPayload }
+      if (!body.ownerId || !body.alert?.title) return json({ error: 'bad payload' }, 400)
+      const subs = await this.storage.list<Subscription>({ prefix: 'sub:' })
+      const keys = await this.vapid()
+      let sent = 0
+      for (const [storageKey, sub] of subs) {
+        if (sub.userId !== body.ownerId) continue
+        const key = storageKey.slice('sub:'.length)
+        const pendingKey = `pending:${key}`
+        const existing = (await this.storage.get<AlertPayload[]>(pendingKey)) ?? []
+        await this.storage.put(pendingKey, [...existing, body.alert].slice(-5))
+        const res = await fetch(sub.endpoint, {
+          method: 'POST',
+          headers: {
+            Authorization: await vapidAuthHeader(sub.endpoint, keys, VAPID_SUBJECT),
+            TTL: '86400',
+            Urgency: 'normal',
+          },
+        }).catch(() => null)
+        if (res && (res.status === 404 || res.status === 410)) {
+          await this.storage.delete(storageKey)
+          await this.storage.delete(pendingKey)
+        } else if (res && res.ok) {
+          sent++
+        }
+      }
+      return json({ ok: true, sent })
     }
 
     if (path === '/unsubscribe' && request.method === 'POST') {
@@ -184,6 +237,44 @@ const doStub = (env: Env) => env.ALERTS.get(env.ALERTS.idFromName('alerts'))
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url)
+
+    // Shortlist unfurl: real path → OG tags → meta-refresh to the hash route.
+    const listMatch = /^\/l\/([0-9a-f-]{36})$/i.exec(url.pathname)
+    if (listMatch && UUID_RE.test(listMatch[1])) {
+      const id = listMatch[1].toLowerCase()
+      const rows = await supabaseRpc<Array<{ title: string | null; spots: unknown[] }>>(
+        env, 'get_shortlist', { p_id: id },
+      )
+      const row = rows?.[0]
+      if (!row) return env.ASSETS.fetch(request) // unknown id → app's empty state
+      return new Response(listOgHtml(id, row.title, Array.isArray(row.spots) ? row.spots.length : 0), {
+        headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' },
+      })
+    }
+
+    // Supabase DB webhook: a client answered a shortlist → push the owner.
+    if (url.pathname === '/api/shortlist/response-hook' && request.method === 'POST') {
+      const body = (await request.json().catch(() => null)) as
+        | { record?: { list_id?: string; client_name?: string | null } }
+        | null
+      const listId = body?.record?.list_id
+      if (!listId || !UUID_RE.test(listId)) return new Response('bad payload', { status: 400 })
+      const owner = await supabaseRpc<string>(env, 'get_list_owner', { p_id: listId })
+      if (!owner) return new Response('no owner', { status: 200 })
+      const rows = await supabaseRpc<Array<{ title: string | null }>>(env, 'get_shortlist', { p_id: listId })
+      const who = body?.record?.client_name?.trim()
+      const alert = {
+        title: who ? `${who} picked their spots` : 'Your client responded',
+        body: `New response on “${rows?.[0]?.title ?? 'Location options'}” — open Saved to see their picks.`,
+        url: '/#/saved',
+      }
+      return doStub(env).fetch(new Request('https://do/notify-owner', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ ownerId: owner, alert }),
+      }))
+    }
+
     if (url.pathname.startsWith('/api/push/')) {
       const inner = url.pathname.slice('/api/push'.length) + url.search
       return doStub(env).fetch(new Request(`https://do${inner}`, request))

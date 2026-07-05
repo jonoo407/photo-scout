@@ -62,8 +62,9 @@ describe('parseShortlist — stored lists (v2)', () => {
 })
 
 describe('storedShortlistUrl', () => {
-  it('builds the short client URL for a stored list', () => {
-    expect(storedShortlistUrl(UUID)).toBe(`https://shootvantage.com/#/list?id=${UUID}`)
+  it('builds the short path URL (no hash) so messengers can unfurl it', () => {
+    // The Worker serves OG tags at /l/<id> and forwards to the app view.
+    expect(storedShortlistUrl(UUID)).toBe(`https://shootvantage.com/l/${UUID}`)
   })
 })
 

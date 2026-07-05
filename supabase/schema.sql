@@ -64,3 +64,45 @@ set search_path = public
 as $$
   select id, title, spots, created_at from shortlists where id = p_id;
 $$;
+
+-- ── Shortlist response notify (v3, added 2026-07-05) ────────────────────────
+-- Applied as migration `shortlist_response_notify` via the Supabase MCP.
+-- When a client inserts a response, pg_net pokes the Worker, which web-pushes
+-- the list owner's subscribed devices (see worker/index.ts response-hook).
+
+create extension if not exists pg_net with schema extensions;
+
+-- Owner lookup for the response webhook. Capability-URL consistent: knowing a
+-- valid list uuid is the authorization (returns only the owner uuid).
+create or replace function public.get_list_owner(p_id uuid)
+returns uuid
+language sql
+security definer
+set search_path = public
+as $$
+  select owner from shortlists where id = p_id;
+$$;
+
+create or replace function public.notify_shortlist_response()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, extensions
+as $$
+begin
+  perform net.http_post(
+    url := 'https://shootvantage.com/api/shortlist/response-hook',
+    body := jsonb_build_object('record', jsonb_build_object(
+      'list_id', new.list_id,
+      'client_name', new.client_name
+    )),
+    headers := '{"Content-Type": "application/json"}'::jsonb
+  );
+  return new;
+end;
+$$;
+
+drop trigger if exists shortlist_response_notify on public.shortlist_responses;
+create trigger shortlist_response_notify
+  after insert on public.shortlist_responses
+  for each row execute function public.notify_shortlist_response();

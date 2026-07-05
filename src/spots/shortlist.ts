@@ -43,9 +43,11 @@ export function parseShortlist(search: string | URLSearchParams): Shortlist {
   return { ids, title, listId }
 }
 
-/** Share URL for a stored list — short enough to text comfortably. */
+/** Share URL for a stored list — a real path (no hash) so messaging apps can
+ *  unfurl it; the Worker serves per-list OG tags there and forwards to the
+ *  app's `#/list?id=…` view. */
 export function storedShortlistUrl(id: string): string {
-  return `${LIST_BASE}?id=${id}`
+  return `https://shootvantage.com/l/${id}`
 }
 
 /** Marry the picked ids (in pick order) with their trimmed notes. */

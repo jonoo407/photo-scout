@@ -14,7 +14,7 @@ describe('watch-sync', () => {
   it('pushes wishlist changes to the server watch list', () => {
     const stop = initWatchSync()
     useStore.setState({ wishlist: ['fort-de-soto-park'] })
-    expect(mocks.syncWatchedSpots).toHaveBeenCalledWith(['fort-de-soto-park'])
+    expect(mocks.syncWatchedSpots).toHaveBeenCalledWith(['fort-de-soto-park'], null)
     stop()
   })
 

@@ -24,7 +24,7 @@ describe('Settings — conditions alerts', () => {
     const user = userEvent.setup()
     render(<AlertsSection />)
     await user.click(await screen.findByRole('button', { name: /turn on/i }))
-    expect(mocks.enableConditionAlerts).toHaveBeenCalledWith(['honeymoon-island-sp'])
+    expect(mocks.enableConditionAlerts).toHaveBeenCalledWith(['honeymoon-island-sp'], null)
     expect(await screen.findByRole('button', { name: /turn off/i })).toBeInTheDocument()
   })
 

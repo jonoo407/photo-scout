@@ -23,6 +23,12 @@
   },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["AlertsDO"] }],
   "triggers": { "crons": ["30 16 * * *"] },
+  // The publishable (anon) key is public by design — it ships in the client
+  // bundle too; RLS is the actual guard.
+  "vars": {
+    "SUPABASE_URL": "https://gxxjxfwxufqqxcyrdibh.supabase.co",
+    "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_8QuHxk1ljwIWx6cRgertwg_7ZCIN_f2"
+  },
   "routes": [
     { "pattern": "shootvantage.com", "custom_domain": true },
     { "pattern": "www.shootvantage.com", "custom_domain": true }

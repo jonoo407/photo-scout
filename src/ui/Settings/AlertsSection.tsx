@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { IconBellRinging } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
+import { useAuth } from '../../auth/useAuth'
 import { pushSupported, alertsEnabled, enableConditionAlerts, disableConditionAlerts } from '../../push/client'
 import { ALERT_SCORE } from '../../push/alert-rules'
 
@@ -9,6 +10,7 @@ import { ALERT_SCORE } from '../../push/alert-rules'
    Worker cron; this is just the opt-in switch. */
 export default function AlertsSection() {
   const wishlist = useStore((s) => s.wishlist)
+  const user = useAuth((s) => s.user)
   const supported = pushSupported()
   const [on, setOn] = useState<boolean | null>(null) // null = still checking
   const [busy, setBusy] = useState(false)
@@ -30,7 +32,7 @@ export default function AlertsSection() {
         await disableConditionAlerts()
         setOn(false)
       } else {
-        const ok = await enableConditionAlerts(wishlist)
+        const ok = await enableConditionAlerts(wishlist, user?.id ?? null)
         setOn(ok)
         if (!ok) setDenied(true)
       }

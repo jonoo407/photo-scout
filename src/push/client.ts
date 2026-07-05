@@ -34,7 +34,7 @@ export async function alertsEnabled(): Promise<boolean> {
  * register which spots to watch. Returns false when the user declines or the
  * environment can't push.
  */
-export async function enableConditionAlerts(spotIds: string[]): Promise<boolean> {
+export async function enableConditionAlerts(spotIds: string[], userId?: string | null): Promise<boolean> {
   if (!pushSupported()) return false
   const permission = await Notification.requestPermission()
   if (permission !== 'granted') return false
@@ -48,7 +48,7 @@ export async function enableConditionAlerts(spotIds: string[]): Promise<boolean>
     new Uint8Array(applicationServerKey).set(raw)
     sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey })
   }
-  const res = await postJson('/api/push/subscribe', { endpoint: sub.endpoint, spotIds })
+  const res = await postJson('/api/push/subscribe', { endpoint: sub.endpoint, spotIds, userId: userId ?? null })
   return res.ok
 }
 
@@ -63,9 +63,9 @@ export async function disableConditionAlerts(): Promise<void> {
 }
 
 /** Keep the server's watch list current — no-op unless already subscribed. */
-export async function syncWatchedSpots(spotIds: string[]): Promise<void> {
+export async function syncWatchedSpots(spotIds: string[], userId?: string | null): Promise<void> {
   if (!pushSupported() || Notification.permission !== 'granted') return
   const sub = await currentSubscription()
   if (!sub) return
-  await postJson('/api/push/subscribe', { endpoint: sub.endpoint, spotIds }).catch(() => {})
+  await postJson('/api/push/subscribe', { endpoint: sub.endpoint, spotIds, userId: userId ?? null }).catch(() => {})
 }

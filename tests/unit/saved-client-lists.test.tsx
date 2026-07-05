@@ -66,7 +66,7 @@ describe('SavedScreen — signed-in shortlist builder (v2)', () => {
       { id: 'bayshore-boulevard', note: 'Golden hour magic here' },
       { id: 'independence-hall' },
     ])
-    expect(writeText).toHaveBeenCalledWith('https://shootvantage.com/#/list?id=list-uuid-9')
+    expect(writeText).toHaveBeenCalledWith('https://shootvantage.com/l/list-uuid-9')
     expect(await screen.findByText(/link copied/i)).toBeInTheDocument()
   })
 

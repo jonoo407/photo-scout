@@ -50,7 +50,15 @@ describe('push client', () => {
     const subCall = fetchMock.mock.calls.find((c) => String(c[0]).endsWith('/api/push/subscribe'))
     expect(subCall).toBeTruthy()
     const body = JSON.parse((subCall![1] as RequestInit).body as string)
-    expect(body).toEqual({ endpoint: ENDPOINT, spotIds: ['honeymoon-island-sp', 'fort-de-soto-park'] })
+    expect(body).toEqual({ endpoint: ENDPOINT, spotIds: ['honeymoon-island-sp', 'fort-de-soto-park'], userId: null })
+  })
+
+  it('enable forwards the signed-in user id so client responses can find this device', async () => {
+    mockPushStack(false)
+    await enableConditionAlerts(['a'], 'f5b0e9a2-1111-2222-3333-444455556666')
+    const subCall = fetchMock.mock.calls.find((c) => String(c[0]).endsWith('/api/push/subscribe'))
+    const body = JSON.parse((subCall![1] as RequestInit).body as string)
+    expect(body.userId).toBe('f5b0e9a2-1111-2222-3333-444455556666')
   })
 
   it('disable: unsubscribes locally and tells the server', async () => {
