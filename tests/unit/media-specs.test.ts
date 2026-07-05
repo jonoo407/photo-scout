@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { mediaSpecs } from '../../src/spots/media-specs'
+import { mediaSpecs, cleanCredit } from '../../src/spots/media-specs'
 import type { SpotMedia } from '../../src/spots/types'
 
 const base: SpotMedia = { src: 'x.jpg', caption: 'c', credit: 'a', license: 'CC' }
@@ -25,5 +25,15 @@ describe('mediaSpecs', () => {
 
   it('never doubles the s on a shutter given with units', () => {
     expect(mediaSpecs({ ...base, shutter: '1/250s' })).toBe('1/250s')
+  })
+})
+
+describe('cleanCredit', () => {
+  it('trims Wikimedia boilerplate down to the username', () => {
+    expect(cleanCredit('Original uploader was user:Tampa Gator at en.wikipedia'))
+      .toBe('user:Tampa Gator (en.wikipedia)')
+  })
+  it('leaves ordinary credits alone', () => {
+    expect(cleanCredit('Ebyabe')).toBe('Ebyabe')
   })
 })

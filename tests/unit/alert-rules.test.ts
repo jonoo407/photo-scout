@@ -7,7 +7,7 @@ const day = (over: Partial<BestDay>): BestDay => ({
   windowKind: 'evening',
   windowStart: new Date('2026-07-05T23:30:00Z'),
   score: 80,
-  reasons: ['Strong sunset sky (93)', 'Sun lines up behind the subject'],
+  reasons: ['Strong sunset sky forecast', 'Sun lines up behind the subject'],
   open: true,
   forecast: true,
   ...over,
@@ -31,7 +31,7 @@ describe('alertMessage', () => {
   it('names the spot, leads with the reasons, and deep-links it', () => {
     const m = alertMessage('Honeymoon Island State Park', 'honeymoon-island-sp', day({}))
     expect(m.title).toContain('Honeymoon Island')
-    expect(m.body).toContain('Strong sunset sky (93)')
+    expect(m.body).toContain('Strong sunset sky forecast')
     expect(m.body).toContain('80')
     expect(m.url).toBe('/#/spot/honeymoon-island-sp')
   })

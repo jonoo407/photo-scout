@@ -48,6 +48,23 @@ const shutterOf = (v) => {
 }
 const round1 = (n) => String(Math.round(n * 10) / 10)
 
+// "KODAK C875 ZOOM DIGITAL CAMERA" → "Kodak C875"; "E885" + Make "NIKON" →
+// "Nikon E885". Raw EXIF strings shout and pad — captions shouldn't.
+const cameraName = (make, model) => {
+  const clean = (s) => String(s ?? '').replace(/\0/g, '').trim()
+  let m = clean(model)
+  if (!m || /unknown/i.test(m)) return null
+  m = m.replace(/\b(ZOOM\s+)?DIGITAL\s+CAMERA\b/gi, '').replace(/\s{2,}/g, ' ').trim()
+  const mk = clean(make).split(/\s+/)[0] ?? ''
+  // Prefix the maker when the model string doesn't already carry it.
+  if (mk && !m.toLowerCase().includes(mk.toLowerCase())) m = `${mk} ${m}`
+  // De-shout: title-case fully-uppercase words of 3+ letters (keep D90, EOS, DSC-…).
+  m = m.split(' ').map((w) =>
+    /^[A-Z]{3,}$/.test(w) ? w[0] + w.slice(1).toLowerCase() : w,
+  ).join(' ')
+  return m || null
+}
+
 // unique titles → media entries that use them
 const byTitle = new Map()
 for (const list of Object.values(data)) {
@@ -82,8 +99,8 @@ for (let i = 0; i < titles.length; i += 50) {
     const exif = Object.fromEntries(meta.map((e) => [e.name, e.value]))
 
     const specs = {}
-    const model = typeof exif.Model === 'string' ? exif.Model.trim() : ''
-    if (model && !/unknown/i.test(model)) specs.camera = model
+    const camera = cameraName(exif.Make, exif.Model)
+    if (camera) specs.camera = camera
     const focal = num(exif.FocalLength)
     if (focal && focal > 0 && focal < 2000) specs.focalLengthMm = focal >= 10 ? Math.round(focal) : Math.round(focal * 10) / 10
     const f = num(exif.FNumber)

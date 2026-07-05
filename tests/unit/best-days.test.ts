@@ -39,6 +39,9 @@ describe('scoreBestDay', () => {
     expect(great.forecast).toBe(true)
     expect(great.reasons.some((r) => /sunset sky/i.test(r))).toBe(true)
     expect(great.score).toBeGreaterThan(meh.score)
+    // One score per row: the reason must not carry a second bare number that
+    // competes with the day's badge (was "Strong sunset sky (90)" + "67").
+    expect(great.reasons.every((r) => !/\(\d+\)/.test(r))).toBe(true)
   })
 
   it('rewards a low tide near the window for a beach spot', () => {

@@ -351,11 +351,12 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'fort-de-soto-park', name: 'Fort De Soto Park', category: 'beach', city: 'Tierra Verde', region: 'tampa-bay',
-    bestFor: ['beaches', 'Skyway views', 'North Beach sunset'], bestLight: ['sunset', 'sunrise'],
+    darkSky: true, // darkest accessible sky in the bay area — the local astro spot
+    bestFor: ['beaches', 'Skyway views', 'North Beach sunset'], bestLight: ['sunset', 'sunrise', 'night-astro'],
     lat: 27.6396, lng: -82.7253, address: '3500 Pinellas Bayway S, Tierra Verde, FL 33715', facing: 270, feeUSD: 6, isFree: false, feeNote: '$6/car (since 2025) + Pinellas Bayway toll', driveMinutes: 50,
     hours: days(open(iv(sr(), ss()))), phone: null, tideStationId: '8726520',
     notes: '3500 Pinellas Bayway S; 1,136 acres across five keys. North Beach (reopened 2025) is the classic white-sand sunset spot; East Beach faces Tampa Bay with Skyway views.',
-    caveats: 'Recovering from 2024 hurricanes; North Beach reopened Feb 2025.',
+    caveats: 'Recovering from 2024 hurricanes; North Beach reopened Feb 2025. Gates close at dusk — Milky Way nights need a campground reservation.',
     craft: {
       lightStrategy: 'North Beach faces west for Gulf sunsets; check the tide — low tide opens up reflective wet sand and tide pools.',
       whatToShoot: ['Gulf sunset over white sand', 'Skyway bridge from East Beach', 'tide pools + birds'],

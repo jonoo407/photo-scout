@@ -37,11 +37,21 @@ export interface SunTarget {
   at: Date
   /** Sun elevation then — below 0 means it's under the horizon. */
   elevation: number
+  /** 0 = today's window, 1 = it already passed so this is tomorrow's. */
+  daysAhead: number
 }
 
-/** Where the sun will be at this spot's prime window today. */
+/**
+ * Where the sun will be at this spot's NEXT prime window. A window that
+ * already slipped by rolls to tomorrow — an arrow pointing at where the sun
+ * was this morning is worse than no arrow.
+ */
 export function sunTarget(spot: Spot, date: Date = new Date()): SunTarget {
-  const at = windowTimeFor(spot, date, spot.lat, spot.lng)
-  const { azimuth, elevation } = sunPosition(at, spot.lat, spot.lng)
-  return { bearing: azimuth, at, elevation }
+  for (let daysAhead = 0; ; daysAhead++) {
+    const day = new Date(date.getTime() + daysAhead * 86_400_000)
+    const at = windowTimeFor(spot, day, spot.lat, spot.lng)
+    if (at.getTime() < date.getTime() && daysAhead < 2) continue
+    const { azimuth, elevation } = sunPosition(at, spot.lat, spot.lng)
+    return { bearing: azimuth, at, elevation, daysAhead }
+  }
 }

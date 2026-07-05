@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { Outlet, NavLink } from 'react-router-dom'
 import { IconSun, IconListSearch, IconMap2, IconCalendarEvent, IconStar } from '@tabler/icons-react'
 import { useStore } from '../state/store'
+import ScrollReset from './ScrollReset'
 
 function Tab({ to, icon, label, dot }: { to: string; icon: ReactNode; label: string; dot?: boolean }) {
   return (
@@ -20,6 +21,7 @@ export default function Layout() {
   const hasNewResponse = useStore((s) => s.newClientResponse)
   return (
     <>
+      <ScrollReset />
       <Outlet />
       <nav className="tabbar">
         <Tab to="/" icon={<IconSun size={22} />} label="Today" />

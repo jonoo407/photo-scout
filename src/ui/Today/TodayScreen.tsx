@@ -152,7 +152,7 @@ export default function TodayScreen() {
         </div>
         <div className="stat">
           <IconSunset2 size={18} color="var(--amber)" />
-          <p className="sv" style={sGrade ? { color: GRADE_COLOR[sGrade] } : undefined}>{sScore ?? '—'}</p>
+          <p className="sv" style={sGrade ? { color: GRADE_COLOR[sGrade] } : undefined}>{sScore != null ? `${sScore}/100` : '—'}</p>
           <p className="sl">{sGrade ? `Sunset · ${sGrade}` : 'Sunset score'}</p>
         </div>
         <div className="stat">

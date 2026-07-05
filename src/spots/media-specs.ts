@@ -5,6 +5,11 @@ import type { SpotMedia } from './types'
  * "Canon EOS R5 · 24mm · f/8 · 1/125s · ISO 100". Parts are optional and
  * skipped when absent; null when the photo has no specs at all.
  */
+/** Trim Wikimedia import boilerplate out of photographer credits. */
+export function cleanCredit(credit: string): string {
+  return credit.replace(/^Original uploader was (.+?) at (\S+)$/i, '$1 ($2)')
+}
+
 export function mediaSpecs(m: SpotMedia): string | null {
   const parts: string[] = []
   if (m.camera) parts.push(m.camera)

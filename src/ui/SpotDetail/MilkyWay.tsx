@@ -10,10 +10,12 @@ const compass = (az: number) => {
   return dirs[Math.round(az / 45) % 8]
 }
 
-/* Galactic-core planner for night-astro spots: tonight's shooting window in
-   season, or the date the core season reopens. */
+/* Galactic-core planner — ONLY for spots explicitly tagged darkSky. A
+   night-astro bestLight alone isn't enough: neon marquees and lit skylines
+   are night shots too, and a Milky Way window over downtown is confidently
+   wrong advice. */
 export default function MilkyWay({ spot, from }: { spot: Spot; from?: Date }) {
-  const astro = spot.bestLight.includes('night-astro')
+  const astro = spot.darkSky === true
   const tz = getRegion(spot.region).timeZone
   const next = useMemo(
     () => (astro ? nextCoreWindow(from ?? new Date(), spot.lat, spot.lng, tz) : null),
@@ -45,7 +47,7 @@ export default function MilkyWay({ spot, from }: { spot: Spot; from?: Date }) {
             <span className="small tertiary">{fmtRange(w.start, w.end, tz)}</span>
           </div>
         )}
-        <p className={`small ${moonBad ? '' : 'tertiary'}`} style={{ margin: '4px 0 0', color: moonBad ? 'var(--skip-ink)' : undefined }}>
+        <p className={`small ${moonBad ? '' : 'tertiary'}`} style={{ margin: '4px 12px 10px', color: moonBad ? 'var(--skip-ink)' : undefined }}>
           {moonBad
             ? `${w.moonIllumination}% moon is up — the core will be washed out; aim for a darker night`
             : w.moonUp

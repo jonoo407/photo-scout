@@ -34,7 +34,13 @@ describe('spot media (seeded reference photos)', () => {
         if (m.sourceUrl) expect(m.sourceUrl, `${s.id} sourceUrl`).toMatch(/^https:\/\//)
         if (m.light) expect(LIGHTS, `${s.id} light`).toContain(m.light)
         // Photo specs (EXIF-sourced) must be plausible camera values when present.
-        if (m.camera) expect(m.camera.trim().length, `${s.id} camera`).toBeGreaterThan(0)
+        if (m.camera) {
+          expect(m.camera.trim().length, `${s.id} camera`).toBeGreaterThan(0)
+          // No raw EXIF shouting or filler: "KODAK C875 ZOOM DIGITAL CAMERA" reads
+          // as a spec dump, not a caption. Enrichment must clean names.
+          expect(m.camera, `${s.id} camera noise`).not.toMatch(/DIGITAL CAMERA|ZOOM$/i)
+          expect(/^[A-Z0-9\s-]{8,}$/.test(m.camera), `${s.id} camera all-caps "${m.camera}"`).toBe(false)
+        }
         if (m.focalLengthMm != null) {
           expect(m.focalLengthMm, `${s.id} focal`).toBeGreaterThan(0)
           expect(m.focalLengthMm, `${s.id} focal`).toBeLessThan(2000)

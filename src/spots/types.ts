@@ -63,6 +63,10 @@ export interface Spot {
   id: string
   name: string
   category: Category
+  /** True only where the sky is genuinely dark enough for Milky Way work —
+      gates the galactic-core planner. Lit night spots (neon, skylines) stay
+      untagged even when they're shot at night. */
+  darkSky?: boolean
   city: string
   region: RegionId
   bestFor: string[]

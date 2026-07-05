@@ -87,7 +87,7 @@ export function scoreBestDay(spot: Spot, date: Date, lat: number, lng: number, i
   if (inputs.skyScore != null) {
     forecast = true
     score += ((inputs.skyScore - 50) / 100) * 30 // -15..+15
-    if (inputs.skyScore >= 70) reasons.push(`Strong ${kind === 'morning' ? 'sunrise' : 'sunset'} sky (${inputs.skyScore})`)
+    if (inputs.skyScore >= 70) reasons.push(`Strong ${kind === 'morning' ? 'sunrise' : 'sunset'} sky forecast`)
   }
 
   // Moon

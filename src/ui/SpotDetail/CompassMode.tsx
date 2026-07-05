@@ -57,7 +57,7 @@ export default function CompassMode({ spot, from }: { spot: Spot; from?: Date })
     <div className="card compasscard">
       <div className="row-spread" style={{ alignItems: 'center' }}>
         <p className="small" style={{ margin: 0, fontWeight: 500 }}>
-          Sun at {fmtTime(target.at, tz)} · {Math.round(target.bearing)}° {compassName(target.bearing)}
+          Sun at {fmtTime(target.at, tz)}{target.daysAhead > 0 ? ' tomorrow' : ''} · {Math.round(target.bearing)}° {compassName(target.bearing)}
         </p>
         <button className="chip" onClick={() => setOpen(false)}>Close</button>
       </div>
