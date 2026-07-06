@@ -80,5 +80,22 @@ Landscape: PhotoPills/TPE/PlanIt own sun-moon *calculation*; Locationscout owns 
 
 Deliberately skipped: DoF/exposure calculators (commodity; PhotoPills owns), 3D terrain shadows (server-heavy, breaks keyless), offline map tiles (storage-heavy), native widgets (impossible in PWA). Also noted: custom SMTP (Resend) for magic-link email before promoting broadly — built-in sender is a-few-emails/hour.
 
+## Backlog — user feedback (2026-07-05)
+
+Raw asks from the user after living with the app; not yet prioritized against each other.
+
+1. **More photos per spot** — grow beyond the current seeded set (Commons coverage is thin for some spots; pairs with #8 and #9 below as sources).
+2. **Architecture review for large volumes** — what breaks when we add the rest of the US? Per-city lazy chunks already exist, but review: data pipeline at hundreds of cities, spot search/discovery, map clustering, bundle size, `useAllSpots` (loads every region for Saved), test-suite shape, and whether spot data belongs in Supabase instead of the bundle at that scale.
+3. **Descriptions on list cards (Today, Browse)** — the card's subtitle real estate currently shows the address; use it instead for color: why this place is photographically interesting / what's unique (`bestFor` / a new one-liner field). Address stays on the detail page where it's actionable.
+4. **Smarter-sounding itinerary builder** — the Day/Plan flow should read as "Smart build"/"Auto build" and explain *how it selects* (light windows, drive order, open hours). The swap flow should show more about each candidate (photo, why-it's-good) and use the same pick pattern as the rest of the app (like the shortlist builder), not a bare list.
+5. **Day plans persist** — planning a day should save it (survive reload, sync when signed in).
+6. **Share a plan** — send a day plan to others (second use of the client-shortlist share machinery: capability link + OG unfurl).
+7. **Better onboarding** — first-run flow beyond the welcome card: pick your city, seed a few want-to-gos, explain the Today screen's promise in one swipe-through.
+8. **Add your own photos** — the existing Settings "soon" stub: attach personal shots to a spot (needs storage — Supabase Storage bucket — plus the shot-log/IndexedDB item from Next steps #8).
+9. **User-submitted locations** — a "suggest a spot" form: users fill in what they know (name, pin, why it's good, access notes); store submissions (Supabase table) for periodic curation sessions where the user + Claude fill gaps to full spot quality (two-source verification per docs/ADDING_SPOTS.md) and ship them.
+10. **Trip plans / boards** — save collections bigger than a day: a weekend trip, a location-scouting board (relates to #5/#6; decide one model for "saved groups of spots" covering plans, boards, and shortlists).
+11. **Personal notes on spots** — private per-spot notes (synced via `vantage_state`), distinct from client-facing shortlist notes.
+12. **Clickability/affordance pass** — anything tappable must look tappable; "Compass to the light" chip and similar controls need clearer button differentiation (consistent affordance treatment app-wide, ties into the taste-review habit).
+
 ## Adding a spot
 Full playbook: **`docs/ADDING_SPOTS.md`** (selection criteria, two-source fact verification, photo licensing + mandatory eyeball step, craft-guide standards, quality gates, live verification, new-city checklist). Mechanical enforcement lives in `tests/unit/spots-data.test.ts` + `spots-media.test.ts`.
