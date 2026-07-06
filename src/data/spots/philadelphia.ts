@@ -109,7 +109,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '24-70mm', tripod: false, settingsHint: 'Handheld, ISO 800–1600 for blue hour' },
       accessTips: 'Seasonal (Apr–Nov); no cover but it is a bar — first-come. Closed Mon–Tue.',
     },
-    media: [],
+    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Bok_School_Philly.jpg/960px-Bok_School_Philly.jpg', 'The Art Deco Bok building — the bar is on its roof', 'Smallbones', 'Public domain', 'https://commons.wikimedia.org/wiki/File:Bok_School_Philly.jpg', 'daytime')],
   },
   {
     id: 'philadelphia-city-hall', name: 'Philadelphia City Hall', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
