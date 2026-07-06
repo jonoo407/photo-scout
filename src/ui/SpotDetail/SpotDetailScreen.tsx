@@ -11,6 +11,7 @@ import BestDays from './BestDays'
 import SunAlignment from './SunAlignment'
 import MilkyWay from './MilkyWay'
 import CompassMode from './CompassMode'
+import SpotNotes from './SpotNotes'
 import { useStore } from '../../state/store'
 import { useSpotById } from '../../state/useRegion'
 import { CATEGORY_LABEL } from '../../spots/types'
@@ -165,6 +166,8 @@ export default function SpotDetailScreen() {
           )
         })}
       </div>
+
+      <SpotNotes spotId={spot.id} />
 
       <h3 className="h3">Good to know</h3>
       <div className="goodtoknow">

@@ -6,6 +6,7 @@ const local: SyncedState = {
   wishlist: ['bayshore-boulevard', 'boathouse-row'],
   visited: ['curtis-hixon-waterfront-park'],
   checklist: { 'fort-de-soto-park': ['gulf-sunset'] },
+  spotNotes: { 'bayshore-boulevard': 'shoot from the south rail', 'fort-de-soto-park': 'local draft' },
   home: DEFAULT_HOME,
   region: 'tampa-bay',
   units: 'imperial',
@@ -17,6 +18,7 @@ const remote: SyncedState = {
   wishlist: ['boathouse-row', 'elfreths-alley'],
   visited: ['independence-hall'],
   checklist: { 'fort-de-soto-park': ['skyway-east'], 'race-street-pier': ['bridge-up'] },
+  spotNotes: { 'race-street-pier': 'early ferry shadow', 'fort-de-soto-park': 'remote older note' },
   home: { label: 'Current location', lat: 39.95, lng: -75.16 },
   region: 'philadelphia',
   units: 'metric',
@@ -31,6 +33,13 @@ describe('mergeState (sign-in reconciliation)', () => {
     expect(m.visited).toEqual(['curtis-hixon-waterfront-park', 'independence-hall'])
     expect(m.checklist['fort-de-soto-park']).toEqual(['gulf-sunset', 'skyway-east'])
     expect(m.checklist['race-street-pier']).toEqual(['bridge-up'])
+  })
+
+  it('personal notes merge per spot — content is never lost, the device in hand wins conflicts', () => {
+    const notes = mergeState(local, remote).spotNotes!
+    expect(notes['bayshore-boulevard']).toBe('shoot from the south rail') // local-only kept
+    expect(notes['race-street-pier']).toBe('early ferry shadow') // remote-only kept
+    expect(notes['fort-de-soto-park']).toBe('local draft') // conflict → local wins
   })
 
   it('remote scalars win (the synced account is the source of truth for prefs)', () => {
@@ -60,7 +69,7 @@ describe('syncableSlice', () => {
       setHome: () => {},
     } as never)
     expect(Object.keys(slice).sort()).toEqual(
-      ['checklist', 'home', 'mapsApp', 'region', 'theme', 'units', 'visited', 'wishlist'],
+      ['checklist', 'home', 'mapsApp', 'region', 'spotNotes', 'theme', 'units', 'visited', 'wishlist'],
     )
   })
 })

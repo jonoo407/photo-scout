@@ -8,6 +8,8 @@ export interface SyncedState {
   wishlist: string[]
   visited: string[]
   checklist: Record<string, string[]>
+  /** Private per-spot notes. Older synced rows predate this field. */
+  spotNotes?: Record<string, string>
   home: HomeLocation
   region: RegionId
   units: 'imperial' | 'metric'
@@ -33,6 +35,9 @@ export function mergeState(local: SyncedState, remote: SyncedState | null): Sync
     wishlist: union(local.wishlist, remote.wishlist),
     visited: union(local.visited, remote.visited),
     checklist,
+    // Notes are content, not prefs: keep both sides; on a per-spot conflict
+    // the device in hand wins (it holds whatever was just written).
+    spotNotes: { ...(remote.spotNotes ?? {}), ...(local.spotNotes ?? {}) },
     home: remote.home,
     region: remote.region,
     units: remote.units,
@@ -47,6 +52,7 @@ export function syncableSlice(s: SyncedState): SyncedState {
     wishlist: s.wishlist,
     visited: s.visited,
     checklist: s.checklist,
+    spotNotes: s.spotNotes ?? {},
     home: s.home,
     region: s.region,
     units: s.units,

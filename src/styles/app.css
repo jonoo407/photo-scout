@@ -211,3 +211,7 @@ button.row, button.linkrow { appearance: none; background: var(--surface); curso
 .compasscard { display: flex; flex-direction: column; gap: 10px; padding: 14px; }
 .compassdial { width: 108px; height: 108px; margin: 2px auto; border-radius: 50%; border: 2px solid var(--line-strong); display: flex; align-items: center; justify-content: center; background: var(--surface); }
 .compassarrow { display: flex; color: var(--terracotta); transition: transform 180ms ease, opacity 240ms ease; }
+
+/* spot detail — private notes */
+.notesbox { width: 100%; box-sizing: border-box; font: 13px/1.6 var(--font-sans); color: var(--ink); background: var(--surface); border: 0.5px solid var(--line-strong); border-radius: var(--radius-sm); padding: 10px 12px; resize: vertical; }
+.notesbox::placeholder { color: var(--ink-3); }

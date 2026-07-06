@@ -41,6 +41,9 @@ interface AppState {
   wishlist: string[]
   visited: string[]
   checklist: Record<string, string[]>
+  /** Private per-spot notes (gate codes, angles, contacts) — synced, never
+      shown to clients (shortlist notes are a separate, deliberate field). */
+  spotNotes: Record<string, string>
   filters: Filters
   home: HomeLocation
   region: RegionId
@@ -56,6 +59,7 @@ interface AppState {
   toggleWishlist: (id: string) => void
   toggleVisited: (id: string) => void
   toggleShot: (spotId: string, shotId: string) => void
+  setSpotNote: (spotId: string, note: string) => void
   setFilters: (patch: Partial<Filters>) => void
   resetFilters: () => void
   setHome: (home: HomeLocation) => void
@@ -94,6 +98,7 @@ export const useStore = create<AppState>()(
       wishlist: [],
       visited: [],
       checklist: {},
+      spotNotes: {},
       filters: EMPTY_FILTERS,
       home: DEFAULT_HOME,
       region: 'tampa-bay',
@@ -108,6 +113,14 @@ export const useStore = create<AppState>()(
       toggleVisited: (id) => set((s) => ({ visited: toggle(s.visited, id) })),
       toggleShot: (spotId, shotId) =>
         set((s) => ({ checklist: { ...s.checklist, [spotId]: toggle(s.checklist[spotId] ?? [], shotId) } })),
+      setSpotNote: (spotId, note) =>
+        set((s) => {
+          const spotNotes = { ...s.spotNotes }
+          const trimmed = note.trim()
+          if (trimmed) spotNotes[spotId] = trimmed
+          else delete spotNotes[spotId]
+          return { spotNotes }
+        }),
       setFilters: (patch) => set((s) => ({ filters: { ...s.filters, ...patch } })),
       resetFilters: () => set({ filters: EMPTY_FILTERS }),
       setHome: (home) => set({ home }),
