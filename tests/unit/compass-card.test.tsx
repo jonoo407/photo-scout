@@ -18,6 +18,11 @@ function orient(data: { alpha?: number | null; absolute?: boolean }) {
 }
 
 describe('CompassMode', () => {
+  it('the entry chip is styled as an action, not a label', () => {
+    render(<CompassMode spot={spot} from={FROM} />)
+    expect(screen.getByRole('button', { name: /compass/i }).className).toContain('act')
+  })
+
   it('opens from a chip and names the sun bearing at the prime window', async () => {
     const user = userEvent.setup()
     render(<CompassMode spot={spot} from={FROM} />)

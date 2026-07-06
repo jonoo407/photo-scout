@@ -23,6 +23,12 @@ describe('SavedScreen — client shortlist builder', () => {
     expect(screen.queryByRole('button', { name: /client shortlist/i })).not.toBeInTheDocument()
   })
 
+  it('the shortlist entry chip is styled as an action, not a label', () => {
+    useStore.setState({ wishlist: ['bayshore-boulevard'] })
+    renderSaved()
+    expect(screen.getByRole('button', { name: /client shortlist/i }).className).toContain('act')
+  })
+
   it('builds and copies a client link: pick spots → title → share', async () => {
     const user = userEvent.setup()
     const writeText = vi.fn(async () => {})

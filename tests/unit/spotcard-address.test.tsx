@@ -5,11 +5,12 @@ import { SpotCard } from '../../src/ui/SpotCard'
 import SPOTS from '../../src/data/spots/tampa-bay'
 import PHILLY from '../../src/data/spots/philadelphia'
 
-describe('SpotCard — address on each card', () => {
-  it('shows the spot street address', () => {
+describe('SpotCard — why-line instead of address (user feedback 2026-07-05)', () => {
+  it('uses the card real estate for photographic color, not the street address', () => {
     const spot = SPOTS.find((s) => s.id === 'st-paul-ame')!
     render(<MemoryRouter><SpotCard spot={spot} /></MemoryRouter>)
-    expect(screen.getByText('506 E Harrison St, Tampa, FL 33602')).toBeInTheDocument()
+    expect(screen.queryByText(spot.address)).not.toBeInTheDocument()
+    expect(screen.getByText(spot.bestFor.slice(0, 3).join(' · '))).toBeInTheDocument()
   })
 })
 

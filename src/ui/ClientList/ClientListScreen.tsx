@@ -135,7 +135,7 @@ export default function ClientListScreen() {
               <p className="small" style={{ color: 'var(--go-ink)', margin: 0 }}>
                 Sent to your photographer! They'll see your pick.
               </p>
-              <button className="chip" onClick={() => setSendState('idle')}>Send an update</button>
+              <button className="chip act" onClick={() => setSendState('idle')}>Send an update</button>
             </>
           ) : (
             <>

@@ -103,7 +103,7 @@ export default function SavedScreen() {
       <div className="row-spread">
         <h1>Saved</h1>
         {!picking && !empty && (
-          <button className="chip" onClick={() => setPicking(true)}>
+          <button className="chip act" onClick={() => setPicking(true)}>
             <IconShare2 size={14} /> Client shortlist
           </button>
         )}
@@ -207,11 +207,11 @@ export default function SavedScreen() {
                   </p>
                 </div>
                 <div style={{ display: 'flex', gap: 6, flex: 'none' }}>
-                  <button className="chip" onClick={() => void shareLink(l.title ?? 'Location options', storedShortlistUrl(l.id))}>
+                  <button className="chip act" onClick={() => void shareLink(l.title ?? 'Location options', storedShortlistUrl(l.id))}>
                     Copy link
                   </button>
                   <button
-                    className="chip"
+                    className="chip act"
                     onClick={() => {
                       if (armedDelete === l.id) {
                         void deleteShortlist(l.id)

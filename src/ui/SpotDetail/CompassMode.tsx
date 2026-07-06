@@ -45,7 +45,7 @@ export default function CompassMode({ spot, from }: { spot: Spot; from?: Date })
 
   if (!open) {
     return (
-      <button className="chip" onClick={() => void expand()}>
+      <button className="chip act" onClick={() => void expand()}>
         <IconCompass size={14} /> Compass to the light
       </button>
     )
