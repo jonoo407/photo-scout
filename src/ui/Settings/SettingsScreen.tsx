@@ -169,7 +169,7 @@ export default function SettingsScreen() {
       <p className="shdr">MORE</p>
       <div className="card list">
         <AlertsSection />
-        <div className="row last"><span className="rowleft tertiary"><IconCameraPlus size={18} /> Add your own photos</span><span className="pill info">soon</span></div>
+        <div className="row last"><span className="rowleft tertiary"><IconCameraPlus size={18} /> Add your own photos</span><span className="pill go">on every spot page</span></div>
       </div>
 
       <p className="small tertiary" style={{ margin: '14px 2px 0', lineHeight: 1.6 }}>

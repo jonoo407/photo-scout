@@ -215,3 +215,10 @@ button.row, button.linkrow { appearance: none; background: var(--surface); curso
 /* spot detail — private notes */
 .notesbox { width: 100%; box-sizing: border-box; font: 13px/1.6 var(--font-sans); color: var(--ink); background: var(--surface); border: 0.5px solid var(--line-strong); border-radius: var(--radius-sm); padding: 10px 12px; resize: vertical; }
 .notesbox::placeholder { color: var(--ink-3); }
+
+/* spot detail — your own shots strip */
+.myshots { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 8px; }
+.myshot { position: relative; aspect-ratio: 1; border-radius: var(--radius-sm); overflow: hidden; border: 0.5px solid var(--line); }
+.myshot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.myshot-x { position: absolute; top: 4px; right: 4px; appearance: none; border: 0; cursor: pointer; border-radius: var(--radius-pill); background: rgba(28, 18, 8, 0.65); color: #fff3e6; font-size: 10px; padding: 3px 6px; display: inline-flex; align-items: center; }
+.myshot-add { aspect-ratio: 1; border: 1.5px dashed var(--line-strong); border-radius: var(--radius-sm); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; color: var(--terracotta); background: var(--surface); text-align: center; padding: 4px; }

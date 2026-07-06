@@ -179,3 +179,27 @@ create table if not exists public.spot_suggestions (
 alter table public.spot_suggestions enable row level security;
 create policy "anyone suggests" on public.spot_suggestions
   for insert to anon, authenticated with check (true);
+
+-- ── Your own photos (feedback #8, added 2026-07-06) ─────────────────────────
+-- Applied as migration `user_photos`. Public bucket `spot-photos`; writes are
+-- tied to the {uid}/... path prefix; the table maps photos to spots.
+-- (Bucket row: insert into storage.buckets (id,name,public,file_size_limit,
+--  allowed_mime_types) values ('spot-photos','spot-photos',true,8388608,
+--  array['image/jpeg','image/png','image/webp','image/heic']).)
+
+create table if not exists public.user_photos (
+  id uuid primary key default gen_random_uuid(),
+  owner uuid not null references auth.users (id) on delete cascade,
+  spot_id text not null check (char_length(spot_id) <= 60),
+  path text not null,
+  created_at timestamptz not null default now()
+);
+alter table public.user_photos enable row level security;
+create policy "own photos" on public.user_photos
+  for all using (auth.uid() = owner) with check (auth.uid() = owner);
+
+-- storage.objects policies:
+-- create policy "own uploads" on storage.objects for insert to authenticated
+--   with check (bucket_id = 'spot-photos' and (storage.foldername(name))[1] = auth.uid()::text);
+-- create policy "own deletes" on storage.objects for delete to authenticated
+--   using (bucket_id = 'spot-photos' and (storage.foldername(name))[1] = auth.uid()::text);

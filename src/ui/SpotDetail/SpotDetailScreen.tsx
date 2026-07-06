@@ -12,6 +12,7 @@ import SunAlignment from './SunAlignment'
 import MilkyWay from './MilkyWay'
 import CompassMode from './CompassMode'
 import SpotNotes from './SpotNotes'
+import SpotPhotos from './SpotPhotos'
 import { useStore } from '../../state/store'
 import { useSpotById } from '../../state/useRegion'
 import { CATEGORY_LABEL } from '../../spots/types'
@@ -166,6 +167,8 @@ export default function SpotDetailScreen() {
           )
         })}
       </div>
+
+      <SpotPhotos spotId={spot.id} />
 
       <SpotNotes spotId={spot.id} />
 
