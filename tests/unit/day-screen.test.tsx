@@ -6,8 +6,14 @@ import DayScreen from '../../src/ui/Plan/DayScreen'
 import { useStore } from '../../src/state/store'
 import { DEFAULT_HOME } from '../../src/data/home.config'
 
-beforeEach(() => { useStore.setState({ home: DEFAULT_HOME, region: 'tampa-bay', wishlist: [], savedPlans: [] }) })
-afterEach(() => { vi.restoreAllMocks() })
+beforeEach(() => {
+  // Freeze "now" at 4:30 AM so today-mode keeps all three light blocks —
+  // planDay drops windows that already passed (shouldAdvanceTime keeps
+  // real timers flowing for userEvent/RTL waits).
+  vi.useFakeTimers({ shouldAdvanceTime: true, now: new Date(2026, 5, 25, 4, 30) })
+  useStore.setState({ home: DEFAULT_HOME, region: 'tampa-bay', wishlist: [], savedPlans: [] })
+})
+afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks() })
 
 function renderDay(entry: string) {
   return render(
@@ -108,11 +114,30 @@ describe('DayScreen — save & share (plans persist, feedback #5/#6)', () => {
 describe('DayScreen — pinned mode (opened from a saved/shared link)', () => {
   const PINNED = '/day?date=2026-07-12&stops=sunrise:bayshore-boulevard,sunset:honeymoon-island-sp'
 
-  it('renders exactly the linked spots with no swap buttons', async () => {
+  it('renders exactly the linked spots with no swap buttons and no swap hint', async () => {
     renderDay(PINNED)
     expect(await screen.findByText('Bayshore Boulevard')).toBeInTheDocument()
     expect(screen.getByText('Honeymoon Island State Park')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /swap/i })).not.toBeInTheDocument()
+    expect(screen.queryByText(/to choose a different spot/i)).not.toBeInTheDocument()
+  })
+
+  it('already-saved plans show Saved instead of offering a duplicate save', async () => {
+    useStore.setState({
+      savedPlans: [{
+        id: 'dup', name: 'x', date: '2026-07-12',
+        stops: [
+          { block: 'sunrise', spotId: 'bayshore-boulevard' },
+          { block: 'sunset', spotId: 'honeymoon-island-sp' },
+        ],
+        createdAt: '2026-07-06T00:00:00Z',
+      }],
+    })
+    renderDay(PINNED)
+    await screen.findByText('Bayshore Boulevard')
+    const save = screen.getByRole('button', { name: /saved to plan/i })
+    expect(save).toBeDisabled()
+    expect(useStore.getState().savedPlans).toHaveLength(1)
   })
 
   it('names the planned day, not "today"', async () => {

@@ -35,6 +35,7 @@ export default function DayScreen() {
   const home = useStore((s) => s.home)
   const wishlistArr = useStore((s) => s.wishlist)
   const savePlan = useStore((s) => s.savePlan)
+  const savedPlans = useStore((s) => s.savedPlans)
   const { spots } = useRegionSpots()
   const { byId: pinnedById } = useSpotsByIds(pinned?.stops.map((s) => s.spotId) ?? [])
   const region = useRegion()
@@ -74,8 +75,12 @@ export default function DayScreen() {
     if (pinned) {
       return pinPlan({ date, home, spots: [...pinnedById.values()], stops: pinned.stops })
     }
-    return planDay({ date, home, spots, wishlist: new Set(wishlistArr), anchorId, blockWeather })
-  }, [pinned, pinnedById, date, home, spots, wishlistArr, anchorId, blockWeather])
+    // Building for today skips windows that already passed; tomorrow keeps all.
+    return planDay({
+      date, home, spots, wishlist: new Set(wishlistArr), anchorId, blockWeather,
+      now: dayOffset === 0 ? new Date() : undefined,
+    })
+  }, [pinned, pinnedById, date, home, spots, wishlistArr, anchorId, blockWeather, dayOffset])
 
   const Header = (
     <>
@@ -126,10 +131,18 @@ export default function DayScreen() {
     : []
 
   const stopRefs: PlanStopRef[] = display.map((s) => ({ block: s.block.key, spotId: s.spot.id }))
+  const dateYmd = toYmd(date)
+  // An identical plan already in the store keeps the chip in its Saved state —
+  // re-tapping must not mint indistinguishable duplicates.
+  const alreadySaved = savedPlans.some((p) =>
+    p.date === dateYmd &&
+    p.stops.length === stopRefs.length &&
+    stopRefs.every((r) => p.stops.some((x) => x.block === r.block && x.spotId === r.spotId)))
+  const isSaved = !!savedId || alreadySaved
   const onSave = () => {
-    setSavedId(savePlan({ name: `${fmtDay(date)} · ${region.label}`, date: toYmd(date), stops: stopRefs }))
+    setSavedId(savePlan({ name: `${fmtDay(date)} · ${region.label}`, date: dateYmd, stops: stopRefs }))
   }
-  const onShare = () => void shareLink(`Photo day · ${fmtDay(date)}`, planUrl(toYmd(date), stopRefs))
+  const onShare = () => void shareLink(`Photo day · ${fmtDay(date)}`, planUrl(dateYmd, stopRefs))
 
   return (
     <div className="screen">
@@ -146,8 +159,8 @@ export default function DayScreen() {
       )}
 
       <div style={{ display: 'flex', gap: 8, margin: '0 0 14px' }}>
-        <button className="chip act" onClick={onSave} disabled={!!savedId}>
-          <IconDeviceFloppy size={14} /> {savedId ? 'Saved to Plan ✓' : 'Save plan'}
+        <button className="chip act" onClick={onSave} disabled={isSaved}>
+          <IconDeviceFloppy size={14} /> {isSaved ? 'Saved to Plan ✓' : 'Save plan'}
         </button>
         <button className="chip act" onClick={onShare}>
           <IconShare2 size={14} /> Share plan
@@ -196,9 +209,11 @@ export default function DayScreen() {
         })}
       </div>
 
-      <p className="small tertiary" style={{ marginTop: 14, lineHeight: 1.6 }}>
-        Tap <IconArrowsShuffle size={12} /> to choose a different spot for a stop, or tap a spot for details and directions.
-      </p>
+      {!pinned && (
+        <p className="small tertiary" style={{ marginTop: 14, lineHeight: 1.6 }}>
+          Tap <IconArrowsShuffle size={12} /> to choose a different spot for a stop, or tap a spot for details and directions.
+        </p>
+      )}
 
       {sheetStop && (
         <div className="sheet-backdrop" onClick={() => setSheet(null)}>
@@ -217,7 +232,7 @@ export default function DayScreen() {
                   <SpotCard
                     key={opt.id}
                     spot={opt}
-                    reason={`${CATEGORY_LABEL[opt.category]} · ~${dmin} min drive${wished ? ' · ★ on your list' : ''}`}
+                    reason={`${CATEGORY_LABEL[opt.category]} · ${dmin < 1 ? 'steps away' : `~${dmin} min drive`}${wished ? ' · ★ on your list' : ''}`}
                     badge={isCurrent ? { label: 'Current', kind: 'go' } : { label: 'Pick', kind: 'info' }}
                     onPress={() => { setPicked((p) => ({ ...p, [sheetStop.block.key]: opt.id })); setSheet(null) }}
                   />

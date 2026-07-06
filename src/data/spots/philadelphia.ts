@@ -675,7 +675,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '24-70mm + 70-200', tripod: true, settingsHint: 'f/8; brace against deck vibration from cyclists' },
       ifCloudy: 'The graphic deck curve and bridge structure carry an overcast frame.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Aerial_View_of_Manayunk_Bridge.jpg/1280px-Aerial_View_of_Manayunk_Bridge.jpg', 'The S-curve viaduct over the Schuylkill', 'Sir Joseph', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Aerial_View_of_Manayunk_Bridge.jpg', 'daytime')],
+    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Aerial_View_of_Manayunk_Bridge.jpg/1280px-Aerial_View_of_Manayunk_Bridge.jpg', 'The S-curve viaduct over the Schuylkill', 'Sir Joseph', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Aerial_View_of_Manayunk_Bridge.jpg', 'daytime')],
   },
   {
     id: 'manayunk-canal-locks', name: 'Manayunk Canal & Locks', category: 'nature', city: 'Philadelphia', region: 'philadelphia',
@@ -695,7 +695,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '24-70mm', tripod: true, settingsHint: 'Polarizer to tune the reflection; f/8' },
       ifCloudy: 'Overcast flatters the brick, stone and water — an all-weather spot.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Manayunk_Canal_2009.jpg/1280px-Manayunk_Canal_2009.jpg', 'The canal and towpath at Manayunk', 'J Clear', 'CC BY-SA 3.0', 'https://commons.wikimedia.org/wiki/File:Manayunk_Canal_2009.jpg', 'daytime')],
+    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Manayunk_Canal_2009.jpg/1280px-Manayunk_Canal_2009.jpg', 'The canal and towpath at Manayunk', 'J Clear', 'CC BY-SA 3.0', 'https://commons.wikimedia.org/wiki/File:Manayunk_Canal_2009.jpg', 'daytime')],
   },
   {
     id: 'flat-rock-dam', name: 'Flat Rock Dam', category: 'nature', city: 'Philadelphia', region: 'philadelphia',
@@ -712,7 +712,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '70-200mm; ND filter', tripod: true, settingsHint: 'ND + 1/4-2s for the falls; fast shutter for herons' },
       ifCloudy: 'Overcast evens the white water — arguably better than sun here.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Flat_Rock_Dam_East.jpg/1280px-Flat_Rock_Dam_East.jpg', 'The Schuylkill spilling over Flat Rock Dam', 'Ii2nmd', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Flat_Rock_Dam_East.jpg', 'daytime')],
+    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Flat_Rock_Dam_East.jpg/1280px-Flat_Rock_Dam_East.jpg', 'The Schuylkill spilling over Flat Rock Dam', 'Ii2nmd', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Flat_Rock_Dam_East.jpg', 'daytime')],
   },
   {
     id: 'love-park', name: 'LOVE Park (JFK Plaza)', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
@@ -732,7 +732,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '70-200mm for the stack; 24-70 wide', tripod: true, settingsHint: 'f/8; fast shutter to freeze the jets or 1/4s to soften' },
       ifCloudy: 'Work the red letters against the grey — they pop in flat light.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/LOVE_Park_Philly.JPG/1280px-LOVE_Park_Philly.JPG', 'The LOVE sculpture and fountain at JFK Plaza', 'Smallbones', 'Public domain', 'https://commons.wikimedia.org/wiki/File:LOVE_Park_Philly.JPG', 'daytime')],
+    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/LOVE_Park_Philly.JPG/1280px-LOVE_Park_Philly.JPG', 'The LOVE sculpture and fountain at JFK Plaza', 'Smallbones', 'Public domain', 'https://commons.wikimedia.org/wiki/File:LOVE_Park_Philly.JPG', 'daytime')],
   },
   {
     id: 'rail-park', name: 'The Rail Park', category: 'nature', city: 'Philadelphia', region: 'philadelphia',
@@ -749,7 +749,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '24-70mm', tripod: false, settingsHint: 'f/8; handheld — tripods awkward on the narrow deck' },
       ifCloudy: 'The industrial textures and plantings work in soft light.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/The_Rail_Park.jpg/1280px-The_Rail_Park.jpg', 'The elevated Rail Park deck', 'Bruhinb', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:The_Rail_Park.jpg', 'daytime')],
+    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/The_Rail_Park.jpg/1280px-The_Rail_Park.jpg', 'The elevated Rail Park deck', 'Bruhinb', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:The_Rail_Park.jpg', 'daytime')],
   },
   {
     id: 'smith-memorial-arch', name: 'Smith Memorial Arch', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
@@ -766,7 +766,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '16-35mm', tripod: true, settingsHint: 'f/8-11; level the camera for clean verticals' },
       ifCloudy: 'The granite and bronzes hold detail under soft light.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Smith_Memorial_Arch_%26_Entryway_into_West_Fairmont_Park.jpg/1280px-Smith_Memorial_Arch_%26_Entryway_into_West_Fairmont_Park.jpg', 'The twin towers of Smith Memorial Arch', 'Muran.Fox', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Smith_Memorial_Arch_%26_Entryway_into_West_Fairmont_Park.jpg', 'daytime')],
+    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Smith_Memorial_Arch_%26_Entryway_into_West_Fairmont_Park.jpg/1280px-Smith_Memorial_Arch_%26_Entryway_into_West_Fairmont_Park.jpg', 'The twin towers of Smith Memorial Arch', 'Muran.Fox', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Smith_Memorial_Arch_%26_Entryway_into_West_Fairmont_Park.jpg', 'daytime')],
   },
   {
     id: 'philadelphia-magic-gardens', name: "Philadelphia's Magic Gardens", category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
@@ -786,7 +786,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '16-35mm + a macro or 50mm', tripod: false, settingsHint: 'Handheld only (tripods banned); f/5.6-8' },
       ifCloudy: 'Overcast kills harsh mirror glare — great for even color.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Isaiah_Zagar_Magic_Gardens_1020_South_Street_Philadelphia_gate.jpg/1280px-Isaiah_Zagar_Magic_Gardens_1020_South_Street_Philadelphia_gate.jpg', 'The mosaic gate on South Street', 'Beyond My Ken', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Isaiah_Zagar_Magic_Gardens_1020_South_Street_Philadelphia_gate.jpg', 'daytime')],
+    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Isaiah_Zagar_Magic_Gardens_1020_South_Street_Philadelphia_gate.jpg/1280px-Isaiah_Zagar_Magic_Gardens_1020_South_Street_Philadelphia_gate.jpg', 'The mosaic gate on South Street', 'Beyond My Ken', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Isaiah_Zagar_Magic_Gardens_1020_South_Street_Philadelphia_gate.jpg', 'daytime')],
   },
   {
     id: 'italian-market', name: 'Italian Market (9th Street)', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
@@ -806,7 +806,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '35mm prime', tripod: false, settingsHint: 'ISO 400-800 under the awnings; stay nimble' },
       ifCloudy: 'The market is color and character — weather barely matters.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/ItalianMarketPhiladelphia.jpg/1280px-ItalianMarketPhiladelphia.jpg', 'The 9th Street market corridor', 'Massimo Catarinella', 'CC BY 3.0', 'https://commons.wikimedia.org/wiki/File:ItalianMarketPhiladelphia.jpg', 'daytime')],
+    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/ItalianMarketPhiladelphia.jpg/1280px-ItalianMarketPhiladelphia.jpg', 'The 9th Street market corridor', 'Massimo Catarinella', 'CC BY 3.0', 'https://commons.wikimedia.org/wiki/File:ItalianMarketPhiladelphia.jpg', 'daytime')],
   },
   {
     id: 'chinatown-friendship-gate', name: 'Chinatown Friendship Gate', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
@@ -826,7 +826,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '24-70mm + 70-200', tripod: true, settingsHint: 'f/11, 2-8s at blue hour from the sidewalk' },
       ifCloudy: 'The colors saturate in flat light; rain doubles the neon on wet asphalt.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Friendship_Gate_Chinatown_Philadelphia_from_west.jpg/1280px-Friendship_Gate_Chinatown_Philadelphia_from_west.jpg', 'The Friendship Gate over 10th Street', 'Beyond My Ken', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Friendship_Gate_Chinatown_Philadelphia_from_west.jpg', 'daytime')],
+    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Friendship_Gate_Chinatown_Philadelphia_from_west.jpg/1280px-Friendship_Gate_Chinatown_Philadelphia_from_west.jpg', 'The Friendship Gate over 10th Street', 'Beyond My Ken', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Friendship_Gate_Chinatown_Philadelphia_from_west.jpg', 'daytime')],
   },
   {
     id: 'spruce-street-harbor-park', name: 'Spruce Street Harbor Park', category: 'nature', city: 'Philadelphia', region: 'philadelphia',
@@ -843,7 +843,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '24-70mm f/2.8', tripod: false, settingsHint: 'Handheld ISO 1600-3200 — tripods awkward in the crowd' },
       ifCloudy: 'Clouds barely matter — the light show is man-made.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Spruce_Street_Harbor_Park.jpg/1280px-Spruce_Street_Harbor_Park.jpg', 'The boardwalk at Spruce Street Harbor Park', 'LittleT889', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Spruce_Street_Harbor_Park.jpg', 'daytime')],
+    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Spruce_Street_Harbor_Park.jpg/1280px-Spruce_Street_Harbor_Park.jpg', 'The boardwalk at Spruce Street Harbor Park', 'LittleT889', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Spruce_Street_Harbor_Park.jpg', 'daytime')],
   },
   {
     id: 'masonic-temple', name: 'Masonic Temple', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
@@ -863,7 +863,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '16-35mm f/2.8', tripod: false, settingsHint: 'Interior: ISO 3200+, no flash, shoot fast on the escorted tour' },
       ifCloudy: 'The granite reads moody in flat light; save the tour for any weather.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Masonic_Temple_Philadelphia_aerial_view.jpg/1280px-Masonic_Temple_Philadelphia_aerial_view.jpg', 'The temple towers from above', 'Nickvud', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Masonic_Temple_Philadelphia_aerial_view.jpg', 'daytime')],
+    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Masonic_Temple_Philadelphia_aerial_view.jpg/1280px-Masonic_Temple_Philadelphia_aerial_view.jpg', 'The temple towers from above', 'Nickvud', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Masonic_Temple_Philadelphia_aerial_view.jpg', 'daytime')],
   },
   {
     id: 'cherry-street-pier', name: 'Cherry Street Pier', category: 'interiors', city: 'Philadelphia', region: 'philadelphia',
@@ -883,7 +883,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '16-35mm + 24-70', tripod: true, settingsHint: 'Shed: handheld high ISO; garden: tripod at dusk' },
       ifCloudy: 'The covered shed is the rainy-day spot on the waterfront.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Municipal_Pier_No._9_N._Christopher_Columbus_Blvd_street_level.jpg/1280px-Municipal_Pier_No._9_N._Christopher_Columbus_Blvd_street_level.jpg', 'The 1919 pier shed (Municipal Pier 9)', 'Beyond My Ken', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Municipal_Pier_No._9_N._Christopher_Columbus_Blvd_street_level.jpg', 'daytime')],
+    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Municipal_Pier_No._9_N._Christopher_Columbus_Blvd_street_level.jpg/1280px-Municipal_Pier_No._9_N._Christopher_Columbus_Blvd_street_level.jpg', 'The 1919 pier shed (Municipal Pier 9)', 'Beyond My Ken', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Municipal_Pier_No._9_N._Christopher_Columbus_Blvd_street_level.jpg', 'daytime')],
   },
 ]
 

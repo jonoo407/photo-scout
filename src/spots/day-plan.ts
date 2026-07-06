@@ -37,6 +37,9 @@ export interface PlanDayInput {
   wishlist?: Set<string>
   anchorId?: string
   blockWeather?: Partial<Record<BlockKey, WeatherVerdict>>
+  /** When set, blocks whose shooting moment already passed are skipped —
+      a 9 AM build must not schedule 5:49 AM golden hour. */
+  now?: Date
 }
 
 const clamp = (x: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, x))
@@ -156,8 +159,8 @@ export function pinPlan({ date, home, spots, stops }: PinPlanInput): PlanStop[] 
   return out
 }
 
-export function planDay({ date, home, spots, wishlist, anchorId, blockWeather }: PlanDayInput): PlanStop[] {
-  const blocks = dayBlocks(date, home.lat, home.lng)
+export function planDay({ date, home, spots, wishlist, anchorId, blockWeather, now }: PlanDayInput): PlanStop[] {
+  const blocks = dayBlocks(date, home.lat, home.lng).filter((b) => !now || b.time > now)
   const sunTimesFor = (d: Date) => {
     const tt = computeSunTimes(new Date(d.getTime() + 12 * 3600 * 1000), home.lat, home.lng) // local-noon to avoid the midnight roll
     return { sunrise: tt.sunrise, sunset: tt.sunset }

@@ -42,8 +42,10 @@ Rules enforced by `spots-media.test.ts`:
 Process (scripts pattern in past commits / photo-seeding memory):
 1. Query the Commons API (`list=search`, `srnamespace=6`) with 2–3 term variants per spot; filter by mime + license; resolve 1280/500 thumburls.
 2. **Download and LOOK at every candidate.** Search results lie: we've caught a Michigan dam, a California Masonic temple, a UK pier, a Dublin cathedral, book scans, and closeups of the wrong subject. No photo ships uneyeballed.
-3. Verify final URLs return HTTP 200 with an `image/*` content-type (Wikimedia rate-limits — space requests ~1s).
-4. Copyright gotchas: modern sculpture/murals by living artists are copyrighted (photo = derivative; note limits in `caveats`; pick facades/street context). Robert Indiana's LOVE is fine (lost US copyright). No good free photo ⇒ ship with `media: []` — the UI falls back to the category glyph (precedent: Bok Bar).
+3. Verify URLs mechanically — BOTH scripts, every photo batch:
+   - `node scripts/fix-media-hashes.mjs` — repairs Commons hash-directory drift by asking the API for each file's real thumb URL (2026-07-06: found 20 dead URLs that shipped with fabricated hash paths; never hand-write the `/thumb/H/HH/` segment).
+   - `node scripts/verify-media-urls.mjs` — sweeps every URL in `src/data/spots/*` + `src/data/spot-media/*` for HTTP 200 + `image/*` (Wikimedia rate-limits; the script throttles).
+4. Copyright gotchas: modern sculpture/murals by living artists are copyrighted (photo = derivative; note limits in `caveats`; pick facades/street context). Robert Indiana's LOVE is fine (lost US copyright). No good free photo ⇒ ship with `media: []` — the UI shows the category glyph, and `SpotCard` also degrades to it on a 404 (`onError`).
 
 ## 4. Writing the entry
 

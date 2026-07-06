@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import type { Spot } from '../spots/types'
 import { CATEGORY_COLOR } from '../spots/types'
 import { CategoryIcon } from './icons'
@@ -19,14 +19,17 @@ export function SpotCard({
   onPress?: () => void // overrides the default navigate-to-detail (e.g. shortlist pick mode)
 }) {
   const nav = useNavigate()
+  const [imgFailed, setImgFailed] = useState(false)
   const Icon = CategoryIcon[spot.category]
-  const photo = spot.media[0]?.thumb ?? spot.media[0]?.src
+  const photo = imgFailed ? undefined : spot.media[0]?.thumb ?? spot.media[0]?.src
   return (
     <button className="spotcard" onClick={onPress ?? (() => nav(`/spot/${spot.id}`))}>
       <div className="body">
-        <div className="thumbicon" style={photo ? undefined : { background: 'var(--surface-2)' }}>
+        <div className="thumbicon">
           {photo
-            ? <img src={photo} alt="" loading="lazy" decoding="async" />
+            // A dead URL degrades to the category glyph, never the browser's
+            // broken-image icon (Commons files get renamed).
+            ? <img src={photo} alt="" loading="lazy" decoding="async" onError={() => setImgFailed(true)} />
             : <Icon size={22} color={CATEGORY_COLOR[spot.category]} />}
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>

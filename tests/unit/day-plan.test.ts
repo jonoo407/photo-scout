@@ -87,6 +87,22 @@ describe('planDay', () => {
   })
 })
 
+describe('planDay — never schedules a window that already passed (UI-critic major)', () => {
+  it('drops the morning block when building mid-morning', () => {
+    const blocks = dayBlocks(DATE, DEFAULT_HOME.lat, DEFAULT_HOME.lng)
+    const midMorning = new Date(blocks[0].time.getTime() + 3 * 3600_000) // 3h after golden peak
+    const stops = planDay({ date: DATE, home: DEFAULT_HOME, spots: SPOTS, now: midMorning })
+    expect(stops.some((s) => s.block.key === 'sunrise')).toBe(false)
+    expect(stops.some((s) => s.block.key === 'sunset')).toBe(true)
+  })
+
+  it('keeps every block when building before dawn', () => {
+    const predawn = new Date(2026, 5, 25, 4, 0)
+    const stops = planDay({ date: DATE, home: DEFAULT_HOME, spots: SPOTS, now: predawn })
+    expect(stops.map((s) => s.block.key)).toContain('sunrise')
+  })
+})
+
 describe('pinPlan (saved/shared plans — fixed stops, no re-planning)', () => {
   const REFS = [
     { block: 'sunset' as const, spotId: 'honeymoon-island-sp' },

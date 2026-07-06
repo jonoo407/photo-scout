@@ -64,7 +64,7 @@ button.row, button.linkrow { appearance: none; background: var(--surface); curso
 /* spot list cards */
 .spotcard { appearance: none; text-align: left; cursor: pointer; display: block; width: 100%; box-sizing: border-box; background: var(--surface); border: 0.5px solid var(--line); border-radius: var(--radius); padding: 12px; }
 .spotcard .body { display: flex; gap: 12px; align-items: center; }
-.thumbicon { width: 52px; height: 52px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; flex: none; overflow: hidden; }
+.thumbicon { width: 52px; height: 52px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; flex: none; overflow: hidden; background: var(--surface-2); }
 .thumbicon img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .spotcard .nm { font-weight: 500; font-size: 15px; }
 .spotcard .sub { font-size: 12px; color: var(--ink-2); margin: 3px 0 0; }
@@ -222,3 +222,6 @@ button.row, button.linkrow { appearance: none; background: var(--surface); curso
 .myshot img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .myshot-x { position: absolute; top: 4px; right: 4px; appearance: none; border: 0; cursor: pointer; border-radius: var(--radius-pill); background: rgba(28, 18, 8, 0.65); color: #fff3e6; font-size: 10px; padding: 3px 6px; display: inline-flex; align-items: center; }
 .myshot-add { aspect-ratio: 1; border: 1.5px dashed var(--line-strong); border-radius: var(--radius-sm); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; color: var(--terracotta); background: var(--surface); text-align: center; padding: 4px; }
+
+/* disabled primary CTA must LOOK disabled (suggest form, save chips) */
+.cta:disabled { opacity: 0.45; cursor: default; }

@@ -104,9 +104,9 @@ export default function IntroCard() {
           </div>
           <p className="hero-sub" style={{ lineHeight: 1.6 }}>
             <strong>Next Up</strong> below picks the best spot for the light and weather
-            right now — check it whenever you can slip out. Want the app to call
-            you instead? Turn on <strong>Conditions alerts</strong> in Settings and
-            it pushes you when a saved spot's evening lines up.
+            right now — check it whenever you can slip out. Want a nudge instead?
+            Turn on <strong>Conditions alerts</strong> in Settings and the app
+            pings you when a saved spot's evening lines up.
           </p>
           <button className="chip on" style={{ marginTop: 10 }} onClick={dismissIntro}>
             <IconSunset2 size={14} /> Start shooting
