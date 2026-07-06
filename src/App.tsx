@@ -12,6 +12,7 @@ import SpotDetailScreen from './ui/SpotDetail/SpotDetailScreen'
 import SettingsScreen from './ui/Settings/SettingsScreen'
 import SavedScreen from './ui/Saved/SavedScreen'
 import ClientListScreen from './ui/ClientList/ClientListScreen'
+import SuggestScreen from './ui/Suggest/SuggestScreen'
 
 // Leaflet is ~150KB — load the Map screen only when it's opened.
 const MapScreen = lazy(() => import('./ui/Map/MapScreen'))
@@ -27,6 +28,7 @@ export const routes: RouteObject[] = [
       { path: '/day', element: <DayScreen /> },
       { path: '/saved', element: <SavedScreen /> },
       { path: '/spot/:id', element: <SpotDetailScreen /> },
+      { path: '/suggest', element: <SuggestScreen /> },
       { path: '/settings', element: <SettingsScreen /> },
     ],
   },

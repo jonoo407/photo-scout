@@ -161,3 +161,21 @@ begin
   return new;
 end;
 $$;
+
+-- ── Spot suggestions (feedback #9, added 2026-07-06) ────────────────────────
+-- Applied as migration `spot_suggestions`. Insert-only inbox: users submit
+-- what they know; periodic curation sessions verify per docs/ADDING_SPOTS.md
+-- and promote the good ones (read via SQL, never the public API).
+create table if not exists public.spot_suggestions (
+  id uuid primary key default gen_random_uuid(),
+  name text not null check (char_length(name) <= 120),
+  where_hint text check (char_length(where_hint) <= 300),
+  why text check (char_length(why) <= 500),
+  access_notes text check (char_length(access_notes) <= 500),
+  suggested_by uuid references auth.users (id) on delete set null,
+  status text not null default 'new' check (status in ('new', 'reviewed', 'added', 'rejected')),
+  created_at timestamptz not null default now()
+);
+alter table public.spot_suggestions enable row level security;
+create policy "anyone suggests" on public.spot_suggestions
+  for insert to anon, authenticated with check (true);

@@ -1,6 +1,8 @@
 import { useMemo } from 'react'
-import { IconSearch, IconStar, IconMoodEmpty, IconCar, IconPointFilled, IconX } from '@tabler/icons-react'
+import { useNavigate } from 'react-router-dom'
+import { IconSearch, IconStar, IconMoodEmpty, IconCar, IconPointFilled, IconX, IconMapPinPlus } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
+import { authAvailable } from '../../auth/supabase'
 import { useRegion, useRegionSpots } from '../../state/useRegion'
 import { CATEGORIES, CATEGORY_LABEL, type Category, type Light } from '../../spots/types'
 import { liveOpen, milesFromHome, driveMinutes } from '../../spots/live'
@@ -15,6 +17,7 @@ const LIGHT_LABEL: Record<Light, string> = {
 }
 
 export default function BrowseScreen() {
+  const nav = useNavigate()
   const filters = useStore((s) => s.filters)
   const setFilters = useStore((s) => s.setFilters)
   const resetFilters = useStore((s) => s.resetFilters)
@@ -142,6 +145,14 @@ export default function BrowseScreen() {
               meta={<><span><IconCar size={14} /> {fmtDrive(drive)}</span>{open.state === 'open' && <span style={{ color: 'var(--go-ink)' }}><IconPointFilled size={12} /> {open.allDay ? 'Open 24h' : `till ${fmtTime(open.closesAt, tz)}`}</span>}</>}
             />
           ))}
+        </div>
+      )}
+
+      {authAvailable() && (
+        <div style={{ textAlign: 'center', margin: '18px 0 4px' }}>
+          <button className="chip act" onClick={() => nav('/suggest')}>
+            <IconMapPinPlus size={14} /> Suggest a spot we're missing
+          </button>
         </div>
       )}
     </div>
