@@ -110,6 +110,7 @@ Everything above this section is historical record (all shipped). These two list
 3. **Google SSO configuration** — Google Cloud Console OAuth client + enabling the provider in Supabase; the app side is already flag-gated (`VITE_AUTH_GOOGLE`). Console/account access is Jon's. (Prerequisite for B3's quick-login path.)
 4. **Device notification taps** — Allow push on phone/desktop (physical).
 5. *(Optional, billing)* Supabase Pro if leaked-password protection is wanted.
+6. **Ambassador program — business side** (added 2026-07-06): recruit one pro photographer/influencer per city; agree revenue-share terms for their signup code (percentage, payout method/cadence, any contract). The mechanics are B10; the deals and money decisions are Jon's.
 
 ### B. Autonomous (Claude can complete solo)
 
@@ -122,6 +123,8 @@ Everything above this section is historical record (all shipped). These two list
 7. **True Golden Hour engine** (v1.1 signature) — OSM building-height ray-march for when light actually clears the skyline. Big; deserves a dedicated session.
 8. **Craft Cards + Trusted-Circle community (v3)** — per the plan file: recipes-not-pins, iNaturalist-style privacy tiers, follow photographers, community photos + EXIF — **now explicitly including per-spot discussion threads** (comments on a location, visible to the trusted circle / community; moderation + report tooling required). Verified 2026-07-06 that location discussions were NOT in the original spec — added at Jon's direction. Foundation already exists: accounts, storage, suggestion inbox, RLS patterns.
 9. *(Conditional)* Scale-tier work from docs/SCALING.md when city #3+ lands.
+10. **City ambassadors — product mechanics** (added 2026-07-06): one ambassador per city. Their **top-5 picks** get an ambassador icon on cards/detail; a city blurb ("your ambassador") with photo + link out to their TikTok/social; a per-ambassador **signup code** (referral attribution recorded at account creation → `referrals` table) so the rev-share (A6) can be computed; admin-side: which user is ambassador of which city (data-driven like REGIONS). Depends on auth existing (B3 helps).
+11. **Friends, points & badges — gamification of spreading the word** (added 2026-07-06): referral links ("friend signs up" = the BIGGEST point award), plus points for discussions contributions (rides community v3/B8), accepted spot submissions (rides the `spot_suggestions` inbox — award on status → 'added'), and other activity (been-theres, shot-log, plans shared). Points roll into **tiered badges with names and increasingly cool icons** shown on the profile/Saved; leaderboard optional/later. Needs: `points_events` table (append-only, server-validated via triggers/RPCs so points can't be minted client-side), badge tier config, profile surface. Depends on accounts (B3) and partially on community (B8) for the discussion points.
 
 Struck as obsolete: localStorage→IndexedDB migration (shot log went to Supabase Storage instead).
 
