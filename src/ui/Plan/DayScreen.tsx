@@ -1,16 +1,21 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { IconArrowLeft, IconCar, IconMoodEmpty, IconArrowsShuffle, IconStar, IconCheck, IconX, IconCloudRain, IconCloud } from '@tabler/icons-react'
+import { IconArrowLeft, IconCar, IconMoodEmpty, IconArrowsShuffle, IconStar, IconCheck, IconX, IconCloudRain, IconCloud, IconDeviceFloppy, IconShare2 } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
-import { useRegion, useRegionSpots } from '../../state/useRegion'
-import { planDay, rankForBlock, dayBlocks, type PlanStop, type BlockKey } from '../../spots/day-plan'
+import { useRegion, useRegionSpots, useSpotsByIds } from '../../state/useRegion'
+import { planDay, pinPlan, rankForBlock, dayBlocks, type PlanStop, type BlockKey } from '../../spots/day-plan'
+import { parsePinnedPlan, planUrl, type PlanStopRef } from '../../spots/plan-link'
 import { fetchBlockConditions, type BlockConditions } from '../../weather/open-meteo'
 import { weatherVerdict, type WeatherVerdict } from '../../weather/verdict'
 import { haversineMiles } from '../../spots/distance'
 import { driveMinutes } from '../../spots/live'
 import { CATEGORY_LABEL } from '../../spots/types'
-import { fmtTime, fmtDrive } from '../../util/format'
+import { shareLink } from '../../util/share'
+import { fmtTime, fmtDrive, fmtDay } from '../../util/format'
 import type { Spot } from '../../spots/types'
+
+const toYmd = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 
 function badge(state: string): { label: string; kind: string } {
   if (state === 'open') return { label: 'Open', kind: 'open' }
@@ -24,15 +29,24 @@ export default function DayScreen() {
   const [params] = useSearchParams()
   const dayOffset = params.get('day') === '1' ? 1 : 0
   const anchorId = params.get('anchor') ?? undefined
+  // Saved/shared link → pinned mode: exactly these spots, no re-planning.
+  const pinned = useMemo(() => parsePinnedPlan(params), [params])
   const home = useStore((s) => s.home)
   const wishlistArr = useStore((s) => s.wishlist)
+  const savePlan = useStore((s) => s.savePlan)
   const { spots } = useRegionSpots()
-  const tz = useRegion().timeZone
+  const { byId: pinnedById } = useSpotsByIds(pinned?.stops.map((s) => s.spotId) ?? [])
+  const region = useRegion()
+  const tz = region.timeZone
   const [picked, setPicked] = useState<Record<string, string>>({}) // blockKey -> spot id
   const [sheet, setSheet] = useState<string | null>(null) // open chooser for this block
   const [conditions, setConditions] = useState<BlockConditions[] | null>(null)
+  const [savedId, setSavedId] = useState<string | null>(null)
 
-  const date = useMemo(() => new Date(Date.now() + dayOffset * 86400000), [dayOffset])
+  const date = useMemo(
+    () => pinned?.date ?? new Date(Date.now() + dayOffset * 86400000),
+    [pinned, dayOffset],
+  )
   const blocks = useMemo(() => dayBlocks(date, home.lat, home.lng), [date, home.lat, home.lng])
 
   // Fetch precip + cloud at each block's shooting time for the planned day.
@@ -55,19 +69,25 @@ export default function DayScreen() {
     return bw
   }, [conditions, blocks])
 
-  const plan = useMemo(
-    () => planDay({ date, home, spots, wishlist: new Set(wishlistArr), anchorId, blockWeather }),
-    [date, home, spots, wishlistArr, anchorId, blockWeather],
-  )
+  const plan = useMemo(() => {
+    if (pinned) {
+      return pinPlan({ date, home, spots: [...pinnedById.values()], stops: pinned.stops })
+    }
+    return planDay({ date, home, spots, wishlist: new Set(wishlistArr), anchorId, blockWeather })
+  }, [pinned, pinnedById, date, home, spots, wishlistArr, anchorId, blockWeather])
 
   const Header = (
     <>
       <button className="back" onClick={() => nav('/plan')}><IconArrowLeft size={18} /> Plan</button>
-      <h1 style={{ fontSize: 21 }}>Your day</h1>
+      <h1 style={{ fontSize: 21 }}>{pinned ? fmtDay(date) : 'Your day'}</h1>
     </>
   )
 
   if (!plan.length) {
+    if (pinned) {
+      // Cross-city chunks may still be loading for a shared link.
+      return <div className="screen">{Header}<p className="center-note">Loading the plan…</p></div>
+    }
     return (
       <div className="screen">
         {Header}
@@ -104,13 +124,28 @@ export default function DayScreen() {
       )
     : []
 
+  const stopRefs: PlanStopRef[] = display.map((s) => ({ block: s.block.key, spotId: s.spot.id }))
+  const onSave = () => {
+    setSavedId(savePlan({ name: `${fmtDay(date)} · ${region.label}`, date: toYmd(date), stops: stopRefs }))
+  }
+  const onShare = () => void shareLink(`Photo day · ${fmtDay(date)}`, planUrl(toYmd(date), stopRefs))
+
   return (
     <div className="screen">
       {Header}
       <p className="muted small" style={{ margin: '0 0 14px' }}>
-        {display.length} stops · ~{total} min driving · {dayOffset ? 'tomorrow' : 'today'}
+        {display.length} stops · ~{total} min driving · {pinned ? fmtDay(date) : dayOffset ? 'tomorrow' : 'today'}
         {anchorId ? ' · around your pick' : ''}
       </p>
+
+      <div style={{ display: 'flex', gap: 8, margin: '0 0 14px' }}>
+        <button className="chip act" onClick={onSave} disabled={!!savedId}>
+          <IconDeviceFloppy size={14} /> {savedId ? 'Saved to Plan ✓' : 'Save plan'}
+        </button>
+        <button className="chip act" onClick={onShare}>
+          <IconShare2 size={14} /> Share plan
+        </button>
+      </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
         {display.map((s, i) => {

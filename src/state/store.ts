@@ -1,8 +1,18 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import type { Category, Light } from '../spots/types'
+import type { BlockKey } from '../spots/day-plan'
 import { DEFAULT_HOME, type HomeLocation } from '../data/home.config'
 import { DEFAULT_REGION, REGIONS, regionContains, type RegionId } from '../data/regions'
+
+/** A saved day plan — the decomposed form of a /#/day?date=…&stops=… link. */
+export interface SavedPlan {
+  id: string
+  name: string
+  date: string // YYYY-MM-DD
+  stops: Array<{ block: BlockKey; spotId: string }>
+  createdAt: string
+}
 
 export type SortKey = 'nearest' | 'az' | 'category'
 export type ThemeChoice = 'auto' | 'light' | 'dark'
@@ -44,6 +54,8 @@ interface AppState {
   /** Private per-spot notes (gate codes, angles, contacts) — synced, never
       shown to clients (shortlist notes are a separate, deliberate field). */
   spotNotes: Record<string, string>
+  /** Saved day plans, newest first — synced. */
+  savedPlans: SavedPlan[]
   filters: Filters
   home: HomeLocation
   region: RegionId
@@ -60,6 +72,8 @@ interface AppState {
   toggleVisited: (id: string) => void
   toggleShot: (spotId: string, shotId: string) => void
   setSpotNote: (spotId: string, note: string) => void
+  savePlan: (plan: Omit<SavedPlan, 'id' | 'createdAt'>) => string
+  deletePlan: (id: string) => void
   setFilters: (patch: Partial<Filters>) => void
   resetFilters: () => void
   setHome: (home: HomeLocation) => void
@@ -99,6 +113,7 @@ export const useStore = create<AppState>()(
       visited: [],
       checklist: {},
       spotNotes: {},
+      savedPlans: [],
       filters: EMPTY_FILTERS,
       home: DEFAULT_HOME,
       region: 'tampa-bay',
@@ -121,6 +136,17 @@ export const useStore = create<AppState>()(
           else delete spotNotes[spotId]
           return { spotNotes }
         }),
+      savePlan: (plan) => {
+        const id = crypto.randomUUID()
+        set((s) => ({
+          savedPlans: [
+            { ...plan, id, createdAt: new Date().toISOString() },
+            ...s.savedPlans,
+          ].slice(0, 50), // sanity cap
+        }))
+        return id
+      },
+      deletePlan: (id) => set((s) => ({ savedPlans: s.savedPlans.filter((p) => p.id !== id) })),
       setFilters: (patch) => set((s) => ({ filters: { ...s.filters, ...patch } })),
       resetFilters: () => set({ filters: EMPTY_FILTERS }),
       setHome: (home) => set({ home }),

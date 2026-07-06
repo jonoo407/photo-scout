@@ -6,7 +6,7 @@ import DayScreen from '../../src/ui/Plan/DayScreen'
 import { useStore } from '../../src/state/store'
 import { DEFAULT_HOME } from '../../src/data/home.config'
 
-beforeEach(() => { useStore.setState({ home: DEFAULT_HOME, region: 'tampa-bay', wishlist: [] }) })
+beforeEach(() => { useStore.setState({ home: DEFAULT_HOME, region: 'tampa-bay', wishlist: [], savedPlans: [] }) })
 afterEach(() => { vi.restoreAllMocks() })
 
 function renderDay(entry: string) {
@@ -62,5 +62,46 @@ describe('DayScreen', () => {
     renderDay('/day')
     const chips = await screen.findAllByText(/rain likely/i)
     expect(chips.length).toBeGreaterThan(0)
+  })
+})
+
+describe('DayScreen — save & share (plans persist, feedback #5/#6)', () => {
+  it('saves the built day (with any swaps) to the store', async () => {
+    const user = userEvent.setup()
+    renderDay('/day')
+    await user.click(screen.getByRole('button', { name: /save plan/i }))
+    const plans = useStore.getState().savedPlans
+    expect(plans).toHaveLength(1)
+    expect(plans[0].stops.length).toBeGreaterThanOrEqual(2)
+    expect(plans[0].date).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+    expect(await screen.findByText(/saved/i)).toBeInTheDocument()
+  })
+
+  it('shares the day as a canonical plan link', async () => {
+    const user = userEvent.setup()
+    const writeText = vi.fn(async () => {})
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+    renderDay('/day')
+    await user.click(screen.getByRole('button', { name: /share plan/i }))
+    expect(writeText).toHaveBeenCalledTimes(1)
+    const url = String((writeText.mock.calls[0] as unknown[])[0])
+    expect(url).toMatch(/^https:\/\/shootvantage\.com\/#\/day\?date=\d{4}-\d{2}-\d{2}&stops=/)
+  })
+})
+
+describe('DayScreen — pinned mode (opened from a saved/shared link)', () => {
+  const PINNED = '/day?date=2026-07-12&stops=sunrise:bayshore-boulevard,sunset:honeymoon-island-sp'
+
+  it('renders exactly the linked spots with no swap buttons', async () => {
+    renderDay(PINNED)
+    expect(await screen.findByText('Bayshore Boulevard')).toBeInTheDocument()
+    expect(screen.getByText('Honeymoon Island State Park')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /swap/i })).not.toBeInTheDocument()
+  })
+
+  it('names the planned day, not "today"', async () => {
+    renderDay(PINNED)
+    expect((await screen.findAllByText(/jul 12/i)).length).toBeGreaterThan(0)
+    expect(screen.queryByText(/· today/i)).not.toBeInTheDocument()
   })
 })

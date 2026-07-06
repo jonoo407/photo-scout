@@ -2,12 +2,13 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   IconMoon2, IconSunrise, IconSunHigh, IconSun, IconSunset2, IconSunset,
-  IconMoonStars, IconStars, IconMoon, IconRoute, IconBuildingArch,
+  IconMoonStars, IconStars, IconMoon, IconRoute, IconBuildingArch, IconMap2,
 } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
 import { useRegion, useRegionSpots } from '../../state/useRegion'
 import { computeSunTimes } from '../../astro/sun-times'
 import { moonInfo } from '../../astro/moon'
+import { planPath } from '../../spots/plan-link'
 import { fmtTime, fmtRange } from '../../util/format'
 import type { Light } from '../../spots/types'
 
@@ -27,6 +28,9 @@ function SpotLinks({ pred }: { pred: (l: Light[]) => boolean }) {
 export default function PlanScreen() {
   const nav = useNavigate()
   const home = useStore((s) => s.home)
+  const savedPlans = useStore((s) => s.savedPlans)
+  const deletePlan = useStore((s) => s.deletePlan)
+  const [armedDelete, setArmedDelete] = useState<string | null>(null)
   const tz = useRegion().timeZone
   const [day, setDay] = useState<0 | 1>(0)
   const date = useMemo(() => new Date(Date.now() + day * 86400000), [day])
@@ -55,6 +59,36 @@ export default function PlanScreen() {
       <button className="cta" style={{ marginBottom: 14 }} onClick={() => nav(`/day?day=${day}`)}>
         <IconRoute size={18} /> Build {day === 1 ? "tomorrow's" : "today's"} itinerary
       </button>
+
+      {savedPlans.length > 0 && (
+        <>
+          <h3 className="h3">Saved plans</h3>
+          <div className="card list" style={{ marginBottom: 16 }}>
+            {savedPlans.map((p) => (
+              <div key={p.id} className="row" style={{ gap: 8 }}>
+                <button
+                  className="rowleft"
+                  style={{ appearance: 'none', border: 0, background: 'none', cursor: 'pointer', color: 'var(--ink)', flexDirection: 'column', alignItems: 'flex-start', gap: 2, padding: 0, minWidth: 0, textAlign: 'left' }}
+                  onClick={() => nav(planPath(p.date, p.stops))}
+                >
+                  <span style={{ fontWeight: 500, fontSize: 14 }}><IconMap2 size={14} style={{ verticalAlign: '-2px' }} /> {p.name}</span>
+                  <span className="small tertiary">{p.stops.length} {p.stops.length === 1 ? 'stop' : 'stops'}</span>
+                </button>
+                <button
+                  className="chip act"
+                  style={{ flex: 'none' }}
+                  onClick={() => {
+                    if (armedDelete === p.id) { deletePlan(p.id); setArmedDelete(null) }
+                    else setArmedDelete(p.id)
+                  }}
+                >
+                  {armedDelete === p.id ? 'Confirm delete' : 'Delete'}
+                </button>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
 
       <h3 className="h3">Light &amp; sun times</h3>
       <div className="card list" style={{ marginBottom: 10 }}>

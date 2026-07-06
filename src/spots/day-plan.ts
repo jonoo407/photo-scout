@@ -116,6 +116,46 @@ function bestBlockFor(spot: Spot, blocks: PlanBlock[]): BlockKey {
   return best.key
 }
 
+export interface PinPlanInput {
+  date: Date
+  home: HomeLocation
+  spots: Spot[]
+  stops: Array<{ block: BlockKey; spotId: string }>
+}
+
+/**
+ * Render a SAVED or SHARED plan: exactly these spots in these blocks, ordered
+ * by time of day, with fresh open-status and drive legs for the given date.
+ * No re-planning, no alternatives — the plan is the plan.
+ */
+export function pinPlan({ date, home, spots, stops }: PinPlanInput): PlanStop[] {
+  const blocks = dayBlocks(date, home.lat, home.lng)
+  const sunTimesFor = (d: Date) => {
+    const tt = computeSunTimes(new Date(d.getTime() + 12 * 3600 * 1000), home.lat, home.lng)
+    return { sunrise: tt.sunrise, sunset: tt.sunset }
+  }
+  const byId = new Map(spots.map((s) => [s.id, s]))
+
+  const out: PlanStop[] = []
+  let from: { lat: number; lng: number } = home
+  for (const block of blocks) {
+    const ref = stops.find((r) => r.block === block.key)
+    const spot = ref ? byId.get(ref.spotId) : undefined
+    if (!spot) continue
+    out.push({
+      block,
+      spot,
+      reason: 'From this plan',
+      open: resolveOpenStatus(spot.hours, block.time, sunTimesFor, getRegion(spot.region).timeZone),
+      driveMin: Math.round(haversineMiles(from, spot) * 2.2),
+      anchored: false,
+      alternatives: [],
+    })
+    from = spot
+  }
+  return out
+}
+
 export function planDay({ date, home, spots, wishlist, anchorId, blockWeather }: PlanDayInput): PlanStop[] {
   const blocks = dayBlocks(date, home.lat, home.lng)
   const sunTimesFor = (d: Date) => {

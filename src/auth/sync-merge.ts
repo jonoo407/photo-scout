@@ -1,6 +1,6 @@
 import type { HomeLocation } from '../data/home.config'
 import type { RegionId } from '../data/regions'
-import type { ThemeChoice } from '../state/store'
+import type { ThemeChoice, SavedPlan } from '../state/store'
 
 /* The slice of app state that follows a signed-in user across devices.
    Transient UI (filters, sheets) stays local by design. */
@@ -10,6 +10,8 @@ export interface SyncedState {
   checklist: Record<string, string[]>
   /** Private per-spot notes. Older synced rows predate this field. */
   spotNotes?: Record<string, string>
+  /** Saved day plans. Older synced rows predate this field. */
+  savedPlans?: SavedPlan[]
   home: HomeLocation
   region: RegionId
   units: 'imperial' | 'metric'
@@ -38,6 +40,11 @@ export function mergeState(local: SyncedState, remote: SyncedState | null): Sync
     // Notes are content, not prefs: keep both sides; on a per-spot conflict
     // the device in hand wins (it holds whatever was just written).
     spotNotes: { ...(remote.spotNotes ?? {}), ...(local.spotNotes ?? {}) },
+    // Plans union by id, same device-wins rule; newest-created first.
+    savedPlans: [
+      ...(local.savedPlans ?? []),
+      ...(remote.savedPlans ?? []).filter((r) => !(local.savedPlans ?? []).some((l) => l.id === r.id)),
+    ].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
     home: remote.home,
     region: remote.region,
     units: remote.units,
@@ -53,6 +60,7 @@ export function syncableSlice(s: SyncedState): SyncedState {
     visited: s.visited,
     checklist: s.checklist,
     spotNotes: s.spotNotes ?? {},
+    savedPlans: s.savedPlans ?? [],
     home: s.home,
     region: s.region,
     units: s.units,

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { planDay, dayBlocks, rankForBlock, scoreSpot } from '../../src/spots/day-plan'
+import { planDay, dayBlocks, rankForBlock, scoreSpot, pinPlan } from '../../src/spots/day-plan'
 import { matchesLight } from '../../src/spots/next-up'
 import { weatherVerdict } from '../../src/weather/verdict'
 import SPOTS from '../../src/data/spots/tampa-bay'
@@ -84,5 +84,30 @@ describe('planDay', () => {
     const fromStPete = rankForBlock(cands, { ...base, from: { lat: 27.77, lng: -82.63 } })
     expect(fromTampa[0].id).toBe('curtis-hixon-waterfront-park')
     expect(fromStPete[0].id).toBe('st-pete-pier')
+  })
+})
+
+describe('pinPlan (saved/shared plans — fixed stops, no re-planning)', () => {
+  const REFS = [
+    { block: 'sunset' as const, spotId: 'honeymoon-island-sp' },
+    { block: 'sunrise' as const, spotId: 'bayshore-boulevard' },
+  ]
+
+  it('renders exactly the pinned spots, in block time order, with drive legs', () => {
+    const stops = pinPlan({ date: DATE, home: DEFAULT_HOME, spots: SPOTS, stops: REFS })
+    expect(stops.map((s) => s.spot.id)).toEqual(['bayshore-boulevard', 'honeymoon-island-sp'])
+    expect(stops.map((s) => s.block.key)).toEqual(['sunrise', 'sunset'])
+    expect(stops[0].driveMin).toBeGreaterThanOrEqual(0)
+    expect(stops[1].driveMin).toBeGreaterThan(0) // honeymoon is a real drive from bayshore
+    expect(stops.every((s) => s.alternatives.length === 0)).toBe(true) // pinned = not swappable
+    expect(stops.every((s) => typeof s.open.state === 'string')).toBe(true)
+  })
+
+  it('skips ids that are not in the loaded spots instead of crashing', () => {
+    const stops = pinPlan({
+      date: DATE, home: DEFAULT_HOME, spots: SPOTS,
+      stops: [{ block: 'midday', spotId: 'not-a-spot' }, ...REFS],
+    })
+    expect(stops.map((s) => s.spot.id)).toEqual(['bayshore-boulevard', 'honeymoon-island-sp'])
   })
 })
