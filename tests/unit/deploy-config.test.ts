@@ -7,7 +7,10 @@ import { resolve } from 'node:path'
    and BOTH domains — apex and www — attached as custom domains. */
 describe('wrangler.jsonc deploy config', () => {
   const raw = readFileSync(resolve(__dirname, '../../wrangler.jsonc'), 'utf8')
-  const config = JSON.parse(raw.replace(/\/\/.*$/gm, '')) // strip // comments
+  // Strip FULL-LINE // comments only — an end-of-line regex would eat the
+  // `//` inside "https://…" string values (which is exactly what broke this
+  // suite, silently, when vars gained a URL).
+  const config = JSON.parse(raw.replace(/^\s*\/\/.*$/gm, ''))
 
   it('deploys to the existing Worker with the built assets', () => {
     expect(config.name).toBe('vantage')

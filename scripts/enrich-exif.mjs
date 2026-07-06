@@ -1,18 +1,17 @@
-// Enrich src/data/spot-media.ts with photo specs (camera / focal / f-number /
-// shutter / ISO) pulled from each photo's EXIF via the Wikimedia Commons API.
-// Idempotent: re-running refreshes specs in place; photos without EXIF are left
-// untouched. Run: node scripts/enrich-exif.mjs
-import { readFileSync, writeFileSync } from 'node:fs'
+// Enrich per-city media files (src/data/spot-media/*.ts) with photo specs
+// (camera / focal / f-number / shutter / ISO) pulled from each photo's EXIF
+// via the Wikimedia Commons API. Idempotent: re-running refreshes specs in
+// place; photos without EXIF are left untouched.
+// Run: node scripts/enrich-exif.mjs [region]   (default: every city file)
+import { readFileSync, writeFileSync, readdirSync } from 'node:fs'
 
-const PATH = 'src/data/spot-media.ts'
+const MEDIA_DIR = 'src/data/spot-media'
+const regionArg = process.argv[2]
+const PATHS = regionArg
+  ? [`${MEDIA_DIR}/${regionArg}.ts`]
+  : readdirSync(MEDIA_DIR).filter((f) => f.endsWith('.ts')).map((f) => `${MEDIA_DIR}/${f}`)
 const API = 'https://commons.wikimedia.org/w/api.php'
 const UA = 'VantagePhotoScout/1.0 (https://shootvantage.com; spot-media EXIF enrichment)'
-
-const raw = readFileSync(PATH, 'utf8')
-const eq = raw.indexOf('=\n')
-if (eq === -1) throw new Error('unexpected spot-media.ts format')
-const header = raw.slice(0, eq + 2)
-const data = JSON.parse(raw.slice(eq + 2))
 
 const titleOf = (m) => {
   if (!m.sourceUrl) return null
@@ -65,57 +64,65 @@ const cameraName = (make, model) => {
   return m || null
 }
 
-// unique titles → media entries that use them
-const byTitle = new Map()
-for (const list of Object.values(data)) {
-  for (const m of list) {
-    const t = titleOf(m)
-    if (!t) continue
-    if (!byTitle.has(t)) byTitle.set(t, [])
-    byTitle.get(t).push(m)
+for (const path of PATHS) {
+  const raw = readFileSync(path, 'utf8')
+  const eq = raw.indexOf('=\n')
+  if (eq === -1) throw new Error(`unexpected format: ${path}`)
+  const header = raw.slice(0, eq + 2)
+  const data = JSON.parse(raw.slice(eq + 2))
+
+  // unique titles → media entries that use them
+  const byTitle = new Map()
+  for (const list of Object.values(data)) {
+    for (const m of list) {
+      const t = titleOf(m)
+      if (!t) continue
+      if (!byTitle.has(t)) byTitle.set(t, [])
+      byTitle.get(t).push(m)
+    }
   }
-}
 
-const titles = [...byTitle.keys()]
-console.log(`querying EXIF for ${titles.length} Commons files…`)
+  const titles = [...byTitle.keys()]
+  console.log(`${path}: querying EXIF for ${titles.length} Commons files…`)
 
-let enriched = 0
-for (let i = 0; i < titles.length; i += 50) {
-  const batch = titles.slice(i, i + 50)
-  const url = `${API}?action=query&format=json&formatversion=2&prop=imageinfo&iiprop=commonmetadata&titles=${encodeURIComponent(batch.join('|'))}`
-  const res = await fetch(url, { headers: { 'User-Agent': UA } })
-  if (!res.ok) throw new Error(`Commons API ${res.status}`)
-  const json = await res.json()
+  let enriched = 0
+  for (let i = 0; i < titles.length; i += 50) {
+    const batch = titles.slice(i, i + 50)
+    const url = `${API}?action=query&format=json&formatversion=2&prop=imageinfo&iiprop=commonmetadata&titles=${encodeURIComponent(batch.join('|'))}`
+    const res = await fetch(url, { headers: { 'User-Agent': UA } })
+    if (!res.ok) throw new Error(`Commons API ${res.status}`)
+    const json = await res.json()
 
-  // map normalized titles back to what we asked for
-  const denorm = new Map()
-  for (const n of json.query?.normalized ?? []) denorm.set(n.to, n.from)
+    // map normalized titles back to what we asked for
+    const denorm = new Map()
+    for (const n of json.query?.normalized ?? []) denorm.set(n.to, n.from)
 
-  for (const page of json.query?.pages ?? []) {
-    const asked = denorm.get(page.title) ?? page.title
-    const targets = byTitle.get(asked)
-    const meta = page.imageinfo?.[0]?.commonmetadata
-    if (!targets || !Array.isArray(meta)) continue
-    const exif = Object.fromEntries(meta.map((e) => [e.name, e.value]))
+    for (const page of json.query?.pages ?? []) {
+      const asked = denorm.get(page.title) ?? page.title
+      const targets = byTitle.get(asked)
+      const meta = page.imageinfo?.[0]?.commonmetadata
+      if (!targets || !Array.isArray(meta)) continue
+      const exif = Object.fromEntries(meta.map((e) => [e.name, e.value]))
 
-    const specs = {}
-    const camera = cameraName(exif.Make, exif.Model)
-    if (camera) specs.camera = camera
-    const focal = num(exif.FocalLength)
-    if (focal && focal > 0 && focal < 2000) specs.focalLengthMm = focal >= 10 ? Math.round(focal) : Math.round(focal * 10) / 10
-    const f = num(exif.FNumber)
-    if (f && f >= 0.7 && f <= 64) specs.fNumber = Math.round(f * 10) / 10
-    const sh = shutterOf(exif.ExposureTime)
-    if (sh) specs.shutter = sh
-    const iso = num(exif.ISOSpeedRatings)
-    if (iso && Number.isInteger(iso) && iso >= 25 && iso <= 409600) specs.iso = iso
+      const specs = {}
+      const camera = cameraName(exif.Make, exif.Model)
+      if (camera) specs.camera = camera
+      const focal = num(exif.FocalLength)
+      if (focal && focal > 0 && focal < 2000) specs.focalLengthMm = focal >= 10 ? Math.round(focal) : Math.round(focal * 10) / 10
+      const f = num(exif.FNumber)
+      if (f && f >= 0.7 && f <= 64) specs.fNumber = Math.round(f * 10) / 10
+      const sh = shutterOf(exif.ExposureTime)
+      if (sh) specs.shutter = sh
+      const iso = num(exif.ISOSpeedRatings)
+      if (iso && Number.isInteger(iso) && iso >= 25 && iso <= 409600) specs.iso = iso
 
-    if (Object.keys(specs).length === 0) continue
-    for (const m of targets) Object.assign(m, specs)
-    enriched += targets.length
+      if (Object.keys(specs).length === 0) continue
+      for (const m of targets) Object.assign(m, specs)
+      enriched += targets.length
+    }
   }
-}
 
-writeFileSync(PATH, header + JSON.stringify(data, null, 2) + '\n')
-const total = Object.values(data).flat().length
-console.log(`enriched ${enriched}/${total} photos with EXIF specs`)
+  writeFileSync(path, header + JSON.stringify(data, null, 2) + '\n')
+  const total = Object.values(data).flat().length
+  console.log(`${path}: enriched ${enriched}/${total} photos with EXIF specs`)
+}

@@ -2,12 +2,16 @@ import type { Spot } from '../spots/types'
 import type { RegionId } from './regions'
 
 /* Per-region spot data is dynamically imported so each city ships as its own
-   lazy chunk — adding cities never grows the initial bundle. Add a city = add a
-   module under ./spots/<id>.ts and one entry here. */
-const loaders: Record<string, () => Promise<{ default: Spot[] }>> = {
-  'tampa-bay': () => import('./spots/tampa-bay'),
-  philadelphia: () => import('./spots/philadelphia'),
-}
+   lazy chunk — adding cities never grows the initial bundle. The registry is
+   derived from the filesystem: add a city = add ./spots/<id>.ts (+ its
+   REGIONS metadata entry — region-registry.test.ts enforces the pairing). */
+const globbed = import.meta.glob<{ default: Spot[] }>('./spots/*.ts')
+const loaders: Record<string, () => Promise<{ default: Spot[] }>> = Object.fromEntries(
+  Object.entries(globbed).map(([path, load]) => [
+    path.replace(/^\.\/spots\//, '').replace(/\.ts$/, ''),
+    load,
+  ]),
+)
 
 const cache = new Map<RegionId, Spot[]>()
 

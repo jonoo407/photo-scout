@@ -112,7 +112,7 @@ live editing by non-engineers, revisit with a build-from-DB pipeline
 
 | When | Do |
 |---|---|
-| **Before city #3** | spot-index (id→region) + rewrite `useAllSpots`/`useSpotById`; per-city media files + chunk-isolation test; generate loaders/REGIONS from one manifest |
+| ~~**Before city #3**~~ | DONE 2026-07-05: generated spot-index (id→region + per-region counts; `scripts/build-spot-index.mjs`, freshness-tested) — `useAllSpots` is gone, Saved/client lists load only needed cities (`useSpotsByIds`), deep links load exactly one chunk, progress needs zero chunks; per-city media structure enforced by `media-structure.test.ts`; loader registry derived from the filesystem glob, paired with REGIONS by `region-registry.test.ts` |
 | **~10 cities** | global search index (lazy); Browse "search everywhere"; Worker cron reads city JSON from ASSETS |
 | **~50–100 cities** | map clustering if density demands; consider CDN-JSON data format (fetched + pipeline-validated) over TS modules |
 | **Only if live editing / UGC at volume** | DB-backed *pipeline* (not runtime reads) for the curated core; dynamic layer is already in Supabase |

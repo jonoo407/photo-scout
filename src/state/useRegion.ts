@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useStore } from './store'
-import { loadRegionSpots, cachedRegionSpots, allRegionIds } from '../data/spots'
-import { getRegion, type Region } from '../data/regions'
+import { loadRegionSpots, cachedRegionSpots } from '../data/spots'
+import { SPOT_REGION } from '../data/spot-index'
+import { getRegion, type Region, type RegionId } from '../data/regions'
 import type { Spot } from '../spots/types'
 
 /** The active region object (label, center, bounds, timeZone, default home). */
@@ -24,58 +25,51 @@ export function useRegionSpots(): { spots: Spot[]; loading: boolean } {
   return { spots: spots ?? [], loading: spots === undefined }
 }
 
-/** Every city's spots combined (for cross-region views like Saved). */
-export function useAllSpots(): { spots: Spot[]; loading: boolean } {
+/**
+ * Resolve specific spot ids, loading ONLY the cities they live in (via the
+ * generated spot index) — Saved and client lists stay fast no matter how many
+ * cities the catalog grows (docs/SCALING.md breakpoint 1). Unknown ids are
+ * simply absent from the map.
+ */
+export function useSpotsByIds(ids: string[]): { byId: Map<string, Spot>; loading: boolean } {
   const [, tick] = useState(0)
-  const ids = allRegionIds()
-  const missing = ids.filter((r) => !cachedRegionSpots(r))
+  const regions = [...new Set(ids.map((id) => SPOT_REGION[id]).filter(Boolean))] as RegionId[]
+  const missing = regions.filter((r) => !cachedRegionSpots(r))
+  const key = missing.join('|')
   useEffect(() => {
     if (!missing.length) return
     let alive = true
     void Promise.all(missing.map((r) => loadRegionSpots(r))).then(() => { if (alive) tick((x) => x + 1) })
     return () => { alive = false }
-  }, [missing.length]) // eslint-disable-line react-hooks/exhaustive-deps
-  return {
-    spots: ids.flatMap((r) => cachedRegionSpots(r) ?? []),
-    loading: missing.length > 0,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key])
+  const byId = new Map<string, Spot>()
+  for (const r of regions) {
+    for (const s of cachedRegionSpots(r) ?? []) {
+      if (ids.includes(s.id)) byId.set(s.id, s)
+    }
   }
+  return { byId, loading: missing.length > 0 }
 }
 
 /**
- * Resolve a single spot by id across every city. Checks the active region first
- * (the common case — tapping from the list, no extra load), then any other
- * cached region, and finally lazy-loads remaining cities until found. This makes
- * shared/bookmarked spot deep links open even when their city isn't active.
+ * Resolve a single spot by id: the index names its city, so deep links load
+ * exactly one chunk — and unknown ids settle to "not found" with zero loads.
  */
 export function useSpotById(id: string | undefined): { spot: Spot | undefined; loading: boolean } {
-  const activeRegion = useStore((s) => s.region)
+  const region = id ? SPOT_REGION[id] : undefined
   const [, tick] = useState(0)
-
-  const find = (): Spot | undefined => {
-    if (!id) return undefined
-    const order = [activeRegion, ...allRegionIds().filter((r) => r !== activeRegion)]
-    for (const r of order) {
-      const hit = cachedRegionSpots(r)?.find((s) => s.id === id)
-      if (hit) return hit
-    }
-    return undefined
-  }
-  const spot = find()
-  const uncached = allRegionIds().filter((r) => !cachedRegionSpots(r))
+  const cached = region ? cachedRegionSpots(region) : undefined
 
   useEffect(() => {
-    if (!id || spot || uncached.length === 0) return
+    if (!region || cached) return
     let alive = true
-    ;(async () => {
-      for (const r of uncached) {
-        const loaded = await loadRegionSpots(r)
-        if (!alive) return
-        if (loaded.some((s) => s.id === id)) { tick((x) => x + 1); return }
-      }
-      if (alive) tick((x) => x + 1) // searched everything → settle on "not found"
-    })()
+    void loadRegionSpots(region).then(() => { if (alive) tick((x) => x + 1) })
     return () => { alive = false }
-  }, [id, spot, uncached.length])
+  }, [region, cached])
 
-  return { spot, loading: !spot && uncached.length > 0 }
+  return {
+    spot: cached?.find((s) => s.id === id),
+    loading: !!region && !cached,
+  }
 }

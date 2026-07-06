@@ -1,6 +1,6 @@
 import type { Spot } from '../../spots/types'
 import type { DaySchedule, Hours, OpenInterval, TimeRef, Weekday } from '../../spots/hours'
-import { SPOT_MEDIA } from '../spot-media'
+import { SPOT_MEDIA } from '../spot-media/tampa-bay'
 
 /* ---- hours helpers (keep the dataset compact + readable) ---- */
 const WK: Weekday[] = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
@@ -601,7 +601,7 @@ export const SPOTS: Spot[] = [
   },
 ]
 
-// Attach seeded reference photos (Wikimedia Commons; see src/data/spot-media.ts).
+// Attach seeded reference photos (Wikimedia Commons; see src/data/spot-media/tampa-bay.ts).
 for (const s of SPOTS) {
   const m = SPOT_MEDIA[s.id]
   if (m && m.length) s.media = m

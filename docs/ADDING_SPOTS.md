@@ -72,7 +72,8 @@ its hero photo). For a big batch, screenshot-check a sample at the iPhone viewpo
 ## 7. New city checklist
 
 1. `src/data/regions.ts`: add region (label, IANA timeZone, center, bounds, **neutral public** defaultHome — never a personal address).
-2. `src/data/spots/<id>.ts`: new module (copy the hours helpers), `export default SPOTS`.
-3. `src/data/spots.ts`: add the loader entry.
-4. `src/test/setup.ts`: prime the region cache; concat the region in `spots-data`/`spots-media` tests.
-5. Seed 25–45 spots via this playbook, covering all seven categories.
+2. `src/data/spots/<id>.ts`: new module (copy the hours helpers), `export default SPOTS`. The loader registry picks it up automatically (filesystem glob — `region-registry.test.ts` enforces that both halves exist).
+3. Photos live per city: inline `pic(...)` entries or a `src/data/spot-media/<id>.ts` file the module imports (`media-structure.test.ts` forbids sharing — see docs/SCALING.md finding 4). Pipeline: `node scripts/write-media.mjs <id>`, then `node scripts/enrich-exif.mjs <id>` for EXIF specs.
+4. Regenerate the spot index: `node scripts/build-spot-index.mjs` (`spot-index.test.ts` fails if you forget).
+5. `src/test/setup.ts`: prime the region cache; concat the region in `spots-data`/`spots-media` tests.
+6. Seed 25–45 spots via this playbook, covering all seven categories.

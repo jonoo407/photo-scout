@@ -3,10 +3,10 @@ import { IconStar, IconCircleCheck, IconCamera, IconShare2, IconSend } from '@ta
 import { useStore } from '../../state/store'
 import { useAuth } from '../../auth/useAuth'
 import { authAvailable } from '../../auth/supabase'
-import { useAllSpots } from '../../state/useRegion'
+import { useSpotsByIds } from '../../state/useRegion'
 import { SpotCard } from '../SpotCard'
 import { shortlistUrl, storedShortlistUrl, buildListSpots, MAX_SHORTLIST } from '../../spots/shortlist'
-import { regionProgress } from '../../spots/progress'
+import { savedProgress } from '../../spots/progress'
 import { createShortlist, deleteShortlist, fetchMyShortlists, type MyShortlist } from '../../spots/shortlist-api'
 import { shareLink } from '../../util/share'
 import { fmtDay } from '../../util/format'
@@ -22,14 +22,19 @@ export default function SavedScreen() {
   const visited = useStore((s) => s.visited)
   const checklist = useStore((s) => s.checklist)
   const user = useAuth((s) => s.user)
-  const { spots, loading } = useAllSpots()
+  const [lists, setLists] = useState<MyShortlist[] | null>(null)
+  // Load only the cities our saved/list spots actually live in.
+  const neededIds = [
+    ...wishlist, ...visited,
+    ...(lists ?? []).flatMap((l) => l.spots.map((s) => s.id)),
+  ]
+  const { byId, loading } = useSpotsByIds(neededIds)
   const [picking, setPicking] = useState(false)
   const [picked, setPicked] = useState<string[]>([])
   const [notes, setNotes] = useState<Record<string, string>>({})
   const [title, setTitle] = useState('')
   const [copied, setCopied] = useState(false)
   const [shareError, setShareError] = useState(false)
-  const [lists, setLists] = useState<MyShortlist[] | null>(null)
   const [armedDelete, setArmedDelete] = useState<string | null>(null)
   // Snapshot last-seen at mount: NEW pills stay visible this visit even though
   // viewing the section immediately records everything as seen.
@@ -48,7 +53,6 @@ export default function SavedScreen() {
     return () => { alive = false }
   }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const byId = new Map(spots.map((s) => [s.id, s]))
   const want = wishlist.map((id) => byId.get(id)).filter(Boolean) as Spot[]
   const been = visited.map((id) => byId.get(id)).filter(Boolean) as Spot[]
 
@@ -175,7 +179,7 @@ export default function SavedScreen() {
         <>
           <p className="bucket"><IconCircleCheck size={15} color="var(--go-ink)" /> Been there</p>
           <section aria-label="Shot progress" className="card progresscard">
-            {regionProgress(visited, spots).map((p) => (
+            {savedProgress(visited).map((p) => (
               <div key={p.regionId} className="progressrow">
                 <span className="progresslabel">{p.label}</span>
                 <span className="progressbar">

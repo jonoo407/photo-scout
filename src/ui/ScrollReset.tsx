@@ -6,6 +6,8 @@ import { useLocation } from 'react-router-dom'
    changes (not on query/hash tweaks within a screen). */
 export default function ScrollReset() {
   const { pathname } = useLocation()
-  useEffect(() => { window.scrollTo(0, 0) }, [pathname])
+  useEffect(() => {
+    try { window.scrollTo(0, 0) } catch { /* jsdom has no layout */ }
+  }, [pathname])
   return null
 }

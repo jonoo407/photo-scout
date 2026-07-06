@@ -1,5 +1,5 @@
 import { REGION_LIST, type RegionId } from '../data/regions'
-import type { Spot } from './types'
+import { SPOT_REGION, REGION_SPOT_COUNT } from '../data/spot-index'
 
 export interface RegionProgress {
   regionId: RegionId
@@ -9,22 +9,30 @@ export interface RegionProgress {
 }
 
 /**
- * Per-region shot progress for the Saved screen: how many of each city's spots
- * you've been to. Regions come back in REGIONS declaration order; a region with
- * no loaded spots is omitted (nothing to make progress against).
+ * Per-region shot progress: how many of each city's spots you've been to.
+ * Pure core — takes an id→region map and per-region totals so callers never
+ * have to load spot modules (docs/SCALING.md breakpoint 1). Regions come back
+ * in REGIONS declaration order; regions without a total are omitted.
  */
-export function regionProgress(visited: string[], spots: Spot[]): RegionProgress[] {
-  const visitedSet = new Set(visited)
-  const byRegion = new Map<RegionId, { done: number; total: number }>()
-  for (const s of spots) {
-    const row = byRegion.get(s.region) ?? { done: 0, total: 0 }
-    row.total += 1
-    if (visitedSet.has(s.id)) row.done += 1
-    byRegion.set(s.region, row)
+export function regionProgress(
+  visited: string[],
+  idToRegion: Record<string, RegionId>,
+  totals: Partial<Record<RegionId, number>>,
+): RegionProgress[] {
+  const done = new Map<RegionId, number>()
+  for (const id of new Set(visited)) {
+    const region = idToRegion[id]
+    if (region) done.set(region, (done.get(region) ?? 0) + 1)
   }
-  return REGION_LIST.filter((r) => byRegion.has(r.id)).map((r) => ({
+  return REGION_LIST.filter((r) => (totals[r.id] ?? 0) > 0).map((r) => ({
     regionId: r.id,
     label: r.label,
-    ...byRegion.get(r.id)!,
+    done: done.get(r.id) ?? 0,
+    total: totals[r.id]!,
   }))
+}
+
+/** Progress against the real catalog, via the generated spot index. */
+export function savedProgress(visited: string[]): RegionProgress[] {
+  return regionProgress(visited, SPOT_REGION, REGION_SPOT_COUNT)
 }

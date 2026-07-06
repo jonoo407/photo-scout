@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { IconMapPin, IconStar, IconStarFilled, IconSunset2 } from '@tabler/icons-react'
-import { useAllSpots } from '../../state/useRegion'
+import { useSpotsByIds } from '../../state/useRegion'
 import { parseShortlist, bestLightWindow } from '../../spots/shortlist'
 import { fetchSharedShortlist, submitShortlistResponse, type SharedShortlist } from '../../spots/shortlist-api'
 import { fmtRange, fmtTime } from '../../util/format'
@@ -15,7 +15,6 @@ import type { Spot } from '../../spots/types'
 export default function ClientListScreen() {
   const [params] = useSearchParams()
   const { ids: inlineIds, title: inlineTitle, listId } = parseShortlist(params)
-  const { spots: all, loading } = useAllSpots()
   const now = useMemo(() => new Date(), [])
 
   // Stored-list fetch (v2). 'idle' = inline v1 link, no fetch.
@@ -40,7 +39,8 @@ export default function ClientListScreen() {
   const noteById = new Map(storedList?.spots.flatMap((s) => (s.note ? [[s.id, s.note] as const] : [])) ?? [])
   const title = storedList ? storedList.title : inlineTitle
 
-  const byId = new Map(all.map((s) => [s.id, s]))
+  // Loads only the cities these spots live in (spot-index → targeted chunks).
+  const { byId, loading } = useSpotsByIds(ids)
   const spots = ids.map((id) => byId.get(id)).filter(Boolean) as Spot[]
 
   if (stored === 'loading' || (loading && spots.length < ids.length)) {
