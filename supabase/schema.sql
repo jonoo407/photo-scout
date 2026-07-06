@@ -106,3 +106,58 @@ drop trigger if exists shortlist_response_notify on public.shortlist_responses;
 create trigger shortlist_response_notify
   after insert on public.shortlist_responses
   for each row execute function public.notify_shortlist_response();
+
+-- ── Shortlist response email (v3 email leg, added 2026-07-06) ────────────────
+-- Applied as migration `shortlist_email_notify`. The Worker emails the list
+-- owner via Resend when a client responds. Owner-email lookup is gated by a
+-- shared secret (stored in internal.config AND as the Worker secret
+-- SUPABASE_HOOK_SECRET — value NOT in this file; rotate by updating both).
+
+create schema if not exists internal;
+revoke all on schema internal from public;
+create table if not exists internal.config (key text primary key, value text not null);
+-- insert into internal.config (key, value) values ('worker_hook_secret', '<secret>')
+--   on conflict (key) do update set value = excluded.value;
+
+create or replace function public.get_owner_email(p_id uuid, p_secret text)
+returns text
+language plpgsql
+security definer
+set search_path = public, internal, auth
+as $$
+declare
+  v_owner uuid;
+  v_email text;
+begin
+  if p_secret is null or p_secret is distinct from
+     (select value from internal.config where key = 'worker_hook_secret') then
+    return null;
+  end if;
+  select owner into v_owner from public.shortlists where id = p_id;
+  if v_owner is null then return null; end if;
+  select email into v_email from auth.users where id = v_owner;
+  return v_email;
+end;
+$$;
+
+-- Webhook payload now carries picks + comment so the email can show them.
+create or replace function public.notify_shortlist_response()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, extensions
+as $$
+begin
+  perform net.http_post(
+    url := 'https://shootvantage.com/api/shortlist/response-hook',
+    body := jsonb_build_object('record', jsonb_build_object(
+      'list_id', new.list_id,
+      'client_name', new.client_name,
+      'picked', new.picked,
+      'comment', new.comment
+    )),
+    headers := '{"Content-Type": "application/json"}'::jsonb
+  );
+  return new;
+end;
+$$;

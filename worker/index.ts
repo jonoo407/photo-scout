@@ -14,6 +14,7 @@ import { fetchSkyForecast, skyScoreAt, type SkyHourly } from '../src/weather/ope
 import { shouldAlert, alertMessage, type AlertPayload } from '../src/push/alert-rules'
 import { generateVapidKeys, vapidAuthHeader, bytesToB64url, type VapidKeys } from '../src/push/vapid'
 import { listOgHtml } from '../src/spots/list-og'
+import { responseEmail } from '../src/push/response-email'
 import type { Spot } from '../src/spots/types'
 
 const ALL_SPOTS = new Map<string, Spot>([...TAMPA, ...PHILLY].map((s) => [s.id, s]))
@@ -47,6 +48,9 @@ interface Env {
   ASSETS: { fetch(req: Request): Promise<Response> }
   SUPABASE_URL: string
   SUPABASE_PUBLISHABLE_KEY: string
+  /** Worker secrets (dashboard/wrangler) — email leg no-ops without them. */
+  RESEND_API_KEY?: string
+  SUPABASE_HOOK_SECRET?: string
 }
 
 /** Call a public (anon-executable) Supabase RPC. */
@@ -252,27 +256,57 @@ export default {
       })
     }
 
-    // Supabase DB webhook: a client answered a shortlist → push the owner.
+    // Supabase DB webhook: a client answered a shortlist → push + email the owner.
     if (url.pathname === '/api/shortlist/response-hook' && request.method === 'POST') {
       const body = (await request.json().catch(() => null)) as
-        | { record?: { list_id?: string; client_name?: string | null } }
+        | { record?: { list_id?: string; client_name?: string | null; picked?: string[]; comment?: string | null } }
         | null
       const listId = body?.record?.list_id
       if (!listId || !UUID_RE.test(listId)) return new Response('bad payload', { status: 400 })
       const owner = await supabaseRpc<string>(env, 'get_list_owner', { p_id: listId })
       if (!owner) return new Response('no owner', { status: 200 })
       const rows = await supabaseRpc<Array<{ title: string | null }>>(env, 'get_shortlist', { p_id: listId })
+      const title = rows?.[0]?.title ?? null
       const who = body?.record?.client_name?.trim()
       const alert = {
         title: who ? `${who} picked their spots` : 'Your client responded',
-        body: `New response on “${rows?.[0]?.title ?? 'Location options'}” — open Saved to see their picks.`,
+        body: `New response on “${title ?? 'Location options'}” — open Saved to see their picks.`,
         url: '/#/saved',
       }
-      return doStub(env).fetch(new Request('https://do/notify-owner', {
+      const pushed = await doStub(env).fetch(new Request('https://do/notify-owner', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ ownerId: owner, alert }),
       }))
+
+      // Email leg (Resend): the owner-email RPC is gated by a shared secret so
+      // holding a list link never exposes the photographer's address.
+      let emailed = false
+      if (env.RESEND_API_KEY && env.SUPABASE_HOOK_SECRET) {
+        const email = await supabaseRpc<string>(env, 'get_owner_email', {
+          p_id: listId, p_secret: env.SUPABASE_HOOK_SECRET,
+        })
+        if (email) {
+          const pickedNames = (body?.record?.picked ?? []).map((id) => ALL_SPOTS.get(id)?.name ?? id)
+          const msg = responseEmail({
+            title, clientName: who ?? null, pickedNames, comment: body?.record?.comment ?? null,
+          })
+          const res = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'content-type': 'application/json' },
+            body: JSON.stringify({
+              from: 'Vantage <alerts@shootvantage.com>',
+              to: [email],
+              subject: msg.subject,
+              html: msg.html,
+            }),
+          }).catch(() => null)
+          emailed = !!res && res.ok
+        }
+      }
+
+      const pushResult = (await pushed.json().catch(() => ({}))) as Record<string, unknown>
+      return json({ ...pushResult, emailed })
     }
 
     if (url.pathname.startsWith('/api/push/')) {
