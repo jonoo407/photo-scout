@@ -13,6 +13,12 @@ describe('PlanScreen — spots by light', () => {
     // Bayshore Boulevard is in the sunrise/morning bucket
     expect(screen.getByRole('button', { name: 'Bayshore Boulevard' })).toBeInTheDocument()
   })
+
+  it('the itinerary CTA sells the smarts (feedback #4)', () => {
+    render(<MemoryRouter><PlanScreen /></MemoryRouter>)
+    expect(screen.getByRole('button', { name: /smart[- ]build/i })).toBeInTheDocument()
+    expect(screen.getByText(/cuts? driving/i)).toBeInTheDocument()
+  })
 })
 
 describe('PlanScreen — saved plans (feedback #5)', () => {

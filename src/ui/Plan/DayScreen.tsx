@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { IconArrowLeft, IconCar, IconMoodEmpty, IconArrowsShuffle, IconStar, IconCheck, IconX, IconCloudRain, IconCloud, IconDeviceFloppy, IconShare2 } from '@tabler/icons-react'
+import { IconArrowLeft, IconCar, IconMoodEmpty, IconArrowsShuffle, IconStar, IconX, IconCloudRain, IconCloud, IconDeviceFloppy, IconShare2 } from '@tabler/icons-react'
+import { SpotCard } from '../SpotCard'
 import { useStore } from '../../state/store'
 import { useRegion, useRegionSpots, useSpotsByIds } from '../../state/useRegion'
 import { planDay, pinPlan, rankForBlock, dayBlocks, type PlanStop, type BlockKey } from '../../spots/day-plan'
@@ -133,10 +134,16 @@ export default function DayScreen() {
   return (
     <div className="screen">
       {Header}
-      <p className="muted small" style={{ margin: '0 0 14px' }}>
+      <p className="muted small" style={{ margin: '0 0 6px' }}>
         {display.length} stops · ~{total} min driving · {pinned ? fmtDay(date) : dayOffset ? 'tomorrow' : 'today'}
         {anchorId ? ' · around your pick' : ''}
       </p>
+      {!pinned && (
+        <p className="small tertiary" style={{ margin: '0 0 14px', lineHeight: 1.5 }}>
+          Smart-built: each stop is matched to its light window, open at that hour,
+          and routed to cut driving — weather and your Want-to-go list included.
+        </p>
+      )}
 
       <div style={{ display: 'flex', gap: 8, margin: '0 0 14px' }}>
         <button className="chip act" onClick={onSave} disabled={!!savedId}>
@@ -200,25 +207,23 @@ export default function DayScreen() {
               <h4>{sheetStop.block.label}</h4>
               <button className="back" style={{ margin: 0 }} aria-label="Close" onClick={() => setSheet(null)}><IconX size={18} /></button>
             </div>
-            <p className="small tertiary" style={{ margin: '0 0 6px' }}>Best fit first — by light, distance and your list.</p>
-            {sheetOptions.map((opt) => {
-              const isCurrent = opt.id === display[sheetIdx].spot.id
-              const dmin = Math.round(haversineMiles(sheetFrom, opt) * 2.2)
-              const wished = wishlistArr.includes(opt.id)
-              return (
-                <button
-                  key={opt.id}
-                  className="opt"
-                  onClick={() => { setPicked((p) => ({ ...p, [sheetStop.block.key]: opt.id })); setSheet(null) }}
-                >
-                  <span style={{ minWidth: 0 }}>
-                    <span className="nm" style={{ fontSize: 14 }}>{wished && <IconStar size={12} style={{ verticalAlign: '-1px', color: 'var(--maybe-ink)' }} />} {opt.name}</span>
-                    <span className="sub" style={{ display: 'block' }}>{CATEGORY_LABEL[opt.category]} · ~{dmin} min</span>
-                  </span>
-                  {isCurrent && <IconCheck size={18} className="on-check" />}
-                </button>
-              )
-            })}
+            <p className="small tertiary" style={{ margin: '0 0 8px' }}>Best fit first — by light, distance and your list.</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {sheetOptions.map((opt) => {
+                const isCurrent = opt.id === display[sheetIdx].spot.id
+                const dmin = Math.round(haversineMiles(sheetFrom, opt) * 2.2)
+                const wished = wishlistArr.includes(opt.id)
+                return (
+                  <SpotCard
+                    key={opt.id}
+                    spot={opt}
+                    reason={`${CATEGORY_LABEL[opt.category]} · ~${dmin} min drive${wished ? ' · ★ on your list' : ''}`}
+                    badge={isCurrent ? { label: 'Current', kind: 'go' } : { label: 'Pick', kind: 'info' }}
+                    onPress={() => { setPicked((p) => ({ ...p, [sheetStop.block.key]: opt.id })); setSheet(null) }}
+                  />
+                )
+              })}
+            </div>
           </div>
         </div>
       )}

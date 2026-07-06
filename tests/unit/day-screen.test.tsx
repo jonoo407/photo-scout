@@ -53,6 +53,22 @@ describe('DayScreen', () => {
     expect(screen.getByText('Ballast Point Park')).toBeInTheDocument()
   })
 
+  it('explains how the smart build picks (feedback #4)', () => {
+    renderDay('/day')
+    expect(screen.getByText(/light window.*open.*drive|matched to its light/i)).toBeInTheDocument()
+  })
+
+  it('swap chooser shows rich spot cards, not bare rows (feedback #4)', async () => {
+    const user = userEvent.setup()
+    renderDay('/day')
+    await user.click(screen.getByRole('button', { name: /swap sunrise & morning golden/i }))
+    const dialog = await screen.findByRole('dialog')
+    // why-line from bestFor, the same card language as everywhere else
+    expect(within(dialog).getAllByText(/sunrise over the bay/).length).toBeGreaterThan(0)
+    // the current pick is badged with the app's pick pattern
+    expect(within(dialog).getAllByText(/current/i).length).toBeGreaterThan(0)
+  })
+
   it('shows a weather indicator on stops when rain is forecast', async () => {
     // one hourly entry with 90% precip → every block resolves rainy
     global.fetch = vi.fn(async () => ({

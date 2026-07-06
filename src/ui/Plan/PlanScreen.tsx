@@ -56,9 +56,13 @@ export default function PlanScreen() {
         <button className={`chip ${day === 1 ? 'on' : ''}`} style={{ flex: 1, justifyContent: 'center' }} onClick={() => setDay(1)}>Tomorrow</button>
       </div>
 
-      <button className="cta" style={{ marginBottom: 14 }} onClick={() => nav(`/day?day=${day}`)}>
-        <IconRoute size={18} /> Build {day === 1 ? "tomorrow's" : "today's"} itinerary
+      <button className="cta" style={{ marginBottom: 6 }} onClick={() => nav(`/day?day=${day}`)}>
+        <IconRoute size={18} /> Smart-build {day === 1 ? "tomorrow's" : "today's"} shoot
       </button>
+      <p className="small tertiary" style={{ margin: '0 2px 14px', lineHeight: 1.5 }}>
+        Every stop matched to its light window and open hours, routed to cut driving,
+        weather-aware, and partial to your Want-to-go list.
+      </p>
 
       {savedPlans.length > 0 && (
         <>
