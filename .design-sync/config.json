@@ -1,0 +1,27 @@
+{
+  "projectId": "acec7280-d9ac-4979-834a-a79f39b598f0",
+  "shape": "package",
+  "pkg": "photo-scout",
+  "globalName": "Vantage",
+  "entry": ".design-sync/ds-entry.ts",
+  "srcDir": "src",
+  "cssEntry": ".design-sync/preview-styles.css",
+  "tokensPkg": "..",
+  "tokensGlob": "src/styles/*.css",
+  "guidelinesGlob": ["docs/IA_BRIEF.md"],
+  "readmeHeader": ".design-sync/conventions.md",
+  "extraEntries": ["./.design-sync/preview-support.tsx"],
+  "provider": { "component": "DSProvider" },
+  "overrides": {
+    "Layout": { "cardMode": "single", "viewport": "430x180" }
+  },
+  "componentSrcMap": {
+    "SpotCard": "src/ui/SpotCard.tsx",
+    "SpotHero": "src/ui/SpotDetail/SpotHero.tsx",
+    "Layout": "src/ui/Layout.tsx",
+    "BestDays": "src/ui/SpotDetail/BestDays.tsx",
+    "SunAlignment": "src/ui/SpotDetail/SunAlignment.tsx",
+    "MilkyWay": "src/ui/SpotDetail/MilkyWay.tsx",
+    "SpotNotes": "src/ui/SpotDetail/SpotNotes.tsx"
+  }
+}
