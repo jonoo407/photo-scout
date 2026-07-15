@@ -33,6 +33,10 @@ export interface Filters {
   openNow: boolean
   freeOnly: boolean
   wishlistOnly: boolean
+  /** Genuinely dark skies only (Milky Way work) — Explore's Dark sky bucket. */
+  darkSkyOnly: boolean
+  /** Leashed-pets-welcome spots only (B16). */
+  petFriendlyOnly: boolean
   maxDriveMin: number | null
   sort: SortKey
 }
@@ -44,6 +48,8 @@ export const EMPTY_FILTERS: Filters = {
   openNow: false,
   freeOnly: false,
   wishlistOnly: false,
+  darkSkyOnly: false,
+  petFriendlyOnly: false,
   maxDriveMin: null,
   sort: 'nearest',
 }

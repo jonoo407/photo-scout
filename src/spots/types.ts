@@ -67,6 +67,10 @@ export interface Spot {
       gates the galactic-core planner. Lit night spots (neon, skylines) stay
       untagged even when they're shot at night. */
   darkSky?: boolean
+  /** Leashed pets welcome (B16). Set only when verified against the venue's
+      own rules — absent means unknown, and the Explore chip stays hidden
+      until a region has real data. */
+  petFriendly?: boolean
   city: string
   region: RegionId
   bestFor: string[]

@@ -240,3 +240,11 @@ button.row, button.linkrow { appearance: none; background: var(--surface); curso
 /* craft ladder sheet */
 .sheet-handle { width: 36px; height: 4px; border-radius: var(--radius-pill); background: var(--line-strong); margin: 0 auto 16px; }
 .row.tier-now { background: var(--maybe-bg); }
+
+/* Explore (IA redesign 1e/1f): segmented list/map toggle + one-line chip rows */
+.segmented { display: inline-flex; background: var(--surface-2); border-radius: var(--radius-pill); padding: 3px; gap: 2px; }
+.segmented button { appearance: none; border: 0; cursor: pointer; font: inherit; font-size: 12px; color: var(--ink-2); padding: 6px 16px; border-radius: var(--radius-pill); background: none; }
+.segmented button.on { background: var(--surface); color: var(--ink); font-weight: 500; box-shadow: 0 1px 2px rgba(46, 32, 20, 0.14); }
+.chiprow { display: flex; gap: 6px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.chiprow::-webkit-scrollbar { display: none; }
+.chiprow .chip { flex: none; white-space: nowrap; }
