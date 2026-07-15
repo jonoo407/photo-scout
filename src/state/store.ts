@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import type { Category, Light } from '../spots/types'
 import type { BlockKey } from '../spots/day-plan'
+import { POINT_VALUES, type PointEvent, type PointReason } from '../craft/points'
 import { DEFAULT_HOME, type HomeLocation } from '../data/home.config'
 import { DEFAULT_REGION, REGIONS, regionContains, type RegionId } from '../data/regions'
 
@@ -56,6 +57,8 @@ interface AppState {
   spotNotes: Record<string, string>
   /** Saved day plans, newest first — synced. */
   savedPlans: SavedPlan[]
+  /** Craft-ladder point ledger, append-only — synced (union by id). */
+  pointEvents: PointEvent[]
   filters: Filters
   home: HomeLocation
   region: RegionId
@@ -74,6 +77,7 @@ interface AppState {
   setSpotNote: (spotId: string, note: string) => void
   savePlan: (plan: Omit<SavedPlan, 'id' | 'createdAt'>) => string
   deletePlan: (id: string) => void
+  awardPoints: (reason: PointReason) => void
   setFilters: (patch: Partial<Filters>) => void
   resetFilters: () => void
   setHome: (home: HomeLocation) => void
@@ -114,6 +118,7 @@ export const useStore = create<AppState>()(
       checklist: {},
       spotNotes: {},
       savedPlans: [],
+      pointEvents: [],
       filters: EMPTY_FILTERS,
       home: DEFAULT_HOME,
       region: 'tampa-bay',
@@ -147,6 +152,13 @@ export const useStore = create<AppState>()(
         return id
       },
       deletePlan: (id) => set((s) => ({ savedPlans: s.savedPlans.filter((p) => p.id !== id) })),
+      awardPoints: (reason) =>
+        set((s) => ({
+          pointEvents: [
+            ...s.pointEvents,
+            { id: crypto.randomUUID(), at: new Date().toISOString(), reason, pts: POINT_VALUES[reason] },
+          ],
+        })),
       setFilters: (patch) => set((s) => ({ filters: { ...s.filters, ...patch } })),
       resetFilters: () => set({ filters: EMPTY_FILTERS }),
       setHome: (home) => set({ home }),
