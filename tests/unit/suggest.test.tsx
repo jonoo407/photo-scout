@@ -23,7 +23,7 @@ vi.mock('../../src/auth/supabase', () => ({
 
 import { submitSuggestion } from '../../src/spots/suggest-api'
 import SuggestScreen from '../../src/ui/Suggest/SuggestScreen'
-import BrowseScreen from '../../src/ui/Browse/BrowseScreen'
+import ExploreScreen from '../../src/ui/Explore/ExploreScreen'
 import { useStore } from '../../src/state/store'
 import { DEFAULT_HOME } from '../../src/data/home.config'
 
@@ -75,9 +75,9 @@ describe('SuggestScreen', () => {
   })
 })
 
-describe('Browse — suggest entry point', () => {
+describe('Explore — suggest entry point', () => {
   it('invites suggestions at the end of the list', () => {
-    render(<MemoryRouter><BrowseScreen /></MemoryRouter>)
-    expect(screen.getByRole('button', { name: /suggest a spot/i })).toBeInTheDocument()
+    render(<MemoryRouter><ExploreScreen /></MemoryRouter>)
+    expect(screen.getByRole('button', { name: /suggest it/i })).toBeInTheDocument()
   })
 })

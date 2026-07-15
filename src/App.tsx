@@ -1,35 +1,43 @@
-import { lazy, Suspense, useEffect } from 'react'
-import { createHashRouter, RouterProvider, type RouteObject } from 'react-router-dom'
+import { useEffect } from 'react'
+import { createHashRouter, RouterProvider, Navigate, type RouteObject } from 'react-router-dom'
 import { useStore, applyTheme } from './state/store'
 import { initAuth, useAuth } from './auth/useAuth'
 import { refreshResponsesBadge } from './spots/shortlist-api'
 import Layout from './ui/Layout'
 import TodayScreen from './ui/Today/TodayScreen'
-import BrowseScreen from './ui/Browse/BrowseScreen'
+import ExploreScreen from './ui/Explore/ExploreScreen'
 import PlanScreen from './ui/Plan/PlanScreen'
 import DayScreen from './ui/Plan/DayScreen'
 import SpotDetailScreen from './ui/SpotDetail/SpotDetailScreen'
 import SettingsScreen from './ui/Settings/SettingsScreen'
+import YouScreen from './ui/You/YouScreen'
+import YourShotsScreen from './ui/You/YourShotsScreen'
 import SavedScreen from './ui/Saved/SavedScreen'
+import CommunityScreen from './ui/Community/CommunityScreen'
 import ClientListScreen from './ui/ClientList/ClientListScreen'
 import SuggestScreen from './ui/Suggest/SuggestScreen'
 
-// Leaflet is ~150KB — load the Map screen only when it's opened.
-const MapScreen = lazy(() => import('./ui/Map/MapScreen'))
-
+/* The five-tab IA (redesign 1a): Today · Explore · Plan · You · Community.
+   Old routes redirect — deep links in the wild are sacred. */
 export const routes: RouteObject[] = [
   {
     element: <Layout />,
     children: [
       { path: '/', element: <TodayScreen /> },
-      { path: '/browse', element: <BrowseScreen /> },
-      { path: '/map', element: <Suspense fallback={<div className="screen"><p className="center-note">Loading map…</p></div>}><MapScreen /></Suspense> },
+      { path: '/explore', element: <ExploreScreen /> },
       { path: '/plan', element: <PlanScreen /> },
       { path: '/day', element: <DayScreen /> },
-      { path: '/saved', element: <SavedScreen /> },
+      { path: '/you', element: <YouScreen /> },
+      { path: '/you/saved', element: <SavedScreen /> },
+      { path: '/you/shots', element: <YourShotsScreen /> },
+      { path: '/community', element: <CommunityScreen /> },
       { path: '/spot/:id', element: <SpotDetailScreen /> },
       { path: '/suggest', element: <SuggestScreen /> },
       { path: '/settings', element: <SettingsScreen /> },
+      // Retired routes (pre-2026-07 IA) — keep old bookmarks working.
+      { path: '/browse', element: <Navigate to="/explore" replace /> },
+      { path: '/map', element: <Navigate to="/explore?view=map" replace /> },
+      { path: '/saved', element: <Navigate to="/you" replace /> },
     ],
   },
   // Client shoot shortlist — deliberately OUTSIDE Layout so the page a client
@@ -43,7 +51,7 @@ export default function App() {
   const theme = useStore((s) => s.theme)
   useEffect(() => { applyTheme(theme) }, [theme])
   useEffect(() => { void initAuth() }, []) // no-op until auth env vars are set
-  // Once per sign-in: check for client shortlist responses → Saved-tab dot.
+  // Once per sign-in: check for client shortlist responses → You-tab dot.
   useEffect(() => {
     let prevId: string | null = null
     return useAuth.subscribe((s) => {

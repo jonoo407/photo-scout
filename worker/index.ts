@@ -270,8 +270,8 @@ export default {
       const who = body?.record?.client_name?.trim()
       const alert = {
         title: who ? `${who} picked their spots` : 'Your client responded',
-        body: `New response on “${title ?? 'Location options'}” — open Saved to see their picks.`,
-        url: '/#/saved',
+        body: `New response on “${title ?? 'Location options'}” — open the You tab to see their picks.`,
+        url: '/#/you',
       }
       const pushed = await doStub(env).fetch(new Request('https://do/notify-owner', {
         method: 'POST',

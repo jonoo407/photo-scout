@@ -36,7 +36,7 @@ export function responseEmail({ title, clientName, pickedNames, comment }: Respo
 <h2 style="margin:0 0 14px">${who ? esc(who) : 'Your client'} answered “${esc(listName)}”</h2>
 ${picksHtml}
 ${commentHtml}
-<p style="margin:0"><a href="https://shootvantage.com/#/saved" style="color:#a8431d">Open your client lists →</a></p>
+<p style="margin:0"><a href="https://shootvantage.com/#/you" style="color:#a8431d">Open your client lists →</a></p>
 </div>`
 
   return { subject, html }

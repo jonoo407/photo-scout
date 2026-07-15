@@ -26,7 +26,7 @@ export default function SuggestScreen() {
   if (state === 'sent') {
     return (
       <div className="screen">
-        <button className="back" onClick={() => nav('/browse')}><IconArrowLeft size={18} /> Browse</button>
+        <button className="back" onClick={() => nav('/explore')}><IconArrowLeft size={18} /> Explore</button>
         <div className="empty">
           <IconCircleCheck size={30} color="var(--go-ink)" />
           <p className="et">Thank you — it's in the queue</p>
@@ -55,7 +55,7 @@ export default function SuggestScreen() {
 
   return (
     <div className="screen">
-      <button className="back" onClick={() => nav('/browse')}><IconArrowLeft size={18} /> Browse</button>
+      <button className="back" onClick={() => nav('/explore')}><IconArrowLeft size={18} /> Explore</button>
       <h1 style={{ fontSize: 21 }}><IconMapPinPlus size={20} style={{ verticalAlign: '-3px' }} /> Suggest a spot</h1>
       <p className="muted small" style={{ margin: '0 0 14px', lineHeight: 1.5 }}>
         Fill in what you know — we verify everything and add the good ones with

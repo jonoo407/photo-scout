@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { Outlet, NavLink } from 'react-router-dom'
-import { IconSun, IconListSearch, IconMap2, IconCalendarEvent, IconStar } from '@tabler/icons-react'
+import { IconSun, IconCompass, IconRoute, IconUser, IconUsers } from '@tabler/icons-react'
 import { useStore } from '../state/store'
 import ScrollReset from './ScrollReset'
 
@@ -16,8 +16,10 @@ function Tab({ to, icon, label, dot }: { to: string; icon: ReactNode; label: str
   )
 }
 
+/* The five-tab IA (redesign 1a): Today · Explore · Plan · You · Community. */
 export default function Layout() {
-  // A client responded to a shortlist since the last look → dot on Saved.
+  // A client responded to a shortlist since the last look → dot on You
+  // (responses are notifications; notifications live on the identity tab).
   const hasNewResponse = useStore((s) => s.newClientResponse)
   return (
     <>
@@ -25,10 +27,10 @@ export default function Layout() {
       <Outlet />
       <nav className="tabbar">
         <Tab to="/" icon={<IconSun size={22} />} label="Today" />
-        <Tab to="/browse" icon={<IconListSearch size={22} />} label="Browse" />
-        <Tab to="/map" icon={<IconMap2 size={22} />} label="Map" />
-        <Tab to="/plan" icon={<IconCalendarEvent size={22} />} label="Plan" />
-        <Tab to="/saved" icon={<IconStar size={22} />} label="Saved" dot={hasNewResponse} />
+        <Tab to="/explore" icon={<IconCompass size={22} />} label="Explore" />
+        <Tab to="/plan" icon={<IconRoute size={22} />} label="Plan" />
+        <Tab to="/you" icon={<IconUser size={22} />} label="You" dot={hasNewResponse} />
+        <Tab to="/community" icon={<IconUsers size={22} />} label="Community" />
       </nav>
     </>
   )

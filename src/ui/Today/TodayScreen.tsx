@@ -152,7 +152,7 @@ export default function TodayScreen() {
         <button
           className="linkrow"
           style={{ margin: '12px 0', color: 'var(--terracotta)' }}
-          onClick={() => { setFilters({ lights: [result.window.light] }); nav('/browse') }}
+          onClick={() => { setFilters({ lights: [result.window.light] }); nav('/explore') }}
         >
           <span>See all {result.ranked.length} spots for this window</span>
           <IconChevronRight size={16} />

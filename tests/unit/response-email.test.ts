@@ -13,7 +13,7 @@ describe('responseEmail', () => {
     expect(m.html).toContain('Boathouse Row')
     expect(m.html).toContain('Belmont Plateau')
     expect(m.html).toContain('We love the boathouses!')
-    expect(m.html).toContain('https://shootvantage.com/#/saved')
+    expect(m.html).toContain('https://shootvantage.com/#/you')
   })
 
   it('copes with an anonymous no-pick comment-only response', () => {

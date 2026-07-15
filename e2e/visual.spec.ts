@@ -7,10 +7,12 @@ fs.mkdirSync(SHOTS, { recursive: true })
 
 const routes: [string, string][] = [
   ['today', '/'],
-  ['browse', '/#/browse'],
-  ['map', '/#/map'],
+  ['explore', '/#/explore'],
+  ['map', '/#/explore?view=map'],
   ['plan', '/#/plan'],
   ['day', '/#/day'],
+  ['you', '/#/you'],
+  ['community', '/#/community'],
   ['spot', '/#/spot/curtis-hixon-waterfront-park'],
   ['settings', '/#/settings'],
 ]
@@ -40,7 +42,7 @@ test('switch city to Philadelphia (scoping)', async ({ page }) => {
   await page.goto('/')
   await page.waitForTimeout(900)
   await page.screenshot({ path: `${SHOTS}/today-philly.png`, fullPage: true })
-  await page.goto('/#/map')
+  await page.goto('/#/explore?view=map')
   await page.waitForTimeout(2600)
   await page.screenshot({ path: `${SHOTS}/map-philly.png` })
 })
@@ -71,7 +73,7 @@ test('day plan weather indicator (forced rain)', async ({ page }) => {
 })
 
 test('map pin popup', async ({ page }) => {
-  await page.goto('/#/map')
+  await page.goto('/#/explore?view=map')
   await page.waitForTimeout(2500)
   await page.locator('.leaflet-interactive').first().click({ force: true }).catch(() => {})
   await page.waitForTimeout(500)
@@ -80,9 +82,11 @@ test('map pin popup', async ({ page }) => {
 
 const a11yRoutes: [string, string][] = [
   ['today', '/'],
-  ['browse', '/#/browse'],
+  ['explore', '/#/explore'],
   ['plan', '/#/plan'],
   ['day', '/#/day'],
+  ['you', '/#/you'],
+  ['community', '/#/community'],
   ['spot', '/#/spot/curtis-hixon-waterfront-park'],
   ['settings', '/#/settings'],
 ]

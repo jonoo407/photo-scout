@@ -11,7 +11,7 @@ const spot = (over: Partial<Spot>): Spot => ({
   id: 'test-spot', name: 'Test Spot', category: 'skyline', city: 'Tampa',
   region: 'tampa-bay', bestFor: ['skyline'], bestLight: ['sunset'],
   lat: 27.9, lng: -82.5, address: '1 Test St, Tampa, FL 33600', facing: 270,
-  feeUSD: 0, isFree: true, hours: { kind: 'always' } as Spot['hours'],
+  feeUSD: 0, isFree: true, hours: { days: {} } as unknown as Spot['hours'], // never read: openState comes from LiveContext
   phone: null, notes: '', media: [],
   craft: { lightStrategy: '', whatToShoot: [], signatureShots: [], compositionTips: [], gear: {} },
   ...over,
