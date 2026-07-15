@@ -1,0 +1,6 @@
+/* Design-sync CSS entry — fonts only. The app loads Fraunces + DM Sans via a
+   <link> in index.html (no @font-face in the repo), so re-declare that import
+   for rendered designs. The app's real stylesheets (theme/base/app.css) ship
+   separately via tokensGlob → tokens/ so the uploaded closure is
+   self-contained (a relative import into src/ here would die on upload). */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap');
