@@ -23,12 +23,16 @@ vi.mock('../../src/spots/shortlist-api', () => ({
 }))
 
 import SavedScreen from '../../src/ui/Saved/SavedScreen'
+import YouScreen from '../../src/ui/You/YouScreen'
 import { useStore } from '../../src/state/store'
 import { useAuth } from '../../src/auth/useAuth'
 import { DEFAULT_HOME } from '../../src/data/home.config'
 
 function renderSaved() {
   return render(<MemoryRouter><SavedScreen /></MemoryRouter>)
+}
+function renderYou() {
+  return render(<MemoryRouter><YouScreen /></MemoryRouter>)
 }
 
 beforeEach(() => {
@@ -80,7 +84,9 @@ describe('SavedScreen — signed-in shortlist builder (v2)', () => {
   })
 })
 
-describe('SavedScreen — client lists + responses (v2)', () => {
+/* Client lists + responses moved from Saved to the You tab (IA redesign 1h):
+   responses are notifications, and notifications live on the identity tab. */
+describe('YouScreen — client work (lists + responses)', () => {
   const LISTS: MyShortlist[] = [{
     id: 'l1', title: 'Smith family', createdAt: '2026-07-03T20:00:00Z',
     spots: [{ id: 'bayshore-boulevard' }, { id: 'independence-hall', note: 'quiet at dawn' }],
@@ -92,8 +98,8 @@ describe('SavedScreen — client lists + responses (v2)', () => {
 
   it('lists sent shortlists with their client responses', async () => {
     myLists = LISTS
-    renderSaved()
-    expect(await screen.findByText('Client lists')).toBeInTheDocument()
+    renderYou()
+    expect(await screen.findByText('CLIENT WORK')).toBeInTheDocument()
     expect(screen.getByText('Smith family')).toBeInTheDocument()
     expect(screen.getByText(/Sarah/)).toBeInTheDocument()
     expect(screen.getByText(/Love this one/)).toBeInTheDocument()
@@ -103,7 +109,7 @@ describe('SavedScreen — client lists + responses (v2)', () => {
   it('marks fresh responses NEW and then records them as seen', async () => {
     myLists = LISTS
     useStore.setState({ listsSeenAt: '2026-07-01T00:00:00Z', newClientResponse: true })
-    renderSaved()
+    renderYou()
     expect(await screen.findByText('New')).toBeInTheDocument()
     // Viewing the section clears the badge state (pill stays for this visit).
     expect(useStore.getState().newClientResponse).toBe(false)
@@ -113,18 +119,18 @@ describe('SavedScreen — client lists + responses (v2)', () => {
   it('deletes a list with a two-tap confirm', async () => {
     const user = userEvent.setup()
     myLists = LISTS
-    renderSaved()
-    await screen.findByText('Client lists')
+    renderYou()
+    await screen.findByText('CLIENT WORK')
     await user.click(screen.getByRole('button', { name: /^delete$/i }))
     expect(deleteShortlist).not.toHaveBeenCalled() // first tap only arms it
     await user.click(screen.getByRole('button', { name: /confirm delete/i }))
     expect(deleteShortlist).toHaveBeenCalledWith('l1')
   })
 
-  it('shows no section when there are no sent lists', async () => {
-    useStore.setState({ wishlist: ['bayshore-boulevard'] })
-    renderSaved()
-    await screen.findByText('Bayshore Boulevard')
-    expect(screen.queryByText('Client lists')).not.toBeInTheDocument()
+  it('keeps the builder entry visible when no lists are sent yet', async () => {
+    renderYou()
+    expect(await screen.findByRole('button', { name: /new client shortlist/i })).toBeInTheDocument()
+    expect(screen.queryByText('Smith family')).not.toBeInTheDocument()
+    expect(screen.queryByText(/no response yet/i)).not.toBeInTheDocument()
   })
 })

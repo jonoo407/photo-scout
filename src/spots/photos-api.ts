@@ -42,6 +42,34 @@ export async function listMyPhotos(spotId: string): Promise<MyPhoto[]> {
   }))
 }
 
+export interface MyPhotoAll extends MyPhoto {
+  spotId: string
+  createdAt: string
+}
+
+/** Every shot you've uploaded, newest first (RLS scopes the query to you) —
+    powers the You-tab count and the /you/shots gallery. */
+export async function listAllMyPhotos(): Promise<MyPhotoAll[]> {
+  try {
+    const supabase = await getSupabase()
+    const { data, error } = await supabase
+      .from(TABLE)
+      .select('id, path, spot_id, created_at')
+      .order('created_at', { ascending: false })
+    if (error || !data) return []
+    const store = supabase.storage.from(BUCKET)
+    return (data as Array<{ id: string; path: string; spot_id: string; created_at: string }>).map((r) => ({
+      id: r.id,
+      path: r.path,
+      spotId: r.spot_id,
+      createdAt: r.created_at,
+      url: store.getPublicUrl(r.path).data.publicUrl,
+    }))
+  } catch {
+    return [] // auth not configured / offline — sections simply stay hidden
+  }
+}
+
 export async function deleteSpotPhoto(id: string, path: string): Promise<void> {
   const supabase = await getSupabase()
   await supabase.storage.from(BUCKET).remove([path])
