@@ -203,3 +203,30 @@ create policy "own photos" on public.user_photos
 --   with check (bucket_id = 'spot-photos' and (storage.foldername(name))[1] = auth.uid()::text);
 -- create policy "own deletes" on storage.objects for delete to authenticated
 --   using (bucket_id = 'spot-photos' and (storage.foldername(name))[1] = auth.uid()::text);
+
+-- ── Next-city scoreboard (B12 / IA redesign 1j, added 2026-07-15) ────────────
+-- Applied as migration `city_votes` via the Supabase MCP. One vote per
+-- account, changeable (upsert on the PK). The raw table maps users to votes,
+-- so it gets NO anon select — public tallies go through a counts-only definer
+-- function, matching the get_shortlist() convention.
+
+create table if not exists public.city_votes (
+  user_id uuid primary key references auth.users (id) on delete cascade,
+  city text not null check (char_length(city) <= 40),
+  created_at timestamptz not null default now()
+);
+
+alter table public.city_votes enable row level security;
+
+create policy "own vote all" on public.city_votes
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create or replace function public.city_vote_totals()
+returns table (city text, votes bigint)
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select city, count(*) as votes from city_votes group by city order by votes desc;
+$$;
