@@ -72,6 +72,8 @@ interface AppState {
   mapsApp: 'apple' | 'google'
   theme: ThemeChoice
   introSeen: boolean
+  /** Today's sun/moon reference card folded shut (device pref, persisted). */
+  sunTableCollapsed: boolean
   /** When the photographer last viewed the Client lists section (ISO). */
   listsSeenAt: string | null
   /** Transient: a client response arrived since listsSeenAt (Saved-tab dot). */
@@ -92,6 +94,7 @@ interface AppState {
   setTheme: (t: ThemeChoice) => void
   setRegion: (r: RegionId) => void
   dismissIntro: () => void
+  toggleSunTable: () => void
   markListsSeen: () => void
   setNewClientResponse: (v: boolean) => void
 }
@@ -132,6 +135,7 @@ export const useStore = create<AppState>()(
       mapsApp: 'apple',
       theme: 'auto',
       introSeen: false,
+      sunTableCollapsed: false,
       listsSeenAt: null,
       newClientResponse: false,
 
@@ -180,6 +184,7 @@ export const useStore = create<AppState>()(
         return { region: id, home: regionContains(r, s.home.lat, s.home.lng) ? s.home : r.defaultHome }
       }),
       dismissIntro: () => set({ introSeen: true }),
+      toggleSunTable: () => set((s) => ({ sunTableCollapsed: !s.sunTableCollapsed })),
       markListsSeen: () => set({ listsSeenAt: new Date().toISOString(), newClientResponse: false }),
       setNewClientResponse: (newClientResponse) => set({ newClientResponse }),
     }),

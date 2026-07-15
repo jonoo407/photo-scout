@@ -7,17 +7,20 @@ import { useStore } from '../../src/state/store'
 
 beforeEach(() => { useStore.setState({ savedPlans: [] }) })
 
-describe('PlanScreen — spots by light', () => {
-  it('renders each spot name as a tappable link, not dead text', () => {
-    render(<MemoryRouter><PlanScreen /></MemoryRouter>)
-    // Bayshore Boulevard is in the sunrise/morning bucket
-    expect(screen.getByRole('button', { name: 'Bayshore Boulevard' })).toBeInTheDocument()
-  })
-
+describe('PlanScreen — one job: outings (IA redesign 1g)', () => {
   it('the itinerary CTA sells the smarts (feedback #4)', () => {
     render(<MemoryRouter><PlanScreen /></MemoryRouter>)
     expect(screen.getByRole('button', { name: /smart[- ]build/i })).toBeInTheDocument()
     expect(screen.getByText(/cuts? driving/i)).toBeInTheDocument()
+  })
+
+  it('sheds the reference jobs: no times table, no moon, no spots-by-light', () => {
+    render(<MemoryRouter><PlanScreen /></MemoryRouter>)
+    expect(screen.queryByText(/light & sun times/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/solar noon/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/^Moon /)).not.toBeInTheDocument()
+    expect(screen.queryByText(/spots by light/i)).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Bayshore Boulevard' })).not.toBeInTheDocument()
   })
 })
 

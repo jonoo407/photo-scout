@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import {
   IconArrowBadgeRight, IconSunset2, IconMoon, IconCloud, IconChevronRight,
   IconBellRinging, IconCar, IconPointFilled, IconArrowRight, IconStack2, IconSettings,
+  IconMoon2, IconSunrise, IconSunHigh, IconSun, IconSunset, IconMoonStars, IconStars,
+  IconChevronDown, IconChevronUp,
 } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
 import { useRegion, useRegionSpots } from '../../state/useRegion'
@@ -12,7 +14,7 @@ import { moonInfo } from '../../astro/moon'
 import { fetchWeather, weatherText, type WeatherNow } from '../../weather/open-meteo'
 import { weatherVerdict } from '../../weather/verdict'
 import { sunsetScore, sunsetLabel } from '../../weather/sunset-score'
-import { fmtTime, fmtDrive, untilString } from '../../util/format'
+import { fmtTime, fmtRange, fmtDrive, untilString } from '../../util/format'
 import { SpotCard } from '../SpotCard'
 import IntroCard from './IntroCard'
 
@@ -56,8 +58,21 @@ export default function TodayScreen() {
     [now, home, spots, wishlist, verdict],
   )
   const setFilters = useStore((s) => s.setFilters)
+  const sunTableCollapsed = useStore((s) => s.sunTableCollapsed)
+  const toggleSunTable = useStore((s) => s.toggleSunTable)
   const moon = moonInfo(now, home.lat, home.lng)
   const sun = computeSunTimes(now, home.lat, home.lng)
+
+  const sunRows: [React.ReactNode, string, string][] = [
+    [<IconMoon2 size={18} color="var(--amber)" />, 'Morning blue hour', fmtRange(sun.blueHourMorning.start, sun.blueHourMorning.end, tz)],
+    [<IconSunrise size={18} color="var(--amber)" />, 'Sunrise', fmtTime(sun.sunrise, tz)],
+    [<IconSunHigh size={18} color="var(--amber)" />, 'Morning golden', fmtRange(sun.goldenHourMorning.start, sun.goldenHourMorning.end, tz)],
+    [<IconSun size={18} color="var(--amber)" />, 'Solar noon', fmtTime(sun.solarNoon, tz)],
+    [<IconSunset2 size={18} color="var(--amber)" />, 'Evening golden', fmtRange(sun.goldenHourEvening.start, sun.goldenHourEvening.end, tz)],
+    [<IconSunset size={18} color="var(--amber)" />, 'Sunset', fmtTime(sun.sunset, tz)],
+    [<IconMoonStars size={18} color="var(--amber)" />, 'Evening blue hour', fmtRange(sun.blueHourEvening.start, sun.blueHourEvening.end, tz)],
+    [<IconStars size={18} color="var(--amber)" />, 'Night / astro', `${fmtTime(sun.astronomicalDusk, tz)} →`],
+  ]
   const sScore = weather ? sunsetScore(weather.sunsetLayers) : null
   const sGrade = sScore != null ? sunsetLabel(sScore) : null
 
@@ -162,14 +177,33 @@ export default function TodayScreen() {
         </div>
       </div>
 
-      <h3 className="h3">Today's light</h3>
-      <div className="card list">
-        <div className="row"><span className="rowleft">Sunrise</span><span className="muted">{fmtTime(sun.sunrise, tz)}</span></div>
-        <div className="row"><span className="rowleft">Morning golden</span><span className="muted">{fmtTime(sun.goldenHourMorning.start, tz)} – {fmtTime(sun.goldenHourMorning.end, tz)}</span></div>
-        <div className="row"><span className="rowleft">Evening golden</span><span className="muted">{fmtTime(sun.goldenHourEvening.start, tz)} – {fmtTime(sun.goldenHourEvening.end, tz)}</span></div>
-        <div className="row"><span className="rowleft">Sunset</span><span className="muted">{fmtTime(sun.sunset, tz)}</span></div>
-        <div className="row last"><span className="rowleft">Blue hour</span><span className="muted">{fmtTime(sun.blueHourEvening.start, tz)} – {fmtTime(sun.blueHourEvening.end, tz)}</span></div>
-      </div>
+      {/* The full sun/moon reference table, moved here from Plan (IA 1d) —
+          daily reference data on the daily screen, foldable out of the way. */}
+      <button
+        className="shdr row-spread"
+        aria-expanded={!sunTableCollapsed}
+        onClick={toggleSunTable}
+        style={{ appearance: 'none', border: 0, background: 'none', width: '100%', cursor: 'pointer', font: 'inherit', display: 'flex' }}
+      >
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          SUN &amp; MOON TIMES <span className="pill info" style={{ letterSpacing: 0, whiteSpace: 'nowrap' }}>from Plan</span>
+        </span>
+        {sunTableCollapsed ? <IconChevronDown size={15} /> : <IconChevronUp size={15} />}
+      </button>
+      {!sunTableCollapsed && (
+        <div className="card list">
+          {sunRows.map(([icon, label, time]) => (
+            <div key={label} className="row">
+              <span className="rowleft">{icon} {label}</span>
+              <span className="muted nowrap">{time}</span>
+            </div>
+          ))}
+          <div className="row last">
+            <span className="rowleft"><IconMoon size={18} color="var(--amber)" /> <span>Moon {moon.illumination}% · {moon.phaseName}</span></span>
+            <span className="muted nowrap">Rise {fmtTime(moon.rise, tz)} · Set {fmtTime(moon.set, tz)}</span>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
