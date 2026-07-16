@@ -14,7 +14,8 @@ export interface MyPhoto {
   url: string
 }
 
-export async function uploadSpotPhoto(spotId: string, file: File): Promise<void> {
+/** Uploads and returns the storage path — hunts reference it as proof. */
+export async function uploadSpotPhoto(spotId: string, file: File): Promise<string> {
   const supabase = await getSupabase()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('sign in to add photos')
@@ -24,6 +25,7 @@ export async function uploadSpotPhoto(spotId: string, file: File): Promise<void>
   if (upErr) throw upErr
   const { error: rowErr } = await supabase.from(TABLE).insert({ owner: user.id, spot_id: spotId, path })
   if (rowErr) throw rowErr
+  return path
 }
 
 export async function listMyPhotos(spotId: string): Promise<MyPhoto[]> {
