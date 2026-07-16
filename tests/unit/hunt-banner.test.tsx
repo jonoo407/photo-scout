@@ -9,8 +9,9 @@ import type { Hunt, HuntProgressRow } from '../../src/hunts/hunts'
 let hunts: Hunt[] = []
 let joins: string[] = []
 let progress: HuntProgressRow[] = []
+const fetchHunts = vi.fn(async (_region: string) => hunts)
 vi.mock('../../src/hunts/hunts-api', () => ({
-  fetchHunts: async () => hunts,
+  fetchHunts: (region: string) => fetchHunts(region),
   fetchMyHuntState: async () => ({ joins, progress }),
 }))
 
@@ -32,6 +33,7 @@ beforeEach(() => {
   hunts = [TOUR]
   joins = []
   progress = []
+  fetchHunts.mockClear()
   useStore.setState({ home: DEFAULT_HOME, region: 'tampa-bay' })
   useAuth.setState({ user: null, status: 'ready', errorMsg: null })
 })
@@ -47,6 +49,13 @@ describe('HuntSpotBanner', () => {
     const { container } = render(<MemoryRouter><HuntSpotBanner spotId="sunken-gardens" /></MemoryRouter>)
     await new Promise((r) => setTimeout(r, 50))
     expect(container.textContent).toBe('')
+  })
+
+  it("fetches hunts for the SPOT's city, not the active region (cross-region deep link)", async () => {
+    useStore.setState({ region: 'philadelphia' }) // browsing Philly, opening a Tampa spot
+    render(<MemoryRouter><HuntSpotBanner spotId="bayshore-boulevard" /></MemoryRouter>)
+    expect(await screen.findByText(/Golden Hour Grand Tour/)).toBeInTheDocument()
+    expect(fetchHunts).toHaveBeenCalledWith('tampa-bay')
   })
 
   it('switches to progress copy once the user hunts here', async () => {

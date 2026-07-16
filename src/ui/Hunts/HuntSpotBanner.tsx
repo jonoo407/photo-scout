@@ -2,25 +2,28 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { IconCamera, IconChevronRight } from '@tabler/icons-react'
 import { useAuth } from '../../auth/useAuth'
-import { useRegion } from '../../state/useRegion'
+import { SPOT_REGION } from '../../data/spot-index'
 import { fetchHunts, fetchMyHuntState, type MyHuntState } from '../../hunts/hunts-api'
 import { huntStatus, isOpen, type Hunt } from '../../hunts/hunts'
 
 /* The hunt-stop banner on spot pages (handoff 2f) — spots that are hunt
-   stops advertise the hunt, and switch to progress copy once you're in. */
+   stops advertise the hunt, and switch to progress copy once you're in.
+   Hunts are looked up by the SPOT's own city, not the active region, so
+   cross-region deep links still see their banner. */
 export default function HuntSpotBanner({ spotId }: { spotId: string }) {
   const nav = useNavigate()
   const user = useAuth((s) => s.user)
-  const region = useRegion()
+  const spotRegion = SPOT_REGION[spotId]
   const [hunts, setHunts] = useState<Hunt[]>([])
   const [mine, setMine] = useState<MyHuntState>({ joins: [], progress: [] })
   const now = useMemo(() => new Date(), [])
 
   useEffect(() => {
+    if (!spotRegion) return
     let alive = true
-    void fetchHunts(region.id).then((h) => { if (alive) setHunts(h) })
+    void fetchHunts(spotRegion).then((h) => { if (alive) setHunts(h) })
     return () => { alive = false }
-  }, [region.id])
+  }, [spotRegion])
   useEffect(() => {
     if (!user) { setMine({ joins: [], progress: [] }); return }
     let alive = true
