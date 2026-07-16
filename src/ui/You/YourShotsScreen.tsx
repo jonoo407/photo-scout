@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { IconChevronLeft, IconCamera } from '@tabler/icons-react'
 import { useAuth } from '../../auth/useAuth'
 import { useSpotsByIds } from '../../state/useRegion'
-import { listAllMyPhotos, type MyPhotoAll } from '../../spots/photos-api'
+import { listAllMyPhotos, sweepMyOrphanPhotos, type MyPhotoAll } from '../../spots/photos-api'
 
 /* Every shot you've uploaded, grouped by spot (the You-tab "Your shots" row).
    Tapping a group heading jumps to the spot page where shots are managed. */
@@ -16,6 +16,9 @@ export default function YourShotsScreen() {
     if (!user) { setPhotos(null); return }
     let alive = true
     listAllMyPhotos().then((p) => { if (alive) setPhotos(p) })
+    // Housekeeping: quietly remove any files from interrupted uploads —
+    // only the user's own session may delete in their storage folder.
+    void sweepMyOrphanPhotos()
     return () => { alive = false }
   }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 

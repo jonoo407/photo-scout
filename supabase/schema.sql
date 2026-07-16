@@ -271,3 +271,28 @@ $$;
 -- Guards integration-tested 2026-07-16 w/ simulated JWTs + rollback:
 -- own-photo/range/unknown rejected; re-rate replaces; award fires exactly
 -- once at 3x avg>=4 (+25); listing returns score 3.813 for 4.33x3.
+
+-- ── Photo quotas + retention (storage management, added 2026-07-16) ─────────
+-- Applied as migrations `photo_quotas_and_retention`, `rate_photo_anonymous_
+-- owner`, `prune_rows_only`. Summary:
+--   photo_quota(points) — per-spot upload allowance by craft points:
+--     2 (Apprentice) / 3 (250+) / 4 (1000+) / 6 (2500+) / 8 (6000+).
+--     Mirrored client-side in src/craft/points.ts photoQuotaForPoints —
+--     keep in lockstep.
+--   photo_quota_gate — BEFORE INSERT trigger on user_photos; rejects over-
+--     quota uploads with a friendly "earn points to raise it" error.
+--   user_photos.owner is now NULLABLE, FK on delete SET NULL; the
+--     prune_photos_on_account_delete trigger (auth.users BEFORE DELETE)
+--     removes the departing user's below-bar photo ROWS (bar: >=3 ratings
+--     avg >=4.0) and keeps good ones as anonymous community shots ("—" in
+--     listings; rate_photo skips the award when owner is null).
+--   "spot photos per-user cap" — RESTRICTIVE storage.objects insert policy:
+--     hard 200-file ceiling per user in spot-photos (raw-storage spam brake).
+-- NOTE: Supabase blocks SQL deletes on storage.objects (Storage API only),
+-- so files are cleaned client-side: uploads compensate on failed row
+-- inserts, and each user's own session sweeps orphans in their folder
+-- (sweepMyOrphanPhotos on the Your-shots screen). Files of DELETED accounts
+-- below the bar remain until a service-key janitor exists (known gap).
+-- Integration-tested 2026-07-16 w/ rollback: quota 2 then 4 after +1000 pts,
+-- fresh per spot; good photo survived account deletion anonymized; pruned
+-- rows gone; anonymous photo ratable without award.

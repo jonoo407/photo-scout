@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router-dom'
 let photos: unknown[] = []
 vi.mock('../../src/spots/photos-api', () => ({
   listAllMyPhotos: async () => photos,
+  sweepMyOrphanPhotos: async () => 0,
 }))
 
 import YourShotsScreen from '../../src/ui/You/YourShotsScreen'

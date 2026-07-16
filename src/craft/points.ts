@@ -30,3 +30,13 @@ export interface PointEvent {
 export function pointsTotal(events: readonly PointEvent[]): number {
   return events.reduce((sum, e) => sum + e.pts, 0)
 }
+
+/** Per-spot photo allowance by craft points — MIRRORS the SQL photo_quota()
+    the server enforces (supabase/schema.sql); keep the maps in lockstep. */
+export function photoQuotaForPoints(points: number): number {
+  if (points >= 6000) return 8 // Master
+  if (points >= 2500) return 6 // Artisan
+  if (points >= 1000) return 4 // Craftsman
+  if (points >= 250) return 3 // Journeyman
+  return 2 // Apprentice
+}

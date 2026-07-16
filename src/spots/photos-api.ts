@@ -27,8 +27,41 @@ export async function uploadSpotPhoto(spotId: string, rawFile: File): Promise<st
   const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, file)
   if (upErr) throw upErr
   const { error: rowErr } = await supabase.from(TABLE).insert({ owner: user.id, spot_id: spotId, path })
-  if (rowErr) throw rowErr
+  if (rowErr) {
+    // The file landed but the tracking row didn't (e.g. quota rejection) —
+    // remove it so nothing orphans, then surface the server's message.
+    await supabase.storage.from(BUCKET).remove([path]).catch(() => {})
+    throw new Error(rowErr.message)
+  }
   return path
+}
+
+/** Delete files in MY folder that have no tracking row (orphans from
+    interrupted uploads). Runs with the user's own permissions — the only
+    identity allowed to delete there. Returns how many were removed. */
+export async function sweepMyOrphanPhotos(): Promise<number> {
+  try {
+    const supabase = await getSupabase()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return 0
+    const tracked = new Set((await listAllMyPhotos()).map((p) => p.path))
+    const store = supabase.storage.from(BUCKET)
+    const { data: folders } = await store.list(user.id)
+    const orphans: string[] = []
+    for (const folder of folders ?? []) {
+      if (folder.id !== null) continue // a stray file at the root — leave it
+      const { data: files } = await store.list(`${user.id}/${folder.name}`)
+      for (const f of files ?? []) {
+        if (f.id === null) continue
+        const path = `${user.id}/${folder.name}/${f.name}`
+        if (!tracked.has(path)) orphans.push(path)
+      }
+    }
+    if (orphans.length > 0) await store.remove(orphans)
+    return orphans.length
+  } catch {
+    return 0
+  }
 }
 
 export async function listMyPhotos(spotId: string): Promise<MyPhoto[]> {

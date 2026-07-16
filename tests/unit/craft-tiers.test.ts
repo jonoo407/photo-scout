@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   TIERS, tierForPoints, tierProgress, type Tier,
 } from '../../src/craft/tiers'
-import { POINT_VALUES, pointsTotal, type PointEvent } from '../../src/craft/points'
+import { POINT_VALUES, pointsTotal, photoQuotaForPoints, type PointEvent } from '../../src/craft/points'
 
 /* The craft ladder (IA redesign 2b): five tiers, escalating medallions,
    thresholds 0 / 250 / 1000 / 2500 / 6000. The ledger itself lives
@@ -70,6 +70,15 @@ describe('point economy', () => {
     expect(POINT_VALUES.referral).toBe(200)
     // Community shots (2026-07-16): a shot rated >=4.0 by >=3 peers.
     expect(POINT_VALUES.topShot).toBe(25)
+  })
+
+  it('grows the per-spot photo quota with points — mirrors the SQL photo_quota map', () => {
+    expect(photoQuotaForPoints(0)).toBe(2)      // Apprentice
+    expect(photoQuotaForPoints(249)).toBe(2)
+    expect(photoQuotaForPoints(250)).toBe(3)    // Journeyman
+    expect(photoQuotaForPoints(1000)).toBe(4)   // Craftsman
+    expect(photoQuotaForPoints(2500)).toBe(6)   // Artisan
+    expect(photoQuotaForPoints(6000)).toBe(8)   // Master
   })
 
   it('sums a ledger', () => {
