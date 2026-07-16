@@ -122,6 +122,25 @@ export default function HuntDetailScreen() {
         </button>
       )}
 
+      {/* Before joining (or signed out), the whole route is browsable — every
+          location tappable to its spot guide (feedback 2026-07-16). Locks
+          only gate SUBMITTING, never looking. */}
+      {(!user || !joined) && !status.finished ? (
+        <div className="card list">
+          {hunt.stops.map((stop, i) => (
+            <button key={i} className="row" onClick={() => nav(`/spot/${stop.spotId}`)}>
+              <span className="rowleft">
+                <span className="thumbicon" style={{ width: 40, height: 40 }}><IconCamera size={16} /></span>
+                <span>
+                  {i + 1} · {stop.name}
+                  {stop.hint && <span className="small tertiary" style={{ display: 'block' }}>{stop.hint}</span>}
+                </span>
+              </span>
+              <span className="val"><IconChevronRight size={14} color="var(--ink-3)" /></span>
+            </button>
+          ))}
+        </div>
+      ) : (
       <div className="card list">
         {hunt.stops.map((stop, i) => {
           const state = stopState(i, status.done)
@@ -178,7 +197,7 @@ export default function HuntDetailScreen() {
             )
           }
           return (
-            <div key={i} className="row" style={state === 'locked' ? { opacity: 0.55 } : undefined}>
+            <button key={i} className="row" style={state === 'locked' ? { opacity: 0.55 } : undefined} onClick={() => nav(`/spot/${stop.spotId}`)}>
               <span className="rowleft">
                 <span className="thumbicon" style={{ width: 40, height: 40 }}><IconLock size={16} /></span>
                 <span>
@@ -188,10 +207,11 @@ export default function HuntDetailScreen() {
                   </span>
                 </span>
               </span>
-            </div>
+            </button>
           )
         })}
       </div>
+      )}
 
       {!open && <p className="center-note" style={{ marginTop: 10 }}>This hunt isn't open right now.</p>}
 

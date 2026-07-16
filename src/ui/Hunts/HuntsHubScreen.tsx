@@ -106,6 +106,7 @@ export default function HuntsHubScreen() {
                   <span className="small tertiary">
                     {hunt.stops.length} stops · up to {maxPoints(hunt)} pts{hunt.closesAt ? ` · ends ${fmtDay(new Date(hunt.closesAt))}` : ''}
                   </span>
+                  <span className="small" style={{ color: 'var(--terracotta)' }}>See the stops <IconChevronRight size={12} style={{ verticalAlign: '-2px' }} /></span>
                 </button>
                 <button className="chip act" style={{ flex: 'none' }} onClick={() => void join(hunt)}>Join</button>
               </div>

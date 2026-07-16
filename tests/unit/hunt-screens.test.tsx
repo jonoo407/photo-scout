@@ -63,7 +63,10 @@ const renderHub = () => render(<MemoryRouter><HuntsHubScreen /></MemoryRouter>)
 const renderDetail = (id = TOUR.id) =>
   render(
     <MemoryRouter initialEntries={[`/hunts/${id}`]}>
-      <Routes><Route path="/hunts/:id" element={<HuntDetailScreen />} /></Routes>
+      <Routes>
+        <Route path="/hunts/:id" element={<HuntDetailScreen />} />
+        <Route path="/spot/:id" element={<div data-testid="spot-page">spot</div>} />
+      </Routes>
     </MemoryRouter>,
   )
 
@@ -178,6 +181,19 @@ describe('Hunt detail (2d)', () => {
     const input = document.querySelector('input[type="file"]') as HTMLInputElement
     fireEvent.change(input, { target: { files: [new File(['x'], 'shot.jpg', { type: 'image/jpeg' })] } })
     expect(await screen.findByText(/too far from the stop/)).toBeInTheDocument()
+  })
+
+  it('previews every location BEFORE joining, each tappable to its spot guide (feedback 2026-07-16)', async () => {
+    const user = userEvent.setup()
+    // Signed in but NOT joined: the full route is browsable, nothing reads locked.
+    renderDetail()
+    expect(await screen.findByRole('heading', { name: 'Golden Hour Grand Tour' })).toBeInTheDocument()
+    for (const stop of TOUR.stops) expect(screen.getByText(new RegExp(stop.name))).toBeInTheDocument()
+    expect(screen.getByText('From the balustrade.')).toBeInTheDocument() // hints sell the route
+    expect(screen.queryByText(/unlocks after/i)).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /join this hunt/i })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /Bayshore Boulevard/ }))
+    expect(await screen.findByTestId('spot-page')).toBeInTheDocument()
   })
 
   it('asks guests to sign in before hunting', async () => {

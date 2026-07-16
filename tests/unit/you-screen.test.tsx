@@ -1,8 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, useLocation } from 'react-router-dom'
 import type { PointEvent } from '../../src/craft/points'
+
+function LocationProbe() {
+  const loc = useLocation()
+  return <div data-testid="loc">{loc.pathname}</div>
+}
 
 /* Points come from the server ledger (B11) — mocked here. */
 let serverEvents: PointEvent[] = []
@@ -123,12 +128,26 @@ describe('You — stats and carried-over Saved pieces', () => {
     expect(screen.getByRole('button', { name: /browse all hunts/i })).toBeInTheDocument()
   })
 
-  it('links to Saved spots and Settings; account-only rows stay hidden without auth', () => {
+  it('stats tiles ARE the navigation — no duplicate rows below (feedback 2026-07-16)', async () => {
+    const user = userEvent.setup()
     useStore.setState({ wishlist: ['bayshore-boulevard'] })
-    renderYou()
-    expect(screen.getByRole('button', { name: /saved spots/i })).toBeInTheDocument()
+    render(
+      <MemoryRouter initialEntries={['/you']}>
+        <YouScreen />
+        <LocationProbe />
+      </MemoryRouter>,
+    )
+    // The three tiles are buttons…
+    await user.click(screen.getByRole('button', { name: /1 saved/i }))
+    expect(screen.getByTestId('loc').textContent).toBe('/you/saved')
+    await user.click(screen.getByRole('button', { name: /0 been there/i }))
+    expect(screen.getByTestId('loc').textContent).toBe('/you/saved')
+    await user.click(screen.getByRole('button', { name: /shots/i }))
+    expect(screen.getByTestId('loc').textContent).toBe('/you/shots')
+    // …and the old duplicate rows are gone; Settings stays.
+    expect(screen.queryByRole('button', { name: /saved spots/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /your shots/i })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: /settings/i })).toBeInTheDocument()
-    expect(screen.queryByText(/client work/i)).not.toBeInTheDocument()
-    expect(screen.queryByText(/your shots/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/client work/i)).not.toBeInTheDocument() // still auth-gated
   })
 })

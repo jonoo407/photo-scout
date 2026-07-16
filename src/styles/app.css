@@ -248,3 +248,7 @@ button.row, button.linkrow { appearance: none; background: var(--surface); curso
 .chiprow { display: flex; gap: 6px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
 .chiprow::-webkit-scrollbar { display: none; }
 .chiprow .chip { flex: none; white-space: nowrap; }
+
+/* You-tab stat tiles are buttons (feedback 2026-07-16) */
+button.stat { appearance: none; border: 0; cursor: pointer; font: inherit; color: inherit; }
+button.stat:active { transform: scale(0.98); }

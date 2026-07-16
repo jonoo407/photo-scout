@@ -116,10 +116,18 @@ export default function YouScreen() {
         <Chevron />
       </button>
 
+      {/* The tiles ARE the navigation (feedback 2026-07-16) — no duplicate
+          "Saved spots" / "Your shots" rows below. */}
       <section aria-label="Your numbers" className="stats" style={{ marginTop: 10 }}>
-        <div className="stat"><p className="sv">{wishlist.length}</p><p className="sl">Saved</p></div>
-        <div className="stat"><p className="sv">{visited.length}</p><p className="sl">Been there</p></div>
-        <div className="stat"><p className="sv">{user && shots ? shots.length : '—'}</p><p className="sl">Shots</p></div>
+        <button className="stat" onClick={() => nav('/you/saved')}>
+          <p className="sv">{wishlist.length}</p><p className="sl">Saved</p>
+        </button>
+        <button className="stat" onClick={() => nav('/you/saved')}>
+          <p className="sv">{visited.length}</p><p className="sl">Been there</p>
+        </button>
+        <button className="stat" onClick={() => nav('/you/shots')}>
+          <p className="sv">{user && shots ? shots.length : '—'}</p><p className="sl">Shots</p>
+        </button>
       </section>
 
       {progress.length > 0 && visited.length > 0 && (
@@ -160,16 +168,6 @@ export default function YouScreen() {
       )}
 
       <div className="card list" style={{ marginTop: 14 }}>
-        {user && (
-          <button className="row" onClick={() => nav('/you/shots')}>
-            <span className="rowleft">Your shots</span>
-            <span className="val small">{shots ? shots.length : ''} <Chevron /></span>
-          </button>
-        )}
-        <button className="row" onClick={() => nav('/you/saved')}>
-          <span className="rowleft">Saved spots</span>
-          <span className="val small">{wishlist.length} <Chevron /></span>
-        </button>
         <button className="row" onClick={() => nav('/settings')}>
           <span className="rowleft">Settings</span>
           <span className="val"><Chevron /></span>
