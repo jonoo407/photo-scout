@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { IconChevronLeft, IconCheck, IconLock, IconCamera, IconCameraPlus, IconChevronRight } from '@tabler/icons-react'
+import { IconChevronLeft, IconCheck, IconCamera, IconCameraPlus, IconChevronRight } from '@tabler/icons-react'
 import { useAuth } from '../../auth/useAuth'
 import { authAvailable } from '../../auth/supabase'
+import { useSpotsByIds } from '../../state/useRegion'
+import type { Spot } from '../../spots/types'
 import {
   fetchHuntById, fetchMyHuntState, joinHunt, submitHuntStop,
 } from '../../hunts/hunts-api'
@@ -11,6 +13,21 @@ import { uploadSpotPhoto, spotPhotoUrl } from '../../spots/photos-api'
 import { getPosition } from '../../hunts/geo'
 import { fmtDay } from '../../util/format'
 import HuntCompleteSheet from './HuntCompleteSheet'
+
+/* A stop's thumbnail is a photo of the LOCATION (feedback 2026-07-16), from
+   the spot catalog — the same image SpotCard leads with. Dead URLs degrade
+   to the camera glyph, never the browser's broken-image icon. */
+function StopThumb({ spot }: { spot?: Spot }) {
+  const [imgFailed, setImgFailed] = useState(false)
+  const photo = imgFailed ? undefined : spot?.media[0]?.thumb ?? spot?.media[0]?.src
+  return (
+    <span className="thumbicon" style={{ width: 40, height: 40 }} aria-hidden>
+      {photo
+        ? <img src={photo} alt="" loading="lazy" decoding="async" onError={() => setImgFailed(true)} />
+        : <IconCamera size={16} />}
+    </span>
+  )
+}
 
 /* Hunt detail (handoff 2d): done stops with their proof shots, the next stop
    with a Submit-a-shot flow (upload → locate → server-validated RPC), and
@@ -27,6 +44,8 @@ export default function HuntDetailScreen() {
   const [finishedTotal, setFinishedTotal] = useState<number | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const now = useMemo(() => new Date(), [])
+  // Location photos for the stop rows, from whichever city this hunt lives in.
+  const { byId: spotsById } = useSpotsByIds(typeof hunt === 'object' && hunt ? hunt.stops.map((s) => s.spotId) : [])
 
   useEffect(() => {
     if (!id) return
@@ -130,7 +149,7 @@ export default function HuntDetailScreen() {
           {hunt.stops.map((stop, i) => (
             <button key={i} className="row" onClick={() => nav(`/spot/${stop.spotId}`)}>
               <span className="rowleft">
-                <span className="thumbicon" style={{ width: 40, height: 40 }}><IconCamera size={16} /></span>
+                <StopThumb spot={spotsById.get(stop.spotId)} />
                 <span>
                   {i + 1} · {stop.name}
                   {stop.hint && <span className="small tertiary" style={{ display: 'block' }}>{stop.hint}</span>}
@@ -199,7 +218,7 @@ export default function HuntDetailScreen() {
           return (
             <button key={i} className="row" style={state === 'locked' ? { opacity: 0.55 } : undefined} onClick={() => nav(`/spot/${stop.spotId}`)}>
               <span className="rowleft">
-                <span className="thumbicon" style={{ width: 40, height: 40 }}><IconLock size={16} /></span>
+                <StopThumb spot={spotsById.get(stop.spotId)} />
                 <span>
                   {i + 1} · {stop.name}
                   <span className="small tertiary" style={{ display: 'block' }}>

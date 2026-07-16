@@ -192,6 +192,11 @@ describe('Hunt detail (2d)', () => {
     expect(screen.getByText('From the balustrade.')).toBeInTheDocument() // hints sell the route
     expect(screen.queryByText(/unlocks after/i)).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: /join this hunt/i })).toBeInTheDocument()
+    // Each stop row shows a photo of the location, not a placeholder icon
+    // (feedback 2026-07-16) — thumbs come from the real spot catalog.
+    const thumbs = document.querySelectorAll('.card.list .thumbicon img')
+    expect(thumbs.length).toBe(TOUR.stops.length)
+    for (const img of thumbs) expect((img as HTMLImageElement).src).toMatch(/^https?:\/\//)
     await user.click(screen.getByRole('button', { name: /Bayshore Boulevard/ }))
     expect(await screen.findByTestId('spot-page')).toBeInTheDocument()
   })
