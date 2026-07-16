@@ -1,12 +1,19 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
+import type { PointEvent } from '../../src/craft/points'
+
+/* Points come from the server ledger (B11) — mocked here. */
+let serverEvents: PointEvent[] = []
+vi.mock('../../src/craft/points-api', () => ({
+  fetchMyPointEvents: async () => serverEvents,
+}))
+
 import YouScreen, { initialsFromEmail } from '../../src/ui/You/YouScreen'
 import { useStore, EMPTY_FILTERS } from '../../src/state/store'
 import { useAuth } from '../../src/auth/useAuth'
 import { DEFAULT_HOME } from '../../src/data/home.config'
-import type { PointEvent } from '../../src/craft/points'
 
 /* The You tab (IA redesign 1h + 2a): identity space — medallion card over
    stats over client work over the ledger rows. Auth is NOT configured in
@@ -16,9 +23,10 @@ const ev = (id: string, pts: number): PointEvent =>
   ({ id, at: '2026-07-15T00:00:00.000Z', reason: 'huntStop', pts })
 
 beforeEach(() => {
+  serverEvents = []
   useStore.setState({
     home: DEFAULT_HOME, region: 'tampa-bay', filters: EMPTY_FILTERS,
-    wishlist: [], visited: [], checklist: {}, pointEvents: [],
+    wishlist: [], visited: [], checklist: {},
     listsSeenAt: null, newClientResponse: false,
   })
   useAuth.setState({ user: null, status: 'idle', errorMsg: null })
@@ -49,12 +57,20 @@ describe('You — medallion card and ladder', () => {
     expect(within(sheet).getByText('Master')).toBeInTheDocument()
   })
 
-  it('climbs the ladder as ledger points land', () => {
-    useStore.setState({ pointEvents: [ev('a', 200), ev('b', 200)] })
+  it('climbs the ladder as server-ledger points land', async () => {
+    serverEvents = [ev('a', 200), ev('b', 200)]
+    useAuth.setState({ user: { id: 'u1', email: 'sam.rivera@example.com' }, status: 'ready', errorMsg: null })
     renderYou()
     const card = screen.getByRole('button', { name: /craft level/i })
-    expect(within(card).getByText('Journeyman')).toBeInTheDocument()
+    expect(await within(card).findByText('Journeyman')).toBeInTheDocument()
     expect(within(card).getByText(/400 pts/)).toBeInTheDocument()
+  })
+
+  it('guests always read as Apprentice — the server ledger is not fetched signed out', () => {
+    serverEvents = [ev('a', 5000)]
+    renderYou()
+    const card = screen.getByRole('button', { name: /craft level/i })
+    expect(within(card).getByText('Apprentice')).toBeInTheDocument()
   })
 })
 

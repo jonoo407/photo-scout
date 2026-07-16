@@ -1,7 +1,6 @@
 import type { HomeLocation } from '../data/home.config'
 import type { RegionId } from '../data/regions'
 import type { ThemeChoice, SavedPlan } from '../state/store'
-import type { PointEvent } from '../craft/points'
 
 /* The slice of app state that follows a signed-in user across devices.
    Transient UI (filters, sheets) stays local by design. */
@@ -13,8 +12,6 @@ export interface SyncedState {
   spotNotes?: Record<string, string>
   /** Saved day plans. Older synced rows predate this field. */
   savedPlans?: SavedPlan[]
-  /** Craft-point ledger. Older synced rows predate this field. */
-  pointEvents?: PointEvent[]
   home: HomeLocation
   region: RegionId
   units: 'imperial' | 'metric'
@@ -48,12 +45,10 @@ export function mergeState(local: SyncedState, remote: SyncedState | null): Sync
       ...(local.savedPlans ?? []),
       ...(remote.savedPlans ?? []).filter((r) => !(local.savedPlans ?? []).some((l) => l.id === r.id)),
     ].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
-    // Point ledger unions by id (append-only; totals are derived, so a merge
-    // can never double-count). Chronological for a readable feed.
-    pointEvents: [
-      ...(local.pointEvents ?? []),
-      ...(remote.pointEvents ?? []).filter((r) => !(local.pointEvents ?? []).some((l) => l.id === r.id)),
-    ].sort((a, b) => a.at.localeCompare(b.at)),
+    // (2026-07-15) The short-lived client-side pointEvents ledger is gone:
+    // points moved server-side (point_events table, RPC-minted) before any
+    // client ever earned one. Stray pointEvents in old synced rows are
+    // simply dropped by this slice.
     home: remote.home,
     region: remote.region,
     units: remote.units,
@@ -70,7 +65,6 @@ export function syncableSlice(s: SyncedState): SyncedState {
     checklist: s.checklist,
     spotNotes: s.spotNotes ?? {},
     savedPlans: s.savedPlans ?? [],
-    pointEvents: s.pointEvents ?? [],
     home: s.home,
     region: s.region,
     units: s.units,

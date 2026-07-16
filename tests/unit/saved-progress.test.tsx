@@ -15,7 +15,7 @@ function renderYou() {
 beforeEach(() => {
   useStore.setState({
     home: DEFAULT_HOME, region: 'tampa-bay',
-    wishlist: [], visited: [], checklist: {}, pointEvents: [],
+    wishlist: [], visited: [], checklist: {},
   })
   useAuth.setState({ user: null, status: 'idle', errorMsg: null })
 })

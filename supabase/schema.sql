@@ -230,3 +230,24 @@ stable
 as $$
   select city, count(*) as votes from city_votes group by city order by votes desc;
 $$;
+
+-- ── Photo hunts (B14 / handoff 2c-2d) + server-minted points (B11) ──────────
+-- Applied as migration `photo_hunts_and_server_points` via the Supabase MCP
+-- (2026-07-15). Full definition lives in the migration; summary:
+--   point_events  — append-only ledger; RLS select-own; NO client insert
+--                   (only definer RPCs write); unique (owner, reason, ref).
+--   hunts         — public-read content; stops jsonb [{spotId,name,lat,lng,
+--                   hint}] with coords duplicated from the catalog so the
+--                   server can enforce geo (150 m tolerance absorbs fixes).
+--   hunt_joins    — own-row (joining is free, no validation needed).
+--   hunt_progress — RLS select-own; written only by submit_hunt_stop().
+--   submit_hunt_stop(hunt, stop, photo_path, lat, lng) — security definer;
+--     validates auth, open window, strict stop order, photo proof (own
+--     user_photos row at the stop's spot), and the 150 m haversine rule;
+--     awards stop_pts (+finish_pts on the last stop) idempotently; returns
+--     {done,total,finished,awarded,totalPts}. Execute: authenticated only.
+-- Seeded hunts: golden-hour-grand-tour (tampa-bay), old-city-evening-walk
+-- (philadelphia) — evergreen (opens_at/closes_at null).
+-- Guards integration-tested 2026-07-15 with simulated JWT claims + rollback:
+-- unknown hunt / order / photo proof / 21 km geo / duplicate all rejected;
+-- valid submit returned awarded=25.

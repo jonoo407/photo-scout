@@ -69,7 +69,7 @@ describe('syncableSlice', () => {
       setHome: () => {},
     } as never)
     expect(Object.keys(slice).sort()).toEqual(
-      ['checklist', 'home', 'mapsApp', 'pointEvents', 'region', 'savedPlans', 'spotNotes', 'theme', 'units', 'visited', 'wishlist'],
+      ['checklist', 'home', 'mapsApp', 'region', 'savedPlans', 'spotNotes', 'theme', 'units', 'visited', 'wishlist'],
     )
   })
 })

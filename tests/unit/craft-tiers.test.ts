@@ -3,12 +3,10 @@ import {
   TIERS, tierForPoints, tierProgress, type Tier,
 } from '../../src/craft/tiers'
 import { POINT_VALUES, pointsTotal, type PointEvent } from '../../src/craft/points'
-import { useStore } from '../../src/state/store'
-import { mergeState, syncableSlice, type SyncedState } from '../../src/auth/sync-merge'
-import { DEFAULT_HOME } from '../../src/data/home.config'
 
 /* The craft ladder (IA redesign 2b): five tiers, escalating medallions,
-   thresholds 0 / 250 / 1000 / 2500 / 6000. Points land from a synced ledger. */
+   thresholds 0 / 250 / 1000 / 2500 / 6000. The ledger itself lives
+   server-side (point_events, RPC-minted — see points-api tests). */
 
 describe('craft tiers', () => {
   it('defines the five-tier ladder in order with the approved thresholds', () => {
@@ -80,50 +78,3 @@ describe('point economy', () => {
   })
 })
 
-describe('store point ledger', () => {
-  it('awardPoints appends a well-formed event', () => {
-    useStore.setState({ pointEvents: [] })
-    useStore.getState().awardPoints('huntStop')
-    useStore.getState().awardPoints('referral')
-    const events = useStore.getState().pointEvents
-    expect(events).toHaveLength(2)
-    expect(events[0].reason).toBe('huntStop')
-    expect(events[0].pts).toBe(25)
-    expect(events[1].pts).toBe(200)
-    expect(events[0].id).toBeTruthy()
-    expect(events[0].id).not.toBe(events[1].id)
-    expect(Number.isNaN(Date.parse(events[0].at))).toBe(false)
-    expect(pointsTotal(events)).toBe(225)
-  })
-})
-
-describe('sync merges the point ledger', () => {
-  const base: SyncedState = {
-    wishlist: [], visited: [], checklist: {}, spotNotes: {}, savedPlans: [],
-    pointEvents: [],
-    home: DEFAULT_HOME, region: 'tampa-bay', units: 'imperial', mapsApp: 'apple', theme: 'auto',
-  }
-  const ev = (id: string, at: string, pts = 25): PointEvent => ({ id, at, reason: 'huntStop', pts })
-
-  it('unions events by id so no device ever loses points', () => {
-    const local = { ...base, pointEvents: [ev('a', '2026-07-01T00:00:00Z'), ev('b', '2026-07-03T00:00:00Z')] }
-    const remote = { ...base, pointEvents: [ev('b', '2026-07-03T00:00:00Z'), ev('c', '2026-07-02T00:00:00Z')] }
-    const merged = mergeState(local, remote)
-    expect((merged.pointEvents ?? []).map((e) => e.id).sort()).toEqual(['a', 'b', 'c'])
-    expect(pointsTotal(merged.pointEvents ?? [])).toBe(75)
-  })
-
-  it('tolerates remote rows that predate the ledger field', () => {
-    const local = { ...base, pointEvents: [ev('a', '2026-07-01T00:00:00Z')] }
-    const remote = { ...base } as SyncedState & { pointEvents?: PointEvent[] }
-    delete remote.pointEvents
-    const merged = mergeState(local, remote)
-    expect((merged.pointEvents ?? []).map((e) => e.id)).toEqual(['a'])
-  })
-
-  it('includes the ledger in the pushed slice', () => {
-    useStore.setState({ pointEvents: [ev('x', '2026-07-10T00:00:00Z')] })
-    const slice = syncableSlice(useStore.getState())
-    expect((slice.pointEvents ?? []).map((e) => e.id)).toEqual(['x'])
-  })
-})

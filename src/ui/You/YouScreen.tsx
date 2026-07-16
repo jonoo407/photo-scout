@@ -4,7 +4,8 @@ import { IconChevronRight, IconUser } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
 import { useAuth } from '../../auth/useAuth'
 import { authAvailable } from '../../auth/supabase'
-import { pointsTotal } from '../../craft/points'
+import { pointsTotal, type PointEvent } from '../../craft/points'
+import { fetchMyPointEvents } from '../../craft/points-api'
 import { tierProgress } from '../../craft/tiers'
 import { savedProgress } from '../../spots/progress'
 import { listAllMyPhotos, type MyPhotoAll } from '../../spots/photos-api'
@@ -31,7 +32,7 @@ export default function YouScreen() {
   const user = useAuth((s) => s.user)
   const wishlist = useStore((s) => s.wishlist)
   const visited = useStore((s) => s.visited)
-  const pointEvents = useStore((s) => s.pointEvents)
+  const [pointEvents, setPointEvents] = useState<PointEvent[]>([])
   const [ladderOpen, setLadderOpen] = useState(false)
   const [shots, setShots] = useState<MyPhotoAll[] | null>(null)
 
@@ -40,9 +41,11 @@ export default function YouScreen() {
   const progress = savedProgress(visited)
 
   useEffect(() => {
-    if (!user) { setShots(null); return }
+    if (!user) { setShots(null); setPointEvents([]); return }
     let alive = true
     listAllMyPhotos().then((p) => { if (alive) setShots(p) })
+    // Points live server-side (B11): minted only by validated RPCs.
+    fetchMyPointEvents().then((ev) => { if (alive) setPointEvents(ev) })
     return () => { alive = false }
   }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
