@@ -7,6 +7,7 @@ import {
   IconChevronDown, IconChevronUp,
 } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
+import { useAuth } from '../../auth/useAuth'
 import { useRegion, useRegionSpots } from '../../state/useRegion'
 import { nextUp, type RankedSpot } from '../../spots/next-up'
 import { computeSunTimes } from '../../astro/sun-times'
@@ -60,6 +61,8 @@ export default function TodayScreen() {
   const setFilters = useStore((s) => s.setFilters)
   const sunTableCollapsed = useStore((s) => s.sunTableCollapsed)
   const toggleSunTable = useStore((s) => s.toggleSunTable)
+  const linkError = useAuth((s) => s.linkError)
+  const dismissLinkError = useAuth((s) => s.dismissLinkError)
   const moon = moonInfo(now, home.lat, home.lng)
   const sun = computeSunTimes(now, home.lat, home.lng)
 
@@ -95,6 +98,25 @@ export default function TodayScreen() {
       </div>
 
       <IntroCard />
+
+      {/* A failed email sign-in link must be visible, not a silent guest
+          state (incident 2026-07-16). Email links land on Today. */}
+      {linkError && (
+        <div className="alert" style={{ background: 'var(--skip-bg)', color: 'var(--skip-ink)' }}>
+          <IconBellRinging size={20} style={{ flex: 'none' }} />
+          <div style={{ flex: 1 }}>
+            <p className="at">Sign-in link problem</p>
+            <p className="as">{linkError}</p>
+          </div>
+          <button
+            aria-label="Dismiss"
+            onClick={dismissLinkError}
+            style={{ border: 0, background: 'none', cursor: 'pointer', color: 'inherit', padding: 4 }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {sScore !== null && sScore >= 80 && eveningSunset && top[0] && (
         <button className="alert" style={{ border: 0, cursor: 'pointer', width: '100%' }} onClick={() => nav(`/spot/${top[0].spot.id}`)}>

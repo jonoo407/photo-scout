@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { authAvailable, getSupabase } from './supabase'
 import { startSync, stopSync, pullAndMerge } from './sync'
+import { consumeEmailLink } from './email-link'
 
 export interface AuthUser {
   id: string
@@ -12,9 +13,12 @@ interface AuthState {
   /** idle = not configured or not started; ready = listening; sent = magic link emailed */
   status: 'idle' | 'ready' | 'sending' | 'sent' | 'error'
   errorMsg: string | null
+  /** A sign-in link from an email failed (expired/used) — shown on Today. */
+  linkError: string | null
   signInWithEmail: (email: string) => Promise<void>
   signInWithGoogle: () => Promise<void>
   signOut: () => Promise<void>
+  dismissLinkError: () => void
 }
 
 /* Session auth state (not persisted by us — supabase-js keeps its own session
@@ -23,6 +27,8 @@ export const useAuth = create<AuthState>((set) => ({
   user: null,
   status: 'idle',
   errorMsg: null,
+  linkError: null,
+  dismissLinkError: () => set({ linkError: null }),
 
   signInWithEmail: async (email: string) => {
     set({ status: 'sending', errorMsg: null })
@@ -79,9 +85,16 @@ export async function initAuth(): Promise<void> {
       useAuth.setState({ user: null, status: 'ready' })
       stopSync()
     }
-    // Tidy the one-time ?code= from the magic-link redirect off the URL.
+    // Tidy the one-time ?code= from an OAuth redirect off the URL.
     if (window.location.search.includes('code=')) {
       window.history.replaceState(null, '', window.location.pathname + window.location.hash)
     }
   })
+
+  // Email links land here with ?token_hash= (see email-link.ts) — verify it
+  // in THIS browser, whatever browser that is. Failures surface on Today.
+  const result = await consumeEmailLink(() => Promise.resolve(supabase))
+  if (result !== 'none' && result !== 'signed-in') {
+    useAuth.setState({ linkError: result.error })
+  }
 }
