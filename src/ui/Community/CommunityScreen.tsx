@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { IconShare2 } from '@tabler/icons-react'
+import { IconShare2, IconCamera, IconChevronRight } from '@tabler/icons-react'
 import { useAuth } from '../../auth/useAuth'
 import { authAvailable } from '../../auth/supabase'
 import { useRegion } from '../../state/useRegion'
@@ -120,6 +120,13 @@ export default function CommunityScreen() {
           </div>
         )}
       </div>
+
+      <button className="linkrow" style={{ marginTop: 14 }} onClick={() => nav('/hunts')}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+          <IconCamera size={16} color="var(--terracotta)" /> Photo hunts — earn points on a shoot crawl
+        </span>
+        <IconChevronRight size={16} color="var(--ink-3)" />
+      </button>
 
       <p className="shdr">COMING TO THIS TAB</p>
       <div className="card list" style={{ opacity: 0.75 }}>

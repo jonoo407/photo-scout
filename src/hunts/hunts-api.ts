@@ -30,6 +30,26 @@ export async function fetchHunts(region: string): Promise<Hunt[]> {
   }
 }
 
+export async function fetchHuntById(id: string): Promise<Hunt | null> {
+  try {
+    const supabase = await getSupabase()
+    const { data, error } = await supabase
+      .from('hunts')
+      .select('id, region, title, blurb, stops, stop_pts, finish_pts, opens_at, closes_at')
+      .eq('id', id)
+      .maybeSingle()
+    if (error || !data) return null
+    const r = data as HuntRow
+    return {
+      id: r.id, region: r.region, title: r.title, blurb: r.blurb,
+      stops: r.stops, stopPts: r.stop_pts, finishPts: r.finish_pts,
+      opensAt: r.opens_at, closesAt: r.closes_at,
+    }
+  } catch {
+    return null
+  }
+}
+
 export interface MyHuntState {
   /** Hunt ids the user joined. */
   joins: string[]

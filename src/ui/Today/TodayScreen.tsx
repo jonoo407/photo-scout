@@ -191,7 +191,7 @@ export default function TodayScreen() {
         {sunTableCollapsed ? <IconChevronDown size={15} /> : <IconChevronUp size={15} />}
       </button>
       {!sunTableCollapsed && (
-        <div className="card list">
+        <section aria-label="Sun and moon times" className="card list">
           {sunRows.map(([icon, label, time]) => (
             <div key={label} className="row">
               <span className="rowleft">{icon} {label}</span>
@@ -202,7 +202,7 @@ export default function TodayScreen() {
             <span className="rowleft"><IconMoon size={18} color="var(--amber)" /> <span>Moon {moon.illumination}% · {moon.phaseName}</span></span>
             <span className="muted nowrap">Rise {fmtTime(moon.rise, tz)} · Set {fmtTime(moon.set, tz)}</span>
           </div>
-        </div>
+        </section>
       )}
     </div>
   )

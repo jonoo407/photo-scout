@@ -72,6 +72,12 @@ export async function listAllMyPhotos(): Promise<MyPhotoAll[]> {
   }
 }
 
+/** Public URL for a stored shot (the bucket is public) — hunt proof thumbs. */
+export async function spotPhotoUrl(path: string): Promise<string> {
+  const supabase = await getSupabase()
+  return supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl
+}
+
 export async function deleteSpotPhoto(id: string, path: string): Promise<void> {
   const supabase = await getSupabase()
   await supabase.storage.from(BUCKET).remove([path])

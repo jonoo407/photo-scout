@@ -10,6 +10,15 @@ vi.mock('../../src/craft/points-api', () => ({
   fetchMyPointEvents: async () => serverEvents,
 }))
 
+/* Hunts are DB content — mocked. */
+let hunts: Array<Record<string, unknown>> = []
+let joins: string[] = []
+let progress: Array<{ huntId: string; stopIndex: number; photoPath: string; createdAt: string }> = []
+vi.mock('../../src/hunts/hunts-api', () => ({
+  fetchHunts: async () => hunts,
+  fetchMyHuntState: async () => ({ joins, progress }),
+}))
+
 import YouScreen, { initialsFromEmail } from '../../src/ui/You/YouScreen'
 import { useStore, EMPTY_FILTERS } from '../../src/state/store'
 import { useAuth } from '../../src/auth/useAuth'
@@ -24,6 +33,9 @@ const ev = (id: string, pts: number): PointEvent =>
 
 beforeEach(() => {
   serverEvents = []
+  hunts = []
+  joins = []
+  progress = []
   useStore.setState({
     home: DEFAULT_HOME, region: 'tampa-bay', filters: EMPTY_FILTERS,
     wishlist: [], visited: [], checklist: {},
@@ -88,6 +100,27 @@ describe('You — stats and carried-over Saved pieces', () => {
     renderYou()
     const strip = screen.getByRole('region', { name: /shot progress/i })
     expect(within(strip).getByText('Tampa Bay')).toBeInTheDocument()
+  })
+
+  it('always offers the hunts hub, and surfaces an active hunt with its progress', async () => {
+    // Guest: just the browse entry.
+    const guest = renderYou()
+    expect(screen.getByRole('button', { name: /photo hunts/i })).toBeInTheDocument()
+    guest.unmount()
+
+    // Signed in with an active hunt: named row + progress.
+    hunts = [{
+      id: 'golden-hour-grand-tour', region: 'tampa-bay', title: 'Golden Hour Grand Tour', blurb: null,
+      stops: [{ spotId: 'a', name: 'A', lat: 0, lng: 0 }, { spotId: 'b', name: 'B', lat: 0, lng: 0 }, { spotId: 'c', name: 'C', lat: 0, lng: 0 }],
+      stopPts: 25, finishPts: 100, opensAt: null, closesAt: null,
+    }]
+    joins = ['golden-hour-grand-tour']
+    progress = [{ huntId: 'golden-hour-grand-tour', stopIndex: 0, photoPath: 'p', createdAt: '2026-07-15T00:00:00Z' }]
+    useAuth.setState({ user: { id: 'u1', email: 'jon@example.com' }, status: 'ready', errorMsg: null })
+    renderYou()
+    expect(await screen.findByText(/Golden Hour Grand Tour — active/)).toBeInTheDocument()
+    expect(screen.getByText(/1 of 3 stops/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /browse all hunts/i })).toBeInTheDocument()
   })
 
   it('links to Saved spots and Settings; account-only rows stay hidden without auth', () => {

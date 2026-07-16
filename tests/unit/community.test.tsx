@@ -95,4 +95,9 @@ describe('Community — coming to this tab', () => {
     expect(screen.getByText('Photo critiques')).toBeInTheDocument()
     expect(screen.getAllByText('soon')).toHaveLength(2)
   })
+
+  it('links the photo-hunts hub (discovery surface)', async () => {
+    renderCommunity()
+    expect(await screen.findByRole('button', { name: /photo hunts/i })).toBeInTheDocument()
+  })
 })

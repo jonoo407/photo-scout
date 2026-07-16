@@ -14,6 +14,8 @@ import YouScreen from './ui/You/YouScreen'
 import YourShotsScreen from './ui/You/YourShotsScreen'
 import SavedScreen from './ui/Saved/SavedScreen'
 import CommunityScreen from './ui/Community/CommunityScreen'
+import HuntsHubScreen from './ui/Hunts/HuntsHubScreen'
+import HuntDetailScreen from './ui/Hunts/HuntDetailScreen'
 import ClientListScreen from './ui/ClientList/ClientListScreen'
 import SuggestScreen from './ui/Suggest/SuggestScreen'
 
@@ -31,6 +33,8 @@ export const routes: RouteObject[] = [
       { path: '/you/saved', element: <SavedScreen /> },
       { path: '/you/shots', element: <YourShotsScreen /> },
       { path: '/community', element: <CommunityScreen /> },
+      { path: '/hunts', element: <HuntsHubScreen /> },
+      { path: '/hunts/:id', element: <HuntDetailScreen /> },
       { path: '/spot/:id', element: <SpotDetailScreen /> },
       { path: '/suggest', element: <SuggestScreen /> },
       { path: '/settings', element: <SettingsScreen /> },

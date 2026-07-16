@@ -9,6 +9,8 @@ import { fetchMyPointEvents } from '../../craft/points-api'
 import { tierProgress } from '../../craft/tiers'
 import { savedProgress } from '../../spots/progress'
 import { listAllMyPhotos, type MyPhotoAll } from '../../spots/photos-api'
+import { fetchHunts, fetchMyHuntState, type MyHuntState } from '../../hunts/hunts-api'
+import { huntStatus, isOpen, type Hunt } from '../../hunts/hunts'
 import { Medallion } from './Medallion'
 import LadderSheet from './LadderSheet'
 import ClientLists from './ClientLists'
@@ -32,22 +34,37 @@ export default function YouScreen() {
   const user = useAuth((s) => s.user)
   const wishlist = useStore((s) => s.wishlist)
   const visited = useStore((s) => s.visited)
+  const region = useStore((s) => s.region)
   const [pointEvents, setPointEvents] = useState<PointEvent[]>([])
   const [ladderOpen, setLadderOpen] = useState(false)
   const [shots, setShots] = useState<MyPhotoAll[] | null>(null)
+  const [hunts, setHunts] = useState<Hunt[]>([])
+  const [huntState, setHuntState] = useState<MyHuntState>({ joins: [], progress: [] })
 
   const points = pointsTotal(pointEvents)
   const { tier, next, ptsToNext, fraction } = tierProgress(points)
   const progress = savedProgress(visited)
 
   useEffect(() => {
-    if (!user) { setShots(null); setPointEvents([]); return }
+    if (!user) { setShots(null); setPointEvents([]); setHuntState({ joins: [], progress: [] }); return }
     let alive = true
     listAllMyPhotos().then((p) => { if (alive) setShots(p) })
     // Points live server-side (B11): minted only by validated RPCs.
     fetchMyPointEvents().then((ev) => { if (alive) setPointEvents(ev) })
+    fetchMyHuntState().then((s) => { if (alive) setHuntState(s) })
     return () => { alive = false }
   }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!user) return
+    let alive = true
+    fetchHunts(region).then((h) => { if (alive) setHunts(h) })
+    return () => { alive = false }
+  }, [region, user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const now = new Date()
+  const activeHunts = hunts
+    .map((h) => ({ hunt: h, status: huntStatus(h, huntState.progress.filter((p) => p.huntId === h.id)) }))
+    .filter(({ hunt, status }) => huntState.joins.includes(hunt.id) && !status.finished && isOpen(hunt, now))
 
   return (
     <div className="screen">
@@ -120,6 +137,27 @@ export default function YouScreen() {
       )}
 
       {user && <ClientLists />}
+
+      {user ? (
+        <>
+          <p className="shdr">PHOTO HUNTS</p>
+          {activeHunts.map(({ hunt, status }) => (
+            <button key={hunt.id} className="linkrow" style={{ marginBottom: 8 }} onClick={() => nav(`/hunts/${hunt.id}`)}>
+              <span>{hunt.title} — active</span>
+              <span className="val small">{status.done} of {status.total} stops <Chevron /></span>
+            </button>
+          ))}
+          <button className="linkrow" onClick={() => nav('/hunts')}>
+            <span className={activeHunts.length ? 'muted' : undefined}>Browse all hunts</span>
+            <span className="val"><Chevron /></span>
+          </button>
+        </>
+      ) : (
+        <button className="linkrow" style={{ marginTop: 14 }} onClick={() => nav('/hunts')}>
+          <span>Photo hunts</span>
+          <span className="val"><Chevron /></span>
+        </button>
+      )}
 
       <div className="card list" style={{ marginTop: 14 }}>
         {user && (

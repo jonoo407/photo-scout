@@ -13,6 +13,7 @@ import MilkyWay from './MilkyWay'
 import CompassMode from './CompassMode'
 import SpotNotes from './SpotNotes'
 import SpotPhotos from './SpotPhotos'
+import HuntSpotBanner from '../Hunts/HuntSpotBanner'
 import { useStore } from '../../state/store'
 import { useSpotById } from '../../state/useRegion'
 import { CATEGORY_LABEL } from '../../spots/types'
@@ -121,6 +122,10 @@ export default function SpotDetailScreen() {
         <span className={`fact ${openGood ? 'good' : 'warn'}`}><IconClock size={15} /> {openLabel}</span>
         <span className="fact"><IconCar size={15} /> {fmtDrive(drive)} · {fmtDistance(miles, units)}</span>
         {spot.facing != null && <span className="fact"><IconCompass size={15} /> {compass(spot.facing)}</span>}
+      </div>
+
+      <div style={{ marginTop: 12 }}>
+        <HuntSpotBanner spotId={spot.id} />
       </div>
 
       <h3 className="h3">Today's light here</h3>

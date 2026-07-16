@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import TodayScreen from '../../src/ui/Today/TodayScreen'
@@ -22,11 +22,14 @@ describe('Today — sun & moon times (from Plan)', () => {
   it('renders the full table: all eight light rows plus the moon', () => {
     render(<MemoryRouter><TodayScreen /></MemoryRouter>)
     expect(screen.getByText(/sun & moon times/i)).toBeInTheDocument()
+    // Scoped to the table card — the Next Up hero can legitimately carry the
+    // same window label at any given wall-clock time.
+    const table = screen.getByRole('region', { name: /sun and moon times/i })
     for (const label of [
       'Morning blue hour', 'Sunrise', 'Morning golden', 'Solar noon',
       'Evening golden', 'Sunset', 'Evening blue hour', 'Night / astro',
-    ]) expect(screen.getByText(label)).toBeInTheDocument()
-    expect(screen.getByText(/^Moon \d+%/)).toBeInTheDocument()
+    ]) expect(within(table).getByText(label)).toBeInTheDocument()
+    expect(within(table).getByText(/^Moon \d+%/)).toBeInTheDocument()
     // The old five-row "Today's light" card is gone, not duplicated.
     expect(screen.queryByText(/today's light/i)).not.toBeInTheDocument()
   })

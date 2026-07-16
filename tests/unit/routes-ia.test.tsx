@@ -17,7 +17,7 @@ const pathElement = (path: string) =>
 describe('route table', () => {
   it('serves the new IA surfaces under the tab layout', () => {
     const paths = layoutChildren.map((r) => r.path)
-    for (const p of ['/', '/explore', '/plan', '/you', '/you/saved', '/you/shots', '/community', '/day', '/spot/:id', '/suggest', '/settings']) {
+    for (const p of ['/', '/explore', '/plan', '/you', '/you/saved', '/you/shots', '/community', '/hunts', '/hunts/:id', '/day', '/spot/:id', '/suggest', '/settings']) {
       expect(paths).toContain(p)
     }
   })

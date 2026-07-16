@@ -15,7 +15,10 @@ const from = vi.fn((table: string) => ({
     const rows = table === 'hunts' ? huntRows : table === 'hunt_joins' ? joinRows : progressRows
     const result = { data: rows, error: null }
     return {
-      eq: () => ({ order: async () => result }),
+      eq: () => ({
+        order: async () => result,
+        maybeSingle: async () => ({ data: rows[0] ?? null, error: null }),
+      }),
       order: async () => result,
     }
   }),
@@ -31,7 +34,7 @@ vi.mock('../../src/auth/supabase', () => ({
   }),
 }))
 
-import { fetchHunts, fetchMyHuntState, joinHunt, submitHuntStop } from '../../src/hunts/hunts-api'
+import { fetchHunts, fetchHuntById, fetchMyHuntState, joinHunt, submitHuntStop } from '../../src/hunts/hunts-api'
 
 beforeEach(() => {
   huntRows = []; joinRows = []; progressRows = []
@@ -53,6 +56,23 @@ describe('fetchHunts', () => {
     expect(hunts[0].stopPts).toBe(25)
     expect(hunts[0].finishPts).toBe(100)
     expect(hunts[0].stops[0].spotId).toBe('bayshore-boulevard')
+  })
+})
+
+describe('fetchHuntById', () => {
+  it('resolves a single hunt regardless of the active region', async () => {
+    huntRows = [{
+      id: 'old-city-evening-walk', region: 'philadelphia', title: 'Old City Evening Walk',
+      blurb: null, stops: [], stop_pts: 25, finish_pts: 100, opens_at: null, closes_at: null,
+    }]
+    const hunt = await fetchHuntById('old-city-evening-walk')
+    expect(hunt?.title).toBe('Old City Evening Walk')
+    expect(hunt?.finishPts).toBe(100)
+  })
+
+  it('returns null for unknown ids', async () => {
+    huntRows = []
+    expect(await fetchHuntById('nope')).toBeNull()
   })
 })
 
