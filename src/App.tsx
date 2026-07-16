@@ -18,12 +18,16 @@ import HuntsHubScreen from './ui/Hunts/HuntsHubScreen'
 import HuntDetailScreen from './ui/Hunts/HuntDetailScreen'
 import ClientListScreen from './ui/ClientList/ClientListScreen'
 import SuggestScreen from './ui/Suggest/SuggestScreen'
+import ErrorScreen from './ui/ErrorScreen'
 
 /* The five-tab IA (redesign 1a): Today · Explore · Plan · You · Community.
    Old routes redirect — deep links in the wild are sacred. */
 export const routes: RouteObject[] = [
   {
     element: <Layout />,
+    // Stale sessions straddling a deploy must never see the raw router
+    // error screen (incident 2026-07-16) — recover with a branded reload.
+    errorElement: <ErrorScreen />,
     children: [
       { path: '/', element: <TodayScreen /> },
       { path: '/explore', element: <ExploreScreen /> },
@@ -42,11 +46,14 @@ export const routes: RouteObject[] = [
       { path: '/browse', element: <Navigate to="/explore" replace /> },
       { path: '/map', element: <Navigate to="/explore?view=map" replace /> },
       { path: '/saved', element: <Navigate to="/you" replace /> },
+      // Anything this bundle has never heard of (a newer deploy's deep link
+      // reaching an older cached bundle, a typo) lands on Today, not a 404.
+      { path: '*', element: <Navigate to="/" replace /> },
     ],
   },
   // Client shoot shortlist — deliberately OUTSIDE Layout so the page a client
   // opens has no tab bar or app chrome.
-  { path: '/list', element: <ClientListScreen /> },
+  { path: '/list', element: <ClientListScreen />, errorElement: <ErrorScreen /> },
 ]
 
 const router = createHashRouter(routes)

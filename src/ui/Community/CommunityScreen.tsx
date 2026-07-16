@@ -129,7 +129,9 @@ export default function CommunityScreen() {
       </button>
 
       <p className="shdr">COMING TO THIS TAB</p>
-      <div className="card list" style={{ opacity: 0.75 }}>
+      {/* No opacity dim here: it pushed the muted text + pills below WCAG
+          contrast (axe, 2026-07-16). The muted palette is subdued enough. */}
+      <div className="card list">
         <div className="row"><span className="rowleft muted">Spot discussions</span><span className="pill info">soon</span></div>
         <div className="row"><span className="rowleft muted">Photo critiques</span><span className="pill info">soon</span></div>
       </div>
