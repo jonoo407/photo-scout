@@ -45,6 +45,7 @@ describe('LadderSheet', () => {
     expect(container.textContent).toContain('Critique given +15')
     expect(container.textContent).toContain('+200')
     expect(container.textContent).toContain('+10')
+    expect(container.textContent).toContain('Shot rated 4★+ by peers +25')
   })
 
   it('tops out at Master with no next-tier line', () => {

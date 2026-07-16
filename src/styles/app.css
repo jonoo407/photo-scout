@@ -252,3 +252,14 @@ button.row, button.linkrow { appearance: none; background: var(--surface); curso
 /* You-tab stat tiles are buttons (feedback 2026-07-16) */
 button.stat { appearance: none; border: 0; cursor: pointer; font: inherit; color: inherit; }
 button.stat:active { transform: scale(0.98); }
+
+/* community shots strip (social feature, 2026-07-16) */
+.commshots { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
+.commshots::-webkit-scrollbar { display: none; }
+.commshot { flex: none; width: 150px; }
+.commshot img { width: 150px; height: 110px; object-fit: cover; border-radius: var(--radius-sm); display: block; border: 0.5px solid var(--line); }
+.commshot-stars { display: flex; gap: 2px; margin-top: 5px; }
+.commshot-stars button { appearance: none; border: 0; background: none; cursor: pointer; padding: 2px; display: inline-flex; }
+.commshot-stars button:disabled { cursor: default; }
+.commshot-meta { margin: 2px 0 0; display: flex; align-items: center; gap: 4px; }
+.commshot-owner { margin-left: auto; width: 20px; height: 20px; border-radius: 50%; background: var(--terracotta-soft); color: var(--terracotta); display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-serif); font-size: 9px; flex: none; }

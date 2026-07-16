@@ -13,6 +13,8 @@ export const POINT_VALUES = {
   critiqueGiven: 15,
   /** A friend joined through your invite. */
   referral: 200,
+  /** Your community shot reached >=4.0 stars from >=3 photographers. */
+  topShot: 25,
 } as const
 
 export type PointReason = keyof typeof POINT_VALUES

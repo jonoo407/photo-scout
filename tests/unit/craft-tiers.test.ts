@@ -68,6 +68,8 @@ describe('point economy', () => {
     expect(POINT_VALUES.huntFinish).toBe(100)
     expect(POINT_VALUES.critiqueGiven).toBe(15)
     expect(POINT_VALUES.referral).toBe(200)
+    // Community shots (2026-07-16): a shot rated >=4.0 by >=3 peers.
+    expect(POINT_VALUES.topShot).toBe(25)
   })
 
   it('sums a ledger', () => {

@@ -41,6 +41,9 @@ export default function SpotPhotos({ spotId }: { spotId: string }) {
   return (
     <>
       <h3 className="h3">Your shots</h3>
+      <p className="small tertiary" style={{ margin: '0 2px 8px' }}>
+        Shots you add are shared with the community — other photographers can see and rate them.
+      </p>
       <div className="myshots">
         {photos.map((p) => (
           <div key={p.id} className="myshot">

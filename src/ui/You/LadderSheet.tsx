@@ -55,6 +55,7 @@ export default function LadderSheet({ points, onClose }: { points: number; onClo
           <span className="fact good">Been there, shot verified +{POINT_VALUES.shotVerified}</span>
           <span className="fact">Hunt stop +{POINT_VALUES.huntStop}</span>
           <span className="fact">Hunt finished +{POINT_VALUES.huntFinish}</span>
+          <span className="fact">Shot rated 4★+ by peers +{POINT_VALUES.topShot}</span>
           <span className="fact">Critique given +{POINT_VALUES.critiqueGiven}</span>
           <span className="fact good">Friend joins via your invite +{POINT_VALUES.referral}</span>
         </div>

@@ -251,3 +251,23 @@ $$;
 -- Guards integration-tested 2026-07-15 with simulated JWT claims + rollback:
 -- unknown hunt / order / photo proof / 21 km geo / duplicate all rejected;
 -- valid submit returned awarded=25.
+
+-- ── Community shots + ratings (social feature, added 2026-07-16) ────────────
+-- Applied as migration `community_shots_ratings` via the Supabase MCP while
+-- user_photos held ZERO rows (no retroactive exposure). Summary:
+--   user_photos    — gains public SELECT ("shots are community content");
+--                    writes stay owner-only.
+--   photo_ratings  — (photo_id, rater) pk, rating 1-5, changeable; RLS on,
+--                    NO client policies — reads/writes only via RPCs.
+--   rate_photo(photo, rating) — definer; guards: auth, 1-5, photo exists,
+--     not your own; upserts the rating; when a photo reaches >=3 ratings
+--     averaging >=4.0 its OWNER earns +25 (reason topShot, once per photo,
+--     idempotent). Execute: authenticated only.
+--   spot_community_photos(spot_id) — definer, anon-callable: photos + count,
+--     avg, Bayesian score ((sum + 3.5*5)/(count + 5)) sorted best-first,
+--     owner reduced to two initials (emails never leave the server),
+--     is_mine + my_rating for the caller.
+--   point_events reason check gains topShot.
+-- Guards integration-tested 2026-07-16 w/ simulated JWTs + rollback:
+-- own-photo/range/unknown rejected; re-rate replaces; award fires exactly
+-- once at 3x avg>=4 (+25); listing returns score 3.813 for 4.33x3.

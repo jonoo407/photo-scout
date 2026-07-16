@@ -1,4 +1,5 @@
 import { getSupabase } from '../auth/supabase'
+import { compressImage } from './compress'
 
 /* Your own shots on a spot (feedback #8). Files live in the public
    `spot-photos` bucket under {uid}/{spotId}/…; storage RLS ties writes to the
@@ -14,11 +15,13 @@ export interface MyPhoto {
   url: string
 }
 
-/** Uploads and returns the storage path — hunts reference it as proof. */
-export async function uploadSpotPhoto(spotId: string, file: File): Promise<string> {
+/** Uploads and returns the storage path — hunts reference it as proof.
+    Compressed to ~1 MB first (see compress.ts). */
+export async function uploadSpotPhoto(spotId: string, rawFile: File): Promise<string> {
   const supabase = await getSupabase()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('sign in to add photos')
+  const file = await compressImage(rawFile)
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_').slice(-60)
   const path = `${user.id}/${spotId}/${Date.now()}-${safeName}`
   const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, file)

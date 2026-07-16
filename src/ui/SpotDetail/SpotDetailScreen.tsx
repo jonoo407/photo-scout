@@ -7,6 +7,7 @@ import {
   IconExternalLink, IconPhone, IconCalendarEvent, IconMapPin, IconShare2, IconCheck,
 } from '@tabler/icons-react'
 import SpotHero from './SpotHero'
+import CommunityShots from './CommunityShots'
 import BestDays from './BestDays'
 import SunAlignment from './SunAlignment'
 import MilkyWay from './MilkyWay'
@@ -94,6 +95,12 @@ export default function SpotDetailScreen() {
       <button className="back" onClick={() => nav(-1)}><IconArrowLeft size={18} /> Back</button>
 
       <SpotHero media={spot.media} />
+
+      {/* Community shots ride directly after the official photos
+          (feedback 2026-07-16) — best-rated first, star-ratable. */}
+      <div style={{ marginTop: 12 }}>
+        <CommunityShots spotId={spot.id} />
+      </div>
 
       <div className="row-spread" style={{ marginTop: 14, alignItems: 'flex-start', gap: 8 }}>
         <div>
