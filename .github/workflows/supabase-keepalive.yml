@@ -1,0 +1,45 @@
+# Keeps the free-tier Supabase project "vantage" (gxxjxfwxufqqxcyrdibh) from
+# being paused for inactivity by doing one real DB read through the REST API
+# daily. Health-check pings do not count as activity; a table read does.
+# The apikey below is the project's publishable (public) key — safe to commit.
+name: Supabase keepalive
+
+on:
+  schedule:
+    - cron: '23 13 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Real DB read via REST API
+        run: |
+          set -euo pipefail
+          body=$(curl -sS --fail-with-body \
+            -H "apikey: sb_publishable_8QuHxk1ljwIWx6cRgertwg_7ZCIN_f2" \
+            "https://gxxjxfwxufqqxcyrdibh.supabase.co/rest/v1/_keepalive?select=id&limit=1")
+          echo "response: $body"
+          # fail the run (GitHub then emails the repo owner) if no row came back
+          echo "$body" | grep -q '"id"'
+
+      - name: Refresh repo activity if stale
+        # GitHub auto-disables scheduled workflows after 60 days without repo
+        # activity; a commit at >=50 days idle keeps the schedule alive.
+        run: |
+          set -euo pipefail
+          age_days=$(( ( $(date +%s) - $(git log -1 --format=%ct) ) / 86400 ))
+          echo "last commit ${age_days}d ago"
+          if [ "$age_days" -ge 50 ]; then
+            date -u +%Y-%m-%dT%H:%M:%SZ > .github/keepalive-last-refresh
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add .github/keepalive-last-refresh
+            git commit -m "chore: refresh repo activity for scheduled keepalive"
+            git push
+          fi
