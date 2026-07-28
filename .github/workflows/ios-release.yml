@@ -1,0 +1,144 @@
+# Phase 3 of the iOS wrap (backlog J3): signed archive -> TestFlight.
+#
+# TRIGGER DISCIPLINE (this repo is public, and this job reads the App Store
+# Connect key): tags and manual dispatch only. NEVER `pull_request` or
+# `pull_request_target`, and never build a fork's head commit — either would
+# make the signing key exfiltratable by anyone who opens a PR.
+#
+# Signing needs no Mac-side setup from a human: fetch-signing-files creates the
+# bundle ID, distribution certificate and provisioning profile straight from the
+# API key. Apple caps distribution certificates at 2 per account, so this reuses
+# an existing one when present rather than minting a new one each release.
+#
+# NOTE: artifacts on a public repo are publicly downloadable. The IPA carries no
+# secrets today (the Supabase key is publishable by design) — keep it that way.
+name: iOS release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Upload to TestFlight (off = build a signed IPA only)'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-release
+  cancel-in-progress: false
+
+env:
+  BUNDLE_ID: com.shootvantage.app
+  APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+  APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+  APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+
+jobs:
+  release:
+    runs-on: macos-26
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install codemagic-cli-tools
+        run: pip install --quiet codemagic-cli-tools
+
+      - name: Resolve version and build number
+        id: ver
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            version="${GITHUB_REF_NAME#v}"
+          else
+            version=$(node -p "require('./package.json').version")
+          fi
+          # CFBundleShortVersionString must be 1-3 dot-separated integers.
+          if ! printf '%s' "$version" | grep -qE '^[0-9]+(\.[0-9]+){0,2}$'; then
+            echo "::error::Version '$version' is not App Store legal (need 1-3 dot-separated integers, e.g. 0.1.0)."
+            exit 1
+          fi
+          # Build number must strictly increase and never repeat across uploads;
+          # the run number does that for free and survives re-tagging.
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "build=${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+          echo "Version $version (build ${GITHUB_RUN_NUMBER})"
+
+      - run: npm ci
+
+      - name: Build web assets
+        run: npm run build
+
+      - name: Sync web build into the native project
+        run: npx cap sync ios
+
+      - name: Fetch signing files (creates bundle id + cert + profile if absent)
+        run: |
+          set -euo pipefail
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --platform IOS \
+            --type IOS_APP_STORE \
+            --strict-match-identifier \
+            --create
+
+      - name: Add certificates to a temporary keychain
+        run: |
+          set -euo pipefail
+          keychain initialize
+          keychain add-certificates
+
+      - name: Apply provisioning profiles to the Xcode project
+        run: xcode-project use-profiles
+
+      - name: Build signed IPA
+        run: |
+          set -euo pipefail
+          xcode-project build-ipa \
+            --project ios/App/App.xcodeproj \
+            --scheme App \
+            --archive-xcargs "COMPILER_INDEX_STORE_ENABLE=NO MARKETING_VERSION=${{ steps.ver.outputs.version }} CURRENT_PROJECT_VERSION=${{ steps.ver.outputs.build }}"
+
+      - name: Does the App Store Connect app record exist?
+        id: record
+        run: |
+          set -uo pipefail
+          # Apple has no API for creating an app record — it is UI-only — so the
+          # very first release needs a human to add it once. Detect rather than
+          # fail with an opaque upload error.
+          if app-store-connect apps list 2>/dev/null | grep -q "$BUNDLE_ID"; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::No App Store Connect app record for $BUNDLE_ID yet — skipping TestFlight upload. Create it once at https://appstoreconnect.apple.com (My Apps -> + -> New App), selecting bundle id $BUNDLE_ID, then re-run this workflow. The signed IPA is attached as an artifact."
+          fi
+
+      - name: Upload to TestFlight
+        if: steps.record.outputs.exists == 'true' && (github.event_name == 'push' || inputs.publish)
+        run: |
+          set -euo pipefail
+          app-store-connect publish \
+            --path 'build/ios/ipa/*.ipa' \
+            --testflight \
+            --max-build-processing-wait 30
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-release-${{ steps.ver.outputs.version }}-${{ steps.ver.outputs.build }}
+          path: |
+            build/ios/ipa/*.ipa
+            build/ios/xcarchive/**/*.log
+          if-no-files-found: warn
