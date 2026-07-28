@@ -1,0 +1,60 @@
+# Proves the App Store Connect API credentials actually work BEFORE we build a
+# signing pipeline around them. Runs on free Ubuntu — codemagic-cli-tools is
+# Python, so credential checks need no macOS runner at all.
+#
+# A successful bundle-ids/certificates listing also confirms the account is a
+# paid Apple Developer Program member: free accounts can't reach these endpoints.
+#
+# Manual dispatch only. This job reads the App Store Connect key, and the repo
+# is public — it must never be reachable from a pull_request trigger.
+name: App Store credentials preflight
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+      APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install codemagic-cli-tools
+        run: pip install --quiet codemagic-cli-tools
+
+      - name: Authenticate and list bundle IDs
+        run: |
+          set -euo pipefail
+          echo "::group::bundle ids"
+          app-store-connect bundle-ids list || {
+            echo "::error::App Store Connect auth failed. Check the issuer id, key id (PK98894295) and that the .p8 uploaded intact."
+            exit 1
+          }
+          echo "::endgroup::"
+
+      - name: List signing certificates
+        run: |
+          set -euo pipefail
+          echo "::group::certificates"
+          app-store-connect certificates list
+          echo "::endgroup::"
+
+      - name: Show whether our bundle id already exists
+        run: |
+          set -uo pipefail
+          if app-store-connect bundle-ids list --bundle-id-identifier com.shootvantage.app 2>/dev/null | grep -q com.shootvantage.app; then
+            echo "com.shootvantage.app is already registered"
+          else
+            echo "com.shootvantage.app not registered yet — the signing workflow will create it"
+          fi
