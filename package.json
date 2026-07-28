@@ -13,6 +13,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@capacitor/core": "^8.4.2",
     "@supabase/supabase-js": "^2.110.0",
     "@tabler/icons-react": "^3.24.0",
     "idb": "^8.0.0",
@@ -25,6 +26,8 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",
+    "@capacitor/cli": "^8.4.2",
+    "@capacitor/ios": "^8.4.2",
     "@playwright/test": "^1.61.1",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",

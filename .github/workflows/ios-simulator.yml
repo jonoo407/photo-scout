@@ -1,0 +1,135 @@
+# Phase 1 of the iOS wrap (backlog J3): proves the Capacitor shell compiles and
+# actually renders Vantage in a real WKWebView. No code signing, no Apple
+# Developer account, no cost — standard macOS runners are free and unmetered on
+# public repos.
+#
+# SECURITY: this repo is public. Signed release workflows added later MUST keep
+# this same trigger discipline — push to main / tags / manual dispatch only.
+# Never `pull_request_target`, and never build a fork's head commit, or the
+# App Store Connect key becomes exfiltratable by anyone who opens a PR.
+name: iOS simulator build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'ios/**'
+      - 'index.html'
+      - 'capacitor.config.ts'
+      - 'vite.config.ts'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/ios-simulator.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-simulator-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  simulator:
+    runs-on: macos-26
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build web assets
+        run: npm run build
+
+      - name: Assert built asset URLs stay relative
+        # The wrapper serves dist/ from disk under capacitor://localhost, where
+        # an absolute /assets/... 404s while the hosted web build stays healthy.
+        # This is the real guard behind vite.config.ts's `base: './'`.
+        run: |
+          set -uo pipefail
+          if grep -Eo '(src|href)="/[^/][^"]*"' dist/index.html; then
+            echo "::error::dist/index.html has absolute asset paths — these 404 under capacitor://localhost. Restore base:'./' in vite.config.ts."
+            exit 1
+          fi
+          echo "OK: all asset URLs in dist/index.html are relative"
+
+      - name: Sync web build into the native project
+        # ios/App/App/public is gitignored, so CI must populate it from dist/.
+        run: npx cap sync ios
+
+      - name: Build for iOS Simulator
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath "$RUNNER_TEMP/dd" \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Boot a simulator
+        id: sim
+        run: |
+          set -euo pipefail
+          # Last iPhone entry = newest installed iOS runtime. Discovered rather
+          # than hardcoded so a runner image bump doesn't break the build.
+          device=$(xcrun simctl list devices available | grep -E '^ +iPhone' | tail -1)
+          udid=$(echo "$device" | grep -Eo '[0-9A-Fa-f-]{36}')
+          echo "using:$device"
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
+          xcrun simctl boot "$udid"
+          xcrun simctl bootstatus "$udid" -b
+
+      - name: Launch Vantage and capture proof
+        env:
+          UDID: ${{ steps.sim.outputs.udid }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+
+          xcrun simctl spawn "$UDID" log stream --style compact \
+            --predicate 'processImagePath CONTAINS "App.app"' > artifacts/app.log 2>&1 &
+          log_pid=$!
+
+          xcrun simctl install "$UDID" "$RUNNER_TEMP/dd/Build/Products/Debug-iphonesimulator/App.app"
+          app_pid=$(xcrun simctl launch "$UDID" com.shootvantage.app | awk -F': ' '{print $2}')
+          echo "launched pid $app_pid"
+
+          # Simulator apps are ordinary host processes, so `ps` is a real
+          # liveness check: if the webview blew up on load, this is gone.
+          sleep 15
+          xcrun simctl io "$UDID" screenshot artifacts/01-launch.png
+          sleep 15
+          xcrun simctl io "$UDID" screenshot artifacts/02-settled.png
+
+          kill "$log_pid" 2>/dev/null || true
+
+          if ! ps -p "$app_pid" > /dev/null; then
+            echo "::error::Vantage exited within 30s of launch — see the app.log artifact."
+            tail -n 100 artifacts/app.log
+            exit 1
+          fi
+          echo "OK: Vantage still running 30s after launch"
+
+          echo "--- last 60 log lines ---"
+          tail -n 60 artifacts/app.log || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-simulator-proof
+          path: artifacts/
