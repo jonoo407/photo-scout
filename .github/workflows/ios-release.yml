@@ -36,6 +36,12 @@ env:
   APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
   APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
   APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+  # A DIFFERENT key from the .p8 above. The .p8 authenticates to Apple's API;
+  # this RSA key is the one the distribution CERTIFICATE is issued against and
+  # the one that actually signs code. Apple never stores it, so it must be
+  # stable across releases — regenerating it burns one of the 2 certificate
+  # slots every run.
+  CERTIFICATE_PRIVATE_KEY: ${{ secrets.CERTIFICATE_PRIVATE_KEY }}
 
 jobs:
   release:
@@ -91,6 +97,7 @@ jobs:
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
             --platform IOS \
             --type IOS_APP_STORE \
+            --certificate-key @env:CERTIFICATE_PRIVATE_KEY \
             --strict-match-identifier \
             --create
 
