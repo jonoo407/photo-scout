@@ -12,6 +12,7 @@ import SpotDetailScreen from './ui/SpotDetail/SpotDetailScreen'
 import SettingsScreen from './ui/Settings/SettingsScreen'
 import YouScreen from './ui/You/YouScreen'
 import YourShotsScreen from './ui/You/YourShotsScreen'
+import FeedbackScreen from './ui/You/FeedbackScreen'
 import SavedScreen from './ui/Saved/SavedScreen'
 import CommunityScreen from './ui/Community/CommunityScreen'
 import HuntsHubScreen from './ui/Hunts/HuntsHubScreen'
@@ -36,6 +37,7 @@ export const routes: RouteObject[] = [
       { path: '/you', element: <YouScreen /> },
       { path: '/you/saved', element: <SavedScreen /> },
       { path: '/you/shots', element: <YourShotsScreen /> },
+      { path: '/you/feedback', element: <FeedbackScreen /> },
       { path: '/community', element: <CommunityScreen /> },
       { path: '/hunts', element: <HuntsHubScreen /> },
       { path: '/hunts/:id', element: <HuntDetailScreen /> },

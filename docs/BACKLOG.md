@@ -14,6 +14,27 @@
 - **Old IDs**: items carried over from HANDOFF's retired A/B lists note their
   lineage as `(was B8)` etc., so old references still resolve.
 
+## Tester feedback → this file
+
+Testers send from **You → Tester feedback** (`/you/feedback`). Each report lands
+in Supabase `feedback` (insert-only RLS) **and** is emailed to Jon by the
+`feedback_notify` trigger → `/api/feedback-hook`. The row is the durable copy;
+email is just so nobody has to remember to look.
+
+Pull the unreviewed ones and fold them into items below:
+
+```sql
+select created_at, kind, app_version, message, contact_email
+from feedback where status = 'new' order by created_at desc;
+-- then, once each is either an item here or deliberately dropped:
+update feedback set status = 'triaged' where id in (...);
+```
+
+Every report carries the **build number** it came from (`app_version`), so
+"it looks the same to me" is answerable. Statuses: `new → triaged → shipped |
+wontfix`. This replaces nothing — V2 is still the real in-app feedback feature;
+this is the TestFlight-phase stand-in.
+
 ## Index — every open item at a glance
 
 | ID  | Item                                    | Who | Depends on | Size |

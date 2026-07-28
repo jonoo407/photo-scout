@@ -296,3 +296,48 @@ $$;
 -- Integration-tested 2026-07-16 w/ rollback: quota 2 then 4 after +1000 pts,
 -- fresh per spot; good photo survived account deletion anonymized; pruned
 -- rows gone; anonymous photo ratable without award.
+
+-- ── Tester feedback (2026-07-28, TestFlight phase) ─────────────────────────
+-- Insert-only under RLS, exactly like spot_suggestions: anyone can send,
+-- nobody can read others' reports through the API. Reviewed by pulling rows
+-- with SQL and folding them into docs/BACKLOG.md (see the query in that file).
+create table if not exists public.feedback (
+  id uuid primary key default gen_random_uuid(),
+  message text not null check (char_length(message) between 1 and 4000),
+  kind text not null default 'bug' check (kind in ('bug', 'idea', 'praise')),
+  submitted_by uuid references auth.users (id) on delete set null,
+  contact_email text check (char_length(contact_email) <= 200),
+  -- Which build the tester was on: a report without it is guesswork.
+  app_version text check (char_length(app_version) <= 60),
+  platform text check (char_length(platform) <= 300),
+  status text not null default 'new' check (status in ('new', 'triaged', 'shipped', 'wontfix')),
+  created_at timestamptz not null default now()
+);
+alter table public.feedback enable row level security;
+create policy "anyone sends feedback" on public.feedback
+  for insert to anon, authenticated with check (true);
+create index if not exists feedback_created_idx on public.feedback (created_at desc);
+create index if not exists feedback_status_idx on public.feedback (status);
+
+-- Notify leg: same net.http_post pattern as shortlist_response_notify, so
+-- feedback reaches email instead of waiting for someone to read the table.
+create or replace function public.feedback_notify()
+returns trigger language plpgsql security definer
+set search_path = public, extensions
+as $$
+begin
+  perform net.http_post(
+    url := 'https://shootvantage.com/api/feedback-hook',
+    body := jsonb_build_object('record', jsonb_build_object(
+      'id', new.id, 'kind', new.kind, 'message', new.message,
+      'contact_email', new.contact_email, 'app_version', new.app_version,
+      'platform', new.platform
+    )),
+    headers := '{"Content-Type": "application/json"}'::jsonb
+  );
+  return new;
+end;
+$$;
+drop trigger if exists feedback_notify on public.feedback;
+create trigger feedback_notify after insert on public.feedback
+  for each row execute function public.feedback_notify();

@@ -263,3 +263,14 @@ button.stat:active { transform: scale(0.98); }
 .commshot-stars button:disabled { cursor: default; }
 .commshot-meta { margin: 2px 0 0; display: flex; align-items: center; gap: 4px; }
 .commshot-owner { margin-left: auto; width: 20px; height: 20px; border-radius: 50%; background: var(--terracotta-soft); color: var(--terracotta); display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-serif); font-size: 9px; flex: none; }
+
+/* Feedback form fields (You → Tester feedback). Browser-default textareas and
+   inputs render monospace with square corners, which reads as an unfinished
+   form dropped into a designed app — so they inherit the app's type and
+   surfaces here. */
+.fbfield { width: 100%; box-sizing: border-box; font: inherit; font-size: 14px; line-height: 1.5;
+  padding: 10px 12px; margin-top: 6px; border-radius: var(--radius-md, 12px);
+  border: 0.5px solid var(--line-strong); background: var(--surface-2); color: var(--ink); }
+.fbfield::placeholder { color: var(--ink-3); }
+.fbfield:focus-visible { outline: 2px solid var(--terracotta); outline-offset: 1px; }
+textarea.fbfield { resize: vertical; min-height: 120px; }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { IconChevronRight, IconUser } from '@tabler/icons-react'
+import { IconChevronRight, IconUser, IconMessagePlus } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
 import { useAuth } from '../../auth/useAuth'
 import { authAvailable } from '../../auth/supabase'
@@ -166,6 +166,17 @@ export default function YouScreen() {
           <span className="val"><Chevron /></span>
         </button>
       )}
+
+      {/* TestFlight-phase feedback: deliberately loud, because testers only
+          report things when reporting is the easiest thing on the screen.
+          Swap for the fuller feedback flow (backlog V2) once testing opens. */}
+      <button
+        className="cta"
+        style={{ width: '100%', marginTop: 16 }}
+        onClick={() => nav('/you/feedback')}
+      >
+        <IconMessagePlus size={18} /> Tester feedback
+      </button>
 
       <div className="card list" style={{ marginTop: 14 }}>
         <button className="row" onClick={() => nav('/settings')}>

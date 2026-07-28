@@ -309,6 +309,38 @@ export default {
       return json({ ...pushResult, emailed })
     }
 
+    // Supabase DB webhook: a tester sent feedback → email it. The row in
+    // `feedback` is the durable record; this leg just means nobody has to
+    // remember to read the table.
+    if (url.pathname === '/api/feedback-hook' && request.method === 'POST') {
+      const body = (await request.json().catch(() => null)) as
+        | { record?: { kind?: string; message?: string; contact_email?: string | null; app_version?: string | null; platform?: string | null } }
+        | null
+      const r = body?.record
+      if (!r?.message) return json({ ok: false, reason: 'no message' }, 400)
+
+      let emailed = false
+      if (env.RESEND_API_KEY) {
+        const esc = (s: string) => s.replace(/[<>&]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]!))
+        const res = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'content-type': 'application/json' },
+          body: JSON.stringify({
+            from: 'Vantage <alerts@shootvantage.com>',
+            to: ['flahertyjon@gmail.com'],
+            // Reply-to only when they left one, so hitting reply reaches the tester.
+            ...(r.contact_email ? { reply_to: [r.contact_email] } : {}),
+            subject: `Vantage feedback (${r.kind ?? 'bug'}) — ${r.app_version ?? 'unknown build'}`,
+            html: `<p><strong>${esc(r.kind ?? 'bug')}</strong> · build ${esc(r.app_version ?? 'unknown')}</p>`
+              + `<p style="white-space:pre-wrap">${esc(r.message)}</p>`
+              + `<p style="color:#777;font-size:12px">${esc(r.contact_email ?? 'no contact email')}<br>${esc(r.platform ?? '')}</p>`,
+          }),
+        }).catch(() => null)
+        emailed = !!res && res.ok
+      }
+      return json({ ok: true, emailed })
+    }
+
     if (url.pathname.startsWith('/api/push/')) {
       const inner = url.pathname.slice('/api/push'.length) + url.search
       return doStub(env).fetch(new Request(`https://do${inner}`, request))
