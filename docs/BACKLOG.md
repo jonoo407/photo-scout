@@ -35,6 +35,7 @@
 | V15 | Golden-hour reminders                   | 🤖  | —          | S    |
 | V16 | True Golden Hour engine (v1.1 signature)| 🤖  | —          | XL   |
 | V17 | st-paul-ame photo (75/75 coverage)      | 🤖  | —          | XS   |
+| V19 | Offline: download a city (tiles + data) | 🤖  | —          | L    |
 | J1  | Google SSO console setup                | 🧑  | —          | S    |
 | J2  | Allow push on a real device             | 🧑  | —          | XS   |
 | J3  | iOS App Store (phases 1–3 done; native+submit left) | 🤝 | — | L |
@@ -116,6 +117,28 @@ behind `hasPetData`). Verify all ~75 spots per the two-source rule
 (`docs/ADDING_SPOTS.md`): true/false + short note ("leashed only, not on the
 beach"), shown as a fact chip on detail.
 
+### V19 — Offline: download a city 🤖
+"You should be able to download a location, like San Francisco" (Jon,
+2026-07-28) — the field case is standing at a spot with one bar, or none.
+
+Photos are already solved: all 116 are self-hosted in `public/spot-photos/` and
+`cap sync` ships them inside the IPA, so they need no network at all. What's
+left needs real work:
+- **Map tiles** — the hard part. Leaflet pulls raster tiles from a tile server;
+  pre-fetching a bounding box across usable zooms is where both the megabytes
+  and the provider's terms live. Check the tile provider's caching policy
+  before building anything.
+- **Spot + conditions data** — spot JSON is small and could ship bundled;
+  weather/tides are live and would need a last-known-good cache with an
+  explicit staleness indicator (never silently show yesterday's forecast).
+- **UI** — per-city download with size shown up front, progress, and a delete.
+
+Growth trigger, from the self-hosting work: everything currently ships to every
+user, so a Tampa user carries Philadelphia's photos. Around city 5 the app
+passes ~60 MB and should split into bundled-thumbs + on-demand heroes — that
+split is the natural foundation for this feature, so consider doing them
+together.
+
 ### V14 — Magic Layers: rockets + birds (was B5) 🤖
 Rocket-launch calendar (Launch Library 2, keyless) + birding overlay (eBird —
 free key, 2-min form is a tiny Jon assist). Tides already shipped.
@@ -172,17 +195,21 @@ scoreboard picking city #3.
   build with no Mac and no manual step. Details + gotchas in HANDOFF.
   **Not** Codemagic as originally planned — GitHub's standard macOS runners are
   free and unmetered on public repos. Remaining work:
-  - **Phase 4 — native surface** (the real work): web-push VAPID → APNs
+  - **Phase 4 — native surface.** Remaining: web-push VAPID → APNs
     (`@capacitor/push-notifications`, an APNs auth key, and a Worker branch to
-    send APNs tokens vs web subscriptions); native camera + geolocation plugins
-    instead of web APIs; brand icon/splash into `Assets.xcassets` (Capacitor's
-    placeholders ship today). Capacitor's template also still uses the
-    pre-`UIScene` lifecycle — a runtime warning now, a hard assert on some
-    future iOS.
-  - **⚠️ UNVERIFIED — service workers under `capacitor://localhost`.** Offline
-    caching AND web push both ride on `dist/sw.js`. Evidence cut both ways
-    (WebKit did provision a ServiceWorkers dir for the bundle). Test directly;
-    do not assume either works in the wrapper.
+    send APNs tokens vs web subscriptions) — measured absent in the wrapper,
+    see below; native **camera** capture (geolocation and the app icon/splash
+    are done). Capacitor's template still uses the pre-`UIScene` lifecycle — a
+    runtime warning now, a hard assert on some future iOS.
+  - **Measured in the wrapper (2026-07-28)**, by the capability probe the
+    simulator workflow now gates on:
+    `geolocation=ok share=yes clipboard=yes notification=no push=no`.
+    So push is the only web API confirmed missing. Re-read that line from CI
+    rather than assuming — it is printed on every native run.
+  - **Service workers are NOT used on native** (resolved, previously unknown):
+    `src/pwa/native.ts` skips registration and tears down any worker a prior
+    build installed. Registering one there poisoned the photo cache and risked
+    serving a previous build's assets across a binary update.
   - **Guideline 4.2 (minimum functionality)**: Apple rejects thin website
     wrappers. Using native plugins rather than web APIs for camera/location/push
     is what makes the difference at review. Account deletion (also required)
