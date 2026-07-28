@@ -15,16 +15,24 @@ export default defineConfig({
       workbox: {
         // Conditions-alert push handlers ride inside the generated SW.
         importScripts: ['push-sw.js'],
+        // Spot photos are self-hosted now (public/spot-photos, ~25 MB). Keep
+        // them OUT of the precache or every first web visit would drag the whole
+        // library down; they get cached on view by the runtime rule below.
+        // Native doesn't need either — `cap sync` ships them inside the IPA.
+        globIgnores: ['**/spot-photos/**'],
         // Cache viewed spot photos so heroes/thumbnails survive spotty signal
-        // in the field (they're hotlinked from Wikimedia/Flickr, not bundled).
+        // in the field. Same-origin now, so responses are never opaque —
+        // status 0 is deliberately NOT cacheable here: accepting it is what let
+        // a failed fetch get cached as valid and blank thumbnails on TestFlight
+        // build 3, back when these were hotlinked from Wikimedia.
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/(upload\.wikimedia\.org|live\.staticflickr\.com)\/.*/,
+            urlPattern: ({ url }) => url.pathname.includes('/spot-photos/'),
             handler: 'CacheFirst',
             options: {
               cacheName: 'spot-photos',
               expiration: { maxEntries: 300, maxAgeSeconds: 60 * 24 * 3600, purgeOnQuotaError: true },
-              cacheableResponse: { statuses: [0, 200] }, // opaque cross-origin OK
+              cacheableResponse: { statuses: [200] },
             },
           },
         ],

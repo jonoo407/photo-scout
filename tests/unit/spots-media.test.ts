@@ -25,8 +25,9 @@ describe('spot media (seeded reference photos)', () => {
   it('every media entry is well-formed and attributed', () => {
     for (const s of SPOTS) {
       for (const m of s.media) {
-        expect(m.src, `${s.id} src`).toMatch(/^https:\/\//)
-        if (m.thumb) expect(m.thumb, `${s.id} thumb`).toMatch(/^https:\/\//)
+        // Self-hosted since 2026-07-28 — see tests/unit/spot-media-local.test.ts.
+        expect(m.src, `${s.id} src`).toMatch(/^\.\/spot-photos\/.+\.webp$/)
+        if (m.thumb) expect(m.thumb, `${s.id} thumb`).toMatch(/^\.\/spot-photos\/.+-thumb\.webp$/)
         expect(m.caption.trim().length, `${s.id} caption`).toBeGreaterThan(0)
         expect(m.credit.trim().length, `${s.id} credit`).toBeGreaterThan(0)
         expect(m.license.trim().length, `${s.id} license`).toBeGreaterThan(0)
@@ -59,14 +60,16 @@ describe('spot media (seeded reference photos)', () => {
     }
   })
 
-  it('media images come from allowed hosts (Wikimedia Commons, Flickr, or own)', () => {
+  // The files are ours now, so the host that matters is the one we CREDIT.
+  // Attribution is the condition we redistribute these photos under, and a
+  // sourceUrl pointing anywhere else means the credit link is wrong.
+  it('attributes every photo to an allowed original source', () => {
     for (const s of SPOTS) {
       for (const m of s.media) {
-        const host = new URL(m.src).host
+        const host = new URL(m.sourceUrl).host
         expect(
-          /(^|\.)wikimedia\.org$/.test(host) || host === 'upload.wikimedia.org' ||
-          host === 'live.staticflickr.com' || m.src.startsWith('/'),
-          `${s.id} host ${host}`,
+          /(^|\.)wikimedia\.org$/.test(host) || /(^|\.)flickr\.com$/.test(host),
+          `${s.id} sourceUrl host ${host}`,
         ).toBe(true)
       }
     }

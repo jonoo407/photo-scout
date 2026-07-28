@@ -6,8 +6,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
 {
   "bayshore-boulevard": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Skyline_of_Tampa%2C_Florida_from_Bayshore_Blvd.jpg/1280px-Skyline_of_Tampa%2C_Florida_from_Bayshore_Blvd.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Skyline_of_Tampa%2C_Florida_from_Bayshore_Blvd.jpg/500px-Skyline_of_Tampa%2C_Florida_from_Bayshore_Blvd.jpg",
+      "src": "./spot-photos/skyline-of-tampa-florida-from-bayshore-blvd-9b4295.webp",
+      "thumb": "./spot-photos/skyline-of-tampa-florida-from-bayshore-blvd-9b4295-thumb.webp",
       "caption": "Downtown skyline beyond the curving balustrade",
       "credit": "Original uploader was user:Tampa Gator at en.wikipedia",
       "license": "Public domain",
@@ -20,8 +20,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 100
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Tampa_Bayshore_Blvd_looking_north01.jpg/1280px-Tampa_Bayshore_Blvd_looking_north01.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Tampa_Bayshore_Blvd_looking_north01.jpg/500px-Tampa_Bayshore_Blvd_looking_north01.jpg",
+      "src": "./spot-photos/tampa-bayshore-blvd-looking-north01-825e5b.webp",
+      "thumb": "./spot-photos/tampa-bayshore-blvd-looking-north01-825e5b-thumb.webp",
       "caption": "WPA balustrade leading down the bayfront path",
       "credit": "Ebyabe",
       "license": "CC BY 2.5",
@@ -36,8 +36,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "ballast-point-park": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/View_of_Downtown_Tampa_from_the_Pier_at_Ballast_Point_Park.JPG/1280px-View_of_Downtown_Tampa_from_the_Pier_at_Ballast_Point_Park.JPG",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/View_of_Downtown_Tampa_from_the_Pier_at_Ballast_Point_Park.JPG/500px-View_of_Downtown_Tampa_from_the_Pier_at_Ballast_Point_Park.JPG",
+      "src": "./spot-photos/view-of-downtown-tampa-from-the-pier-at-ballast-poin-b61f8a.webp",
+      "thumb": "./spot-photos/view-of-downtown-tampa-from-the-pier-at-ballast-poin-b61f8a-thumb.webp",
       "caption": "Downtown skyline across the bay",
       "credit": "Heditor6",
       "license": "CC BY-SA 3.0",
@@ -49,8 +49,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "shutter": "1/250"
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Fishing_Pier_at_Ballast_Point_Park.JPG/1280px-Fishing_Pier_at_Ballast_Point_Park.JPG",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Fishing_Pier_at_Ballast_Point_Park.JPG/500px-Fishing_Pier_at_Ballast_Point_Park.JPG",
+      "src": "./spot-photos/fishing-pier-at-ballast-point-park-efc031.webp",
+      "thumb": "./spot-photos/fishing-pier-at-ballast-point-park-efc031-thumb.webp",
       "caption": "Fishing pier leading into stormy bay",
       "credit": "Heditor6",
       "license": "CC BY-SA 3.0",
@@ -64,8 +64,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "davis-islands-beach": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Davis_Islands%2CTampa%2CFlorida%2CUSA._-_panoramio.jpg/1280px-Davis_Islands%2CTampa%2CFlorida%2CUSA._-_panoramio.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Davis_Islands%2CTampa%2CFlorida%2CUSA._-_panoramio.jpg/500px-Davis_Islands%2CTampa%2CFlorida%2CUSA._-_panoramio.jpg",
+      "src": "./spot-photos/davis-islands-tampa-florida-usa-panoramio-ed339d.webp",
+      "thumb": "./spot-photos/davis-islands-tampa-florida-usa-panoramio-ed339d-thumb.webp",
       "caption": "Moored sailboats with skyline backdrop over basin",
       "credit": "Roman Eugeniusz",
       "license": "CC BY-SA 3.0",
@@ -78,8 +78,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 110
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Davis_Islands%2CTampa%2CFlorida%2CUSA._-_panoramio_%281%29.jpg/1280px-Davis_Islands%2CTampa%2CFlorida%2CUSA._-_panoramio_%281%29.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Davis_Islands%2CTampa%2CFlorida%2CUSA._-_panoramio_%281%29.jpg/500px-Davis_Islands%2CTampa%2CFlorida%2CUSA._-_panoramio_%281%29.jpg",
+      "src": "./spot-photos/davis-islands-tampa-florida-usa-panoramio-1-da3e18.webp",
+      "thumb": "./spot-photos/davis-islands-tampa-florida-usa-panoramio-1-da3e18-thumb.webp",
       "caption": "Yacht basin and downtown skyline beyond",
       "credit": "Roman Eugeniusz",
       "license": "CC BY-SA 3.0",
@@ -92,8 +92,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 180
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/0/04/Summer_Storm_rolling_behind_downtown_Tampa_from_Davis_Island.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Summer_Storm_rolling_behind_downtown_Tampa_from_Davis_Island.jpg/500px-Summer_Storm_rolling_behind_downtown_Tampa_from_Davis_Island.jpg",
+      "src": "./spot-photos/summer-storm-rolling-behind-downtown-tampa-from-davi-81326f.webp",
+      "thumb": "./spot-photos/summer-storm-rolling-behind-downtown-tampa-from-davi-81326f-thumb.webp",
       "caption": "Tampa skyline across the bay, stormy sky",
       "credit": "Robert Neff",
       "license": "CC BY 2.0",
@@ -108,8 +108,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "curtis-hixon-waterfront-park": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Curtis_Hixon_Park_Tampa_Florida_United_States_-_panoramio_%282%29.jpg/1280px-Curtis_Hixon_Park_Tampa_Florida_United_States_-_panoramio_%282%29.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Curtis_Hixon_Park_Tampa_Florida_United_States_-_panoramio_%282%29.jpg/500px-Curtis_Hixon_Park_Tampa_Florida_United_States_-_panoramio_%282%29.jpg",
+      "src": "./spot-photos/curtis-hixon-park-tampa-florida-united-states-panora-0b24cd.webp",
+      "thumb": "./spot-photos/curtis-hixon-park-tampa-florida-united-states-panora-0b24cd-thumb.webp",
       "caption": "Fountains and skyline glowing at blue hour",
       "credit": "Michelle Maria",
       "license": "CC BY 3.0",
@@ -121,8 +121,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "shutter": "1/8"
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Curtis_Hixon_Park_Tampa_Florida_United_States_-_panoramio_%281%29.jpg/1280px-Curtis_Hixon_Park_Tampa_Florida_United_States_-_panoramio_%281%29.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Curtis_Hixon_Park_Tampa_Florida_United_States_-_panoramio_%281%29.jpg/500px-Curtis_Hixon_Park_Tampa_Florida_United_States_-_panoramio_%281%29.jpg",
+      "src": "./spot-photos/curtis-hixon-park-tampa-florida-united-states-panora-9448fc.webp",
+      "thumb": "./spot-photos/curtis-hixon-park-tampa-florida-united-states-panora-9448fc-thumb.webp",
       "caption": "Downtown towers and palms at dusk",
       "credit": "Michelle Maria",
       "license": "CC BY 3.0",
@@ -136,8 +136,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "tampa-riverwalk": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Tampa_Riverwalk_01.jpg/1280px-Tampa_Riverwalk_01.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Tampa_Riverwalk_01.jpg/500px-Tampa_Riverwalk_01.jpg",
+      "src": "./spot-photos/tampa-riverwalk-01-46a58e.webp",
+      "thumb": "./spot-photos/tampa-riverwalk-01-46a58e-thumb.webp",
       "caption": "Lit Riverwalk path leading to glowing skyline",
       "credit": "Miosotis Jade",
       "license": "CC BY-SA 4.0",
@@ -150,8 +150,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 200
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Tampa_Riverwalk_03.jpg/1280px-Tampa_Riverwalk_03.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Tampa_Riverwalk_03.jpg/500px-Tampa_Riverwalk_03.jpg",
+      "src": "./spot-photos/tampa-riverwalk-03-b440cc.webp",
+      "thumb": "./spot-photos/tampa-riverwalk-03-b440cc-thumb.webp",
       "caption": "Skyline mirrored in the river at dusk",
       "credit": "Miosotis Jade",
       "license": "CC BY-SA 4.0",
@@ -164,8 +164,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 200
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Tampa_Riverwalk_02.jpg/1280px-Tampa_Riverwalk_02.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Tampa_Riverwalk_02.jpg/500px-Tampa_Riverwalk_02.jpg",
+      "src": "./spot-photos/tampa-riverwalk-02-0237e4.webp",
+      "thumb": "./spot-photos/tampa-riverwalk-02-0237e4-thumb.webp",
       "caption": "Downtown towers reflected across the river",
       "credit": "Miosotis Jade",
       "license": "CC BY-SA 4.0",
@@ -180,8 +180,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "plant-park-ut-minarets": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Old_Tampa_Bay_Hotel_spire04.jpg/1280px-Old_Tampa_Bay_Hotel_spire04.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Old_Tampa_Bay_Hotel_spire04.jpg/500px-Old_Tampa_Bay_Hotel_spire04.jpg",
+      "src": "./spot-photos/old-tampa-bay-hotel-spire04-c184de.webp",
+      "thumb": "./spot-photos/old-tampa-bay-hotel-spire04-c184de-thumb.webp",
       "caption": "Silver minaret dome against vivid blue sky",
       "credit": "Ebyabe",
       "license": "CC BY 2.5",
@@ -194,8 +194,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 64
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/e/ee/Tampa_Bay_Hotel_2.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/e/ee/Tampa_Bay_Hotel_2.jpg",
+      "src": "./spot-photos/tampa-bay-hotel-2-ed569a.webp",
+      "thumb": "./spot-photos/tampa-bay-hotel-2-ed569a-thumb.webp",
       "caption": "Golden domes and palm at dusk",
       "credit": "Zeng8r at English Wikipedia",
       "license": "CC BY-SA 3.0",
@@ -208,8 +208,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 50
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Old_Tampa_Bay_Hotel_spire02.jpg/1280px-Old_Tampa_Bay_Hotel_spire02.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Old_Tampa_Bay_Hotel_spire02.jpg/500px-Old_Tampa_Bay_Hotel_spire02.jpg",
+      "src": "./spot-photos/old-tampa-bay-hotel-spire02-b878e6.webp",
+      "thumb": "./spot-photos/old-tampa-bay-hotel-spire02-b878e6-thumb.webp",
       "caption": "Three silver minarets above brick facade",
       "credit": "Ebyabe",
       "license": "CC BY 2.5",
@@ -224,8 +224,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "henry-b-plant-museum": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Old_Tampa_Bay_Hotel.jpg/1280px-Old_Tampa_Bay_Hotel.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Old_Tampa_Bay_Hotel.jpg/500px-Old_Tampa_Bay_Hotel.jpg",
+      "src": "./spot-photos/old-tampa-bay-hotel-7297f8.webp",
+      "thumb": "./spot-photos/old-tampa-bay-hotel-7297f8-thumb.webp",
       "caption": "Moorish minarets over brick facade and gardens",
       "credit": "Ebyabe",
       "license": "CC BY 2.5",
@@ -238,8 +238,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 64
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Henry_B_Plant_Museum.jpg/1280px-Henry_B_Plant_Museum.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Henry_B_Plant_Museum.jpg/500px-Henry_B_Plant_Museum.jpg",
+      "src": "./spot-photos/henry-b-plant-museum-9653e4.webp",
+      "thumb": "./spot-photos/henry-b-plant-museum-9653e4-thumb.webp",
       "caption": "Silver minaret towers framed by palms",
       "credit": "Tsya 42",
       "license": "CC BY-SA 4.0",
@@ -252,8 +252,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 125
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Henry_Plant_Museum_Fletcher_Lounge_ballroom_rotunda.jpg/1280px-Henry_Plant_Museum_Fletcher_Lounge_ballroom_rotunda.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Henry_Plant_Museum_Fletcher_Lounge_ballroom_rotunda.jpg/500px-Henry_Plant_Museum_Fletcher_Lounge_ballroom_rotunda.jpg",
+      "src": "./spot-photos/henry-plant-museum-fletcher-lounge-ballroom-rotunda-deff71.webp",
+      "thumb": "./spot-photos/henry-plant-museum-fletcher-lounge-ballroom-rotunda-deff71-thumb.webp",
       "caption": "Ornate Gilded-Age rotunda dome ceiling",
       "credit": "PeaceLoveHarmony",
       "license": "CC BY-SA 4.0",
@@ -268,8 +268,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "sacred-heart-catholic-church": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/9/92/Tampa_Sacred_Heart_Church04.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Tampa_Sacred_Heart_Church04.jpg/500px-Tampa_Sacred_Heart_Church04.jpg",
+      "src": "./spot-photos/tampa-sacred-heart-church04-dcc559.webp",
+      "thumb": "./spot-photos/tampa-sacred-heart-church04-dcc559-thumb.webp",
       "caption": "Marble facade and rose window against clouds",
       "credit": "Ebyabe",
       "license": "CC BY 2.5",
@@ -277,8 +277,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "light": "daytime"
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Interior_Sacred_Heart_Catholic_Church%2C_Tampa%2C_Florida.jpg/1280px-Interior_Sacred_Heart_Catholic_Church%2C_Tampa%2C_Florida.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Interior_Sacred_Heart_Catholic_Church%2C_Tampa%2C_Florida.jpg/500px-Interior_Sacred_Heart_Catholic_Church%2C_Tampa%2C_Florida.jpg",
+      "src": "./spot-photos/interior-sacred-heart-catholic-church-tampa-florida-674535.webp",
+      "thumb": "./spot-photos/interior-sacred-heart-catholic-church-tampa-florida-674535-thumb.webp",
       "caption": "Ornate nave and marble columns to altar",
       "credit": "Boston Public Library",
       "license": "CC BY 2.0",
@@ -286,8 +286,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "camera": "Epson Exp10000XL10000"
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Tampa_Sacred_Heart_Church06.jpg/1280px-Tampa_Sacred_Heart_Church06.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Tampa_Sacred_Heart_Church06.jpg/500px-Tampa_Sacred_Heart_Church06.jpg",
+      "src": "./spot-photos/tampa-sacred-heart-church06-a95a10.webp",
+      "thumb": "./spot-photos/tampa-sacred-heart-church06-a95a10-thumb.webp",
       "caption": "Front-quarter view with dome on Florida Ave",
       "credit": "Ebyabe",
       "license": "CC BY-SA 3.0",
@@ -302,8 +302,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "tampa-theatre": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Tampa_Theatre_2013.jpg/1280px-Tampa_Theatre_2013.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Tampa_Theatre_2013.jpg/500px-Tampa_Theatre_2013.jpg",
+      "src": "./spot-photos/tampa-theatre-2013-19a729.webp",
+      "thumb": "./spot-photos/tampa-theatre-2013-19a729-thumb.webp",
       "caption": "Neon marquee and blade sign glowing at night",
       "credit": "MarieG33",
       "license": "CC BY-SA 3.0",
@@ -316,8 +316,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 400
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/TampaTheatre_front05.jpg/1280px-TampaTheatre_front05.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/TampaTheatre_front05.jpg/500px-TampaTheatre_front05.jpg",
+      "src": "./spot-photos/tampatheatre-front05-cbee94.webp",
+      "thumb": "./spot-photos/tampatheatre-front05-cbee94-thumb.webp",
       "caption": "Iconic vertical TAMPA blade sign from below",
       "credit": "Ebyabe",
       "license": "CC BY 2.5",
@@ -330,8 +330,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 64
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/a/a4/TampaTheatre01.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/TampaTheatre01.jpg/500px-TampaTheatre01.jpg",
+      "src": "./spot-photos/tampatheatre01-8be31e.webp",
+      "thumb": "./spot-photos/tampatheatre01-8be31e-thumb.webp",
       "caption": "Marquee and office building with palms",
       "credit": "Ebyabe",
       "license": "CC BY 2.5",
@@ -341,8 +341,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "ybor-city": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/White_tower_in_Ybor_City%2C_Tampa_Florida.jpg/1280px-White_tower_in_Ybor_City%2C_Tampa_Florida.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/White_tower_in_Ybor_City%2C_Tampa_Florida.jpg/500px-White_tower_in_Ybor_City%2C_Tampa_Florida.jpg",
+      "src": "./spot-photos/white-tower-in-ybor-city-tampa-florida-d0ea47.webp",
+      "thumb": "./spot-photos/white-tower-in-ybor-city-tampa-florida-d0ea47-thumb.webp",
       "caption": "Historic corner building with green-tiled tower",
       "credit": "psyberartist",
       "license": "CC BY 2.0",
@@ -355,8 +355,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 400
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Centro_Ybor%2C_Ybor_City%2C_Tampa%2C_Florida.jpg/1280px-Centro_Ybor%2C_Ybor_City%2C_Tampa%2C_Florida.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Centro_Ybor%2C_Ybor_City%2C_Tampa%2C_Florida.jpg/500px-Centro_Ybor%2C_Ybor_City%2C_Tampa%2C_Florida.jpg",
+      "src": "./spot-photos/centro-ybor-ybor-city-tampa-florida-b9ef8f.webp",
+      "thumb": "./spot-photos/centro-ybor-ybor-city-tampa-florida-b9ef8f-thumb.webp",
       "caption": "Centro Ybor facade with vintage streetcar",
       "credit": "Peter K Burian",
       "license": "CC BY-SA 4.0",
@@ -369,8 +369,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 500
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Ybor_City_Museum_State_Park%2C_Tampa%2C_Florida.jpg/1280px-Ybor_City_Museum_State_Park%2C_Tampa%2C_Florida.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Ybor_City_Museum_State_Park%2C_Tampa%2C_Florida.jpg/500px-Ybor_City_Museum_State_Park%2C_Tampa%2C_Florida.jpg",
+      "src": "./spot-photos/ybor-city-museum-state-park-tampa-florida-284a3b.webp",
+      "thumb": "./spot-photos/ybor-city-museum-state-park-tampa-florida-284a3b-thumb.webp",
       "caption": "Yellow-brick Ybor City Museum with flags",
       "credit": "Peter K Burian",
       "license": "CC BY-SA 4.0",
@@ -385,8 +385,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "lettuce-lake-park": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Great_Blue_Heron_%2849111167428%29.jpg/1280px-Great_Blue_Heron_%2849111167428%29.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Great_Blue_Heron_%2849111167428%29.jpg/500px-Great_Blue_Heron_%2849111167428%29.jpg",
+      "src": "./spot-photos/great-blue-heron-49111167428-f3e29a.webp",
+      "thumb": "./spot-photos/great-blue-heron-49111167428-f3e29a-thumb.webp",
       "caption": "Great blue heron perched over still water",
       "credit": "Trish Hartmann from Tampa, Florida, USA",
       "license": "CC BY 2.0",
@@ -399,8 +399,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 160
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Kayaking_on_the_Hillsborough_River.jpg/1280px-Kayaking_on_the_Hillsborough_River.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Kayaking_on_the_Hillsborough_River.jpg/500px-Kayaking_on_the_Hillsborough_River.jpg",
+      "src": "./spot-photos/kayaking-on-the-hillsborough-river-681a51.webp",
+      "thumb": "./spot-photos/kayaking-on-the-hillsborough-river-681a51-thumb.webp",
       "caption": "Cypress and palm mirrored in calm river",
       "credit": "Mwanner",
       "license": "CC BY-SA 3.0",
@@ -408,8 +408,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "light": "daytime"
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Barred_Owl_at_Lettuce_Lake_%2812735495095%29.jpg/1280px-Barred_Owl_at_Lettuce_Lake_%2812735495095%29.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Barred_Owl_at_Lettuce_Lake_%2812735495095%29.jpg/500px-Barred_Owl_at_Lettuce_Lake_%2812735495095%29.jpg",
+      "src": "./spot-photos/barred-owl-at-lettuce-lake-12735495095-9245f4.webp",
+      "thumb": "./spot-photos/barred-owl-at-lettuce-lake-12735495095-9245f4-thumb.webp",
       "caption": "Barred owl on a mossy branch",
       "credit": "Trish Hartmann from Tampa, Florida, USA",
       "license": "CC BY 2.0",
@@ -424,8 +424,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "usf-botanical-gardens": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Dyckia_Red2_USF_Asit.jpg/1280px-Dyckia_Red2_USF_Asit.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Dyckia_Red2_USF_Asit.jpg/500px-Dyckia_Red2_USF_Asit.jpg",
+      "src": "./spot-photos/dyckia-red2-usf-asit-efb17c.webp",
+      "thumb": "./spot-photos/dyckia-red2-usf-asit-efb17c-thumb.webp",
       "caption": "Vivid red bromeliad rosette, exotic collection",
       "credit": "Asit K. Ghosh Thaumaturgist",
       "license": "CC BY-SA 3.0",
@@ -438,8 +438,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 100
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/BalsamPear02_USF_Asit.JPG/1280px-BalsamPear02_USF_Asit.JPG",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/BalsamPear02_USF_Asit.JPG/500px-BalsamPear02_USF_Asit.JPG",
+      "src": "./spot-photos/balsampear02-usf-asit-d4ccbe.webp",
+      "thumb": "./spot-photos/balsampear02-usf-asit-d4ccbe-thumb.webp",
       "caption": "Backlit orange fruit glowing in foliage",
       "credit": "asitkghosh@yahoo.com Thaumaturgist",
       "license": "CC BY-SA 3.0",
@@ -452,8 +452,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 100
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/BalsamPear04_USF_Asit.JPG/1280px-BalsamPear04_USF_Asit.JPG",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/BalsamPear04_USF_Asit.JPG/500px-BalsamPear04_USF_Asit.JPG",
+      "src": "./spot-photos/balsampear04-usf-asit-c22356.webp",
+      "thumb": "./spot-photos/balsampear04-usf-asit-c22356-thumb.webp",
       "caption": "Bright orange bloom among lush greenery",
       "credit": "asitkghosh@yahoo.com Thaumaturgist",
       "license": "CC BY-SA 3.0",
@@ -468,8 +468,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "sunken-gardens": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/0/09/Coy_pond_at_the_entrance_to_the_Sunken_Gardens-_St._Petersburg%2C_Florida_%288527270077%29.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Coy_pond_at_the_entrance_to_the_Sunken_Gardens-_St._Petersburg%2C_Florida_%288527270077%29.jpg/500px-Coy_pond_at_the_entrance_to_the_Sunken_Gardens-_St._Petersburg%2C_Florida_%288527270077%29.jpg",
+      "src": "./spot-photos/coy-pond-at-the-entrance-to-the-sunken-gardens-st-pe-845d92.webp",
+      "thumb": "./spot-photos/coy-pond-at-the-entrance-to-the-sunken-gardens-st-pe-845d92-thumb.webp",
       "caption": "Grotto waterfall over koi-and-lily pond",
       "credit": "Florida Memory",
       "license": "Public domain",
@@ -477,8 +477,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "light": "daytime"
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/3/35/Scarlet_Ibis_at_Sunken_Gardens-_St._Petersburg%2C_Florida_%288528405744%29.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Scarlet_Ibis_at_Sunken_Gardens-_St._Petersburg%2C_Florida_%288528405744%29.jpg/500px-Scarlet_Ibis_at_Sunken_Gardens-_St._Petersburg%2C_Florida_%288528405744%29.jpg",
+      "src": "./spot-photos/scarlet-ibis-at-sunken-gardens-st-petersburg-florida-f524c5.webp",
+      "thumb": "./spot-photos/scarlet-ibis-at-sunken-gardens-st-petersburg-florida-f524c5-thumb.webp",
       "caption": "Scarlet ibis portrait in soft shade",
       "credit": "Florida Memory",
       "license": "Public domain",
@@ -486,8 +486,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "light": "open-shade"
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/St._Petersburg_FL_Sunken_Gardens_gate01.jpg/1280px-St._Petersburg_FL_Sunken_Gardens_gate01.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/St._Petersburg_FL_Sunken_Gardens_gate01.jpg/500px-St._Petersburg_FL_Sunken_Gardens_gate01.jpg",
+      "src": "./spot-photos/st-petersburg-fl-sunken-gardens-gate01-bf22df.webp",
+      "thumb": "./spot-photos/st-petersburg-fl-sunken-gardens-gate01-bf22df-thumb.webp",
       "caption": "Gate framed by bougainvillea and palms",
       "credit": "Ebyabe",
       "license": "CC BY-SA 3.0",
@@ -502,8 +502,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "fort-de-soto-park": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Sunset_on_North_Beach_at_Fort_De_Soto_Park.jpg/1280px-Sunset_on_North_Beach_at_Fort_De_Soto_Park.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Sunset_on_North_Beach_at_Fort_De_Soto_Park.jpg/500px-Sunset_on_North_Beach_at_Fort_De_Soto_Park.jpg",
+      "src": "./spot-photos/sunset-on-north-beach-at-fort-de-soto-park-8a829b.webp",
+      "thumb": "./spot-photos/sunset-on-north-beach-at-fort-de-soto-park-8a829b-thumb.webp",
       "caption": "Gulf sunset over calm North Beach surf",
       "credit": "Christopher Hollis",
       "license": "Public domain",
@@ -516,8 +516,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 100
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Fort_de_Soto_Park_%40_St.Petersburg_%28Florida_-_Gulfcoast%29_%2815684290600%29.jpg/1280px-Fort_de_Soto_Park_%40_St.Petersburg_%28Florida_-_Gulfcoast%29_%2815684290600%29.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Fort_de_Soto_Park_%40_St.Petersburg_%28Florida_-_Gulfcoast%29_%2815684290600%29.jpg/500px-Fort_de_Soto_Park_%40_St.Petersburg_%28Florida_-_Gulfcoast%29_%2815684290600%29.jpg",
+      "src": "./spot-photos/fort-de-soto-park-st-petersburg-florida-gulfcoast-15-89e994.webp",
+      "thumb": "./spot-photos/fort-de-soto-park-st-petersburg-florida-gulfcoast-15-89e994-thumb.webp",
       "caption": "White-sand spit and lagoon with passing yacht",
       "credit": "Reinhard Link from Germany",
       "license": "CC BY-SA 2.0",
@@ -532,8 +532,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "honeymoon-island-sp": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Honeymoon_Island_State_Park_%28Image_1%29.jpg/1280px-Honeymoon_Island_State_Park_%28Image_1%29.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Honeymoon_Island_State_Park_%28Image_1%29.jpg/500px-Honeymoon_Island_State_Park_%28Image_1%29.jpg",
+      "src": "./spot-photos/honeymoon-island-state-park-image-1-ff1a72.webp",
+      "thumb": "./spot-photos/honeymoon-island-state-park-image-1-ff1a72-thumb.webp",
       "caption": "Turquoise Gulf surf on shell beach",
       "credit": "Christopher Hollis",
       "license": "Public domain",
@@ -546,8 +546,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 100
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Honeymoon_Island_State_Park_%28Image_3%29.jpg/1280px-Honeymoon_Island_State_Park_%28Image_3%29.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Honeymoon_Island_State_Park_%28Image_3%29.jpg/500px-Honeymoon_Island_State_Park_%28Image_3%29.jpg",
+      "src": "./spot-photos/honeymoon-island-state-park-image-3-6f3182.webp",
+      "thumb": "./spot-photos/honeymoon-island-state-park-image-3-6f3182-thumb.webp",
       "caption": "Wooden swing facing the Gulf",
       "credit": "Christopher Hollis",
       "license": "Public domain",
@@ -560,8 +560,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 100
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Honeymoon_Island_State_Park_%28Image_2%29.jpg/1280px-Honeymoon_Island_State_Park_%28Image_2%29.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Honeymoon_Island_State_Park_%28Image_2%29.jpg/500px-Honeymoon_Island_State_Park_%28Image_2%29.jpg",
+      "src": "./spot-photos/honeymoon-island-state-park-image-2-b31bf8.webp",
+      "thumb": "./spot-photos/honeymoon-island-state-park-image-2-b31bf8-thumb.webp",
       "caption": "Leaning tree over shell shoreline",
       "credit": "Christopher Hollis",
       "license": "Public domain",
@@ -576,8 +576,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "sunshine-skyway-fishing-piers": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/d/d5/Sunshine_Skyway_Bridge.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/d/d5/Sunshine_Skyway_Bridge.jpg",
+      "src": "./spot-photos/sunshine-skyway-bridge-08d716.webp",
+      "thumb": "./spot-photos/sunshine-skyway-bridge-08d716-thumb.webp",
       "caption": "Lit Skyway span over the bay at dusk",
       "credit": "The original uploader was Caltrop at English Wikipedia .",
       "license": "Public domain",
@@ -585,8 +585,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "light": "blue-hour"
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/2010-09-10_Sunshine_Skyway_Bridge.jpg/1280px-2010-09-10_Sunshine_Skyway_Bridge.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/2010-09-10_Sunshine_Skyway_Bridge.jpg/500px-2010-09-10_Sunshine_Skyway_Bridge.jpg",
+      "src": "./spot-photos/2010-09-10-sunshine-skyway-bridge-896b1c.webp",
+      "thumb": "./spot-photos/2010-09-10-sunshine-skyway-bridge-896b1c-thumb.webp",
       "caption": "Yellow cables fanning to the tower",
       "credit": "Joe King",
       "license": "CC BY 2.0",
@@ -599,8 +599,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 64
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/a/ab/Sunshine_Skyway_Bridge_1SC_2563.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Sunshine_Skyway_Bridge_1SC_2563.jpg/500px-Sunshine_Skyway_Bridge_1SC_2563.jpg",
+      "src": "./spot-photos/sunshine-skyway-bridge-1sc-2563-abd8ba.webp",
+      "thumb": "./spot-photos/sunshine-skyway-bridge-1sc-2563-abd8ba-thumb.webp",
       "caption": "Bridge silhouette with cargo ship at golden hour",
       "credit": "Robert Neff",
       "license": "CC BY 2.0",
@@ -615,8 +615,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "st-pete-pier": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/2021_St._Pete_Pier_1.jpg/1280px-2021_St._Pete_Pier_1.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/2021_St._Pete_Pier_1.jpg/500px-2021_St._Pete_Pier_1.jpg",
+      "src": "./spot-photos/2021-st-pete-pier-1-019e46.webp",
+      "thumb": "./spot-photos/2021-st-pete-pier-1-019e46-thumb.webp",
       "caption": "Modern pier head with palms, blue sky",
       "credit": "Beyond My Ken",
       "license": "CC BY-SA 4.0",
@@ -628,8 +628,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "shutter": "1/2558"
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/St._Pete_Pier_-_West.jpg/1280px-St._Pete_Pier_-_West.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/St._Pete_Pier_-_West.jpg/500px-St._Pete_Pier_-_West.jpg",
+      "src": "./spot-photos/st-pete-pier-west-d78484.webp",
+      "thumb": "./spot-photos/st-pete-pier-west-d78484-thumb.webp",
       "caption": "Bending Arc net sculpture overhead",
       "credit": "Jackdude101",
       "license": "CC BY-SA 4.0",
@@ -642,8 +642,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 80
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/St._Pete_Pier_head_structure.jpg/1280px-St._Pete_Pier_head_structure.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/St._Pete_Pier_head_structure.jpg/500px-St._Pete_Pier_head_structure.jpg",
+      "src": "./spot-photos/st-pete-pier-head-structure-19f52c.webp",
+      "thumb": "./spot-photos/st-pete-pier-head-structure-19f52c-thumb.webp",
       "caption": "Pier head structure over the bay",
       "credit": "Adog",
       "license": "CC BY-SA 4.0",
@@ -658,8 +658,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "vinoy-park": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/St._Pete_Vinoy_pano01.jpg/1280px-St._Pete_Vinoy_pano01.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/St._Pete_Vinoy_pano01.jpg/500px-St._Pete_Vinoy_pano01.jpg",
+      "src": "./spot-photos/st-pete-vinoy-pano01-ffa6f0.webp",
+      "thumb": "./spot-photos/st-pete-vinoy-pano01-ffa6f0-thumb.webp",
       "caption": "Pink Vinoy hotel framed by palms",
       "credit": "Ebyabe",
       "license": "CC BY-SA 3.0",
@@ -667,8 +667,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "light": "daytime"
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/The_Vinoy_Hotel_04.jpg/1280px-The_Vinoy_Hotel_04.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/The_Vinoy_Hotel_04.jpg/500px-The_Vinoy_Hotel_04.jpg",
+      "src": "./spot-photos/the-vinoy-hotel-04-ff911f.webp",
+      "thumb": "./spot-photos/the-vinoy-hotel-04-ff911f-thumb.webp",
       "caption": "Ornate VINOY window with palm",
       "credit": "MiaCass16",
       "license": "CC BY-SA 4.0",
@@ -681,8 +681,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 80
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/St._Pete_Vinoy_detail02.jpg/1280px-St._Pete_Vinoy_detail02.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/St._Pete_Vinoy_detail02.jpg/500px-St._Pete_Vinoy_detail02.jpg",
+      "src": "./spot-photos/st-pete-vinoy-detail02-0d123b.webp",
+      "thumb": "./spot-photos/st-pete-vinoy-detail02-0d123b-thumb.webp",
       "caption": "Pink facade detail against blue sky",
       "credit": "Ebyabe",
       "license": "CC BY-SA 3.0",
@@ -697,8 +697,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "dali-museum": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Salvador_Dali_Museum_-_panoramio_%2817%29.jpg/1280px-Salvador_Dali_Museum_-_panoramio_%2817%29.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Salvador_Dali_Museum_-_panoramio_%2817%29.jpg/500px-Salvador_Dali_Museum_-_panoramio_%2817%29.jpg",
+      "src": "./spot-photos/salvador-dali-museum-panoramio-17-69ab09.webp",
+      "thumb": "./spot-photos/salvador-dali-museum-panoramio-17-69ab09-thumb.webp",
       "caption": "Enigma glass bubble framed by cypress, dramatic sky",
       "credit": "Art Anderson",
       "license": "CC BY-SA 3.0",
@@ -711,8 +711,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 160
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Salvador_Dal%C3%AD_Museum.JPG/1280px-Salvador_Dal%C3%AD_Museum.JPG",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Salvador_Dal%C3%AD_Museum.JPG/500px-Salvador_Dal%C3%AD_Museum.JPG",
+      "src": "./spot-photos/salvador-dali-museum-a151ac.webp",
+      "thumb": "./spot-photos/salvador-dali-museum-a151ac-thumb.webp",
       "caption": "Full Enigma bubble and concrete museum, palms",
       "credit": "Taty2007",
       "license": "CC BY 3.0",
@@ -725,8 +725,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 100
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/d/d0/Atrium_of_Salvador_Dal%C3%AD_Museum_in_Florida.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Atrium_of_Salvador_Dal%C3%AD_Museum_in_Florida.jpg/500px-Atrium_of_Salvador_Dal%C3%AD_Museum_in_Florida.jpg",
+      "src": "./spot-photos/atrium-of-salvador-dali-museum-in-florida-605a73.webp",
+      "thumb": "./spot-photos/atrium-of-salvador-dali-museum-in-florida-605a73-thumb.webp",
       "caption": "Helical staircase under the geodesic glass dome",
       "credit": "LovelyLillith",
       "license": "CC BY-SA 4.0",
@@ -740,8 +740,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "weedon-island-preserve": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Weedon_Island_preserve_-_panoramio.jpg/1280px-Weedon_Island_preserve_-_panoramio.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Weedon_Island_preserve_-_panoramio.jpg/500px-Weedon_Island_preserve_-_panoramio.jpg",
+      "src": "./spot-photos/weedon-island-preserve-panoramio-a814c7.webp",
+      "thumb": "./spot-photos/weedon-island-preserve-panoramio-a814c7-thumb.webp",
       "caption": "Mangrove boardwalk leading into the preserve",
       "credit": "jesseasmith",
       "license": "CC BY-SA 3.0",
@@ -754,8 +754,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 200
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Weedon_Island_preserve_-_panoramio_%282%29.jpg/1280px-Weedon_Island_preserve_-_panoramio_%282%29.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Weedon_Island_preserve_-_panoramio_%282%29.jpg/500px-Weedon_Island_preserve_-_panoramio_%282%29.jpg",
+      "src": "./spot-photos/weedon-island-preserve-panoramio-2-49cdf9.webp",
+      "thumb": "./spot-photos/weedon-island-preserve-panoramio-2-49cdf9-thumb.webp",
       "caption": "Boardwalk vanishing under towering cumulus clouds",
       "credit": "jesseasmith",
       "license": "CC BY-SA 3.0",
@@ -768,8 +768,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 200
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/3/3b/Weeden_Island01.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Weeden_Island01.jpg/500px-Weeden_Island01.jpg",
+      "src": "./spot-photos/weeden-island01-9a4961.webp",
+      "thumb": "./spot-photos/weeden-island01-9a4961-thumb.webp",
       "caption": "Mangrove wetlands and bay from tower",
       "credit": "Ebyabe",
       "license": "CC BY 2.5",
@@ -779,8 +779,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "cathedral-st-peter-episcopal": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/1/1f/St_Petersburg%2C_FL_-_Downtown_St_Petersburg_Historic_District_-_Cathedral_Church_of_St_Peter_%28Episcopal%29_%283%29.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/St_Petersburg%2C_FL_-_Downtown_St_Petersburg_Historic_District_-_Cathedral_Church_of_St_Peter_%28Episcopal%29_%283%29.jpg/500px-St_Petersburg%2C_FL_-_Downtown_St_Petersburg_Historic_District_-_Cathedral_Church_of_St_Peter_%28Episcopal%29_%283%29.jpg",
+      "src": "./spot-photos/st-petersburg-fl-downtown-st-petersburg-historic-dis-1446c3.webp",
+      "thumb": "./spot-photos/st-petersburg-fl-downtown-st-petersburg-historic-dis-1446c3-thumb.webp",
       "caption": "Brick gable, stained glass and spire",
       "credit": "Jrozwado",
       "license": "CC BY-SA 4.0",
@@ -793,8 +793,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 1250
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/St._Pete_Episc_Cathedral03.jpg/1280px-St._Pete_Episc_Cathedral03.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/St._Pete_Episc_Cathedral03.jpg/500px-St._Pete_Episc_Cathedral03.jpg",
+      "src": "./spot-photos/st-pete-episc-cathedral03-5bb34c.webp",
+      "thumb": "./spot-photos/st-pete-episc-cathedral03-5bb34c-thumb.webp",
       "caption": "Blonde-brick spire against blue sky",
       "credit": "Ebyabe",
       "license": "CC BY-SA 3.0",
@@ -807,8 +807,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 64
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/c/c8/Cathedral_Church_of_St._Peter_at_140_4th_St._N._in_St._Petersburg%2C_Florida.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Cathedral_Church_of_St._Peter_at_140_4th_St._N._in_St._Petersburg%2C_Florida.jpg/500px-Cathedral_Church_of_St._Peter_at_140_4th_St._N._in_St._Petersburg%2C_Florida.jpg",
+      "src": "./spot-photos/cathedral-church-of-st-peter-at-140-4th-st-n-in-st-p-5e7714.webp",
+      "thumb": "./spot-photos/cathedral-church-of-st-peter-at-140-4th-st-n-in-st-p-5e7714-thumb.webp",
       "caption": "Full three-quarter view of cathedral",
       "credit": "Joseph Janney Steinmetz",
       "license": "Public domain",
@@ -818,8 +818,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "cathedral-st-jude-apostle": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Cathedral_of_Saint_Jude_the_Apostle_%28St._Petersburg%2C_Florida%29_-_sanctuary_2.jpg/1280px-Cathedral_of_Saint_Jude_the_Apostle_%28St._Petersburg%2C_Florida%29_-_sanctuary_2.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Cathedral_of_Saint_Jude_the_Apostle_%28St._Petersburg%2C_Florida%29_-_sanctuary_2.jpg/500px-Cathedral_of_Saint_Jude_the_Apostle_%28St._Petersburg%2C_Florida%29_-_sanctuary_2.jpg",
+      "src": "./spot-photos/cathedral-of-saint-jude-the-apostle-st-petersburg-fl-76a65d.webp",
+      "thumb": "./spot-photos/cathedral-of-saint-jude-the-apostle-st-petersburg-fl-76a65d-thumb.webp",
       "caption": "Altar and crucifix with modern stained glass",
       "credit": "Nheyob",
       "license": "CC0",
@@ -832,8 +832,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 125
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Cathedral_of_Saint_Jude_the_Apostle_%28St._Petersburg%2C_Florida%29_-_nave.jpg/1280px-Cathedral_of_Saint_Jude_the_Apostle_%28St._Petersburg%2C_Florida%29_-_nave.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Cathedral_of_Saint_Jude_the_Apostle_%28St._Petersburg%2C_Florida%29_-_nave.jpg/500px-Cathedral_of_Saint_Jude_the_Apostle_%28St._Petersburg%2C_Florida%29_-_nave.jpg",
+      "src": "./spot-photos/cathedral-of-saint-jude-the-apostle-st-petersburg-fl-fe9dd8.webp",
+      "thumb": "./spot-photos/cathedral-of-saint-jude-the-apostle-st-petersburg-fl-fe9dd8-thumb.webp",
       "caption": "Nave pews toward the altar",
       "credit": "Nheyob",
       "license": "CC0",
@@ -846,8 +846,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 125
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Cathedral_of_Saint_Jude_the_Apostle_%28St._Petersburg%2C_Florida%29_-_exterior.jpg/1280px-Cathedral_of_Saint_Jude_the_Apostle_%28St._Petersburg%2C_Florida%29_-_exterior.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Cathedral_of_Saint_Jude_the_Apostle_%28St._Petersburg%2C_Florida%29_-_exterior.jpg/500px-Cathedral_of_Saint_Jude_the_Apostle_%28St._Petersburg%2C_Florida%29_-_exterior.jpg",
+      "src": "./spot-photos/cathedral-of-saint-jude-the-apostle-st-petersburg-fl-0f91bc.webp",
+      "thumb": "./spot-photos/cathedral-of-saint-jude-the-apostle-st-petersburg-fl-0f91bc-thumb.webp",
       "caption": "Orange spire and cathedral name sign",
       "credit": "Nheyob",
       "license": "CC0",
@@ -862,8 +862,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "stpete-shine-murals": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Before_I_Die_Mural.jpg/1280px-Before_I_Die_Mural.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Before_I_Die_Mural.jpg/500px-Before_I_Die_Mural.jpg",
+      "src": "./spot-photos/before-i-die-mural-22bbae.webp",
+      "thumb": "./spot-photos/before-i-die-mural-22bbae-thumb.webp",
       "caption": "\"Before I die\" wall with bikes, people",
       "credit": "Xrzt",
       "license": "CC BY-SA 4.0",
@@ -878,8 +878,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "fred-howard-park": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Howard_Park_Tarpon.jpg/1280px-Howard_Park_Tarpon.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Howard_Park_Tarpon.jpg/500px-Howard_Park_Tarpon.jpg",
+      "src": "./spot-photos/howard-park-tarpon-469b88.webp",
+      "thumb": "./spot-photos/howard-park-tarpon-469b88-thumb.webp",
       "caption": "Gulf sunset behind beach palm silhouettes",
       "credit": "VitaleBaby at English Wikipedia",
       "license": "Public domain",
@@ -892,8 +892,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
       "iso": 250
     },
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Porsche_and_parasail.jpg/1280px-Porsche_and_parasail.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Porsche_and_parasail.jpg/500px-Porsche_and_parasail.jpg",
+      "src": "./spot-photos/porsche-and-parasail-ba34a0.webp",
+      "thumb": "./spot-photos/porsche-and-parasail-ba34a0-thumb.webp",
       "caption": "Kite-surfer rig over windy causeway",
       "credit": "Xrzt",
       "license": "CC BY-SA 4.0",
@@ -908,8 +908,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "azure-tampa-edition": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/EditionTampa.jpg/1280px-EditionTampa.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/EditionTampa.jpg/500px-EditionTampa.jpg",
+      "src": "./spot-photos/editiontampa-d6d727.webp",
+      "thumb": "./spot-photos/editiontampa-d6d727-thumb.webp",
       "caption": "The Tampa EDITION — home of the Azure rooftop",
       "credit": "Chiefmiz",
       "license": "CC0",
@@ -919,8 +919,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "beacon-jw-marriott": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Downtown_Tampa%2C_Florida.jpg/1280px-Downtown_Tampa%2C_Florida.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Downtown_Tampa%2C_Florida.jpg/500px-Downtown_Tampa%2C_Florida.jpg",
+      "src": "./spot-photos/downtown-tampa-florida-9d7ff2.webp",
+      "thumb": "./spot-photos/downtown-tampa-florida-9d7ff2-thumb.webp",
       "caption": "Downtown Tampa skyline — the kind of view from the rooftop",
       "credit": "Clément Bardot",
       "license": "CC BY-SA 4.0",
@@ -935,8 +935,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "mbird-armature-works": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Tampa_Skyline_-_Eric_Statzer.jpg/1280px-Tampa_Skyline_-_Eric_Statzer.jpg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Tampa_Skyline_-_Eric_Statzer.jpg/500px-Tampa_Skyline_-_Eric_Statzer.jpg",
+      "src": "./spot-photos/tampa-skyline-eric-statzer-707126.webp",
+      "thumb": "./spot-photos/tampa-skyline-eric-statzer-707126-thumb.webp",
       "caption": "Downtown skyline across the water from the Heights",
       "credit": "Eric Statzer",
       "license": "CC BY-SA 4.0",
@@ -950,8 +950,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "edge-epicurean": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Downtown_Tampa_%2858977580%29.jpeg/1280px-Downtown_Tampa_%2858977580%29.jpeg",
-      "thumb": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Downtown_Tampa_%2858977580%29.jpeg/500px-Downtown_Tampa_%2858977580%29.jpeg",
+      "src": "./spot-photos/downtown-tampa-58977580-e5dd16.webp",
+      "thumb": "./spot-photos/downtown-tampa-58977580-e5dd16-thumb.webp",
       "caption": "The distant downtown skyline at golden hour",
       "credit": "Steven Buehler",
       "license": "CC BY 3.0",
@@ -966,8 +966,8 @@ export const SPOT_MEDIA: Record<string, SpotMedia[]> =
   ],
   "tampa-murals": [
     {
-      "src": "https://live.staticflickr.com/3875/14492170902_aeffc419dd_b.jpg",
-      "thumb": "https://live.staticflickr.com/3875/14492170902_aeffc419dd_z.jpg",
+      "src": "./spot-photos/14492170902-aeffc419dd-b-6f7d0c.webp",
+      "thumb": "./spot-photos/14492170902-aeffc419dd-z-82fe35-thumb.webp",
       "caption": "The 'Tampa Postcard' mural (by Carl Cowden III) at golden hour",
       "credit": "Photomatt28 (Flickr)",
       "license": "CC BY-NC-ND 2.0",

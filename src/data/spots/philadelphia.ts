@@ -18,7 +18,7 @@ function days(fallback: DaySchedule, overrides: Partial<Record<Weekday, DaySched
 
 // Wikimedia Commons reference photo (license-clean, attributed).
 const pic = (src: string, caption: string, credit: string, license: string, sourceUrl: string, light?: SpotMedia['light']): SpotMedia => ({
-  src, thumb: src.replace('/1280px-', '/500px-'), caption, credit, license, sourceUrl, ...(light ? { light } : {}),
+  src, thumb: src.replace(/\.webp$/, '-thumb.webp'), caption, credit, license, sourceUrl, ...(light ? { light } : {}),
 })
 
 const SPOTS: Spot[] = [
@@ -37,7 +37,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '24-70mm; 70-200 to compress the towers', tripod: true, settingsHint: 'f/8, ISO 100, bracket the bright sky' },
       ifCloudy: 'Low cloud catching city light adds drama; otherwise shoot Boathouse Row from the north side.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Philadelphia_from_South_Street_Bridge_July_2016_panorama_2.jpg/1280px-Philadelphia_from_South_Street_Bridge_July_2016_panorama_2.jpg', 'Center City skyline over the Schuylkill at golden hour', 'King of Hearts', 'CC BY-SA 3.0', 'https://commons.wikimedia.org/wiki/File:Philadelphia_from_South_Street_Bridge_July_2016_panorama_2.jpg', 'evening-golden')],
+    media: [pic('./spot-photos/philadelphia-from-south-street-bridge-july-2016-pano-7ab853.webp', 'Center City skyline over the Schuylkill at golden hour', 'King of Hearts', 'CC BY-SA 3.0', 'https://commons.wikimedia.org/wiki/File:Philadelphia_from_South_Street_Bridge_July_2016_panorama_2.jpg', 'evening-golden')],
   },
   {
     id: 'belmont-plateau', name: 'Belmont Plateau', category: 'skyline', city: 'Philadelphia', region: 'philadelphia',
@@ -54,7 +54,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '70-200mm', tripod: true, settingsHint: 'f/8, ISO 100 to compress the skyline' },
       ifCloudy: 'Dramatic clouds over the skyline work well here; go moody.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/0/0c/Philly_Skyline_From_Belmont_-_panoramio.jpg', 'Distant skyline from Belmont Plateau', 'michaelwm25', 'CC BY 3.0', 'https://commons.wikimedia.org/wiki/File:Philly_Skyline_From_Belmont_-_panoramio.jpg', 'daytime')],
+    media: [pic('./spot-photos/philly-skyline-from-belmont-panoramio-9ae488.webp', 'Distant skyline from Belmont Plateau', 'michaelwm25', 'CC BY 3.0', 'https://commons.wikimedia.org/wiki/File:Philly_Skyline_From_Belmont_-_panoramio.jpg', 'daytime')],
   },
   {
     id: 'race-street-pier', name: 'Race Street Pier', category: 'skyline', city: 'Philadelphia', region: 'philadelphia',
@@ -71,7 +71,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '16-35mm', tripod: true, settingsHint: 'f/11 for sunstars on the bridge lights' },
       ifCloudy: 'The graphic bridge structure works under any sky.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/2012_Ben_Franklin_Bridge_and_Race_Street_Pier.jpg/1280px-2012_Ben_Franklin_Bridge_and_Race_Street_Pier.jpg', 'Benjamin Franklin Bridge over the Delaware', 'Beyond My Ken', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:2012_Ben_Franklin_Bridge_and_Race_Street_Pier.jpg', 'daytime')],
+    media: [pic('./spot-photos/2012-ben-franklin-bridge-and-race-street-pier-e70ea6.webp', 'Benjamin Franklin Bridge over the Delaware', 'Beyond My Ken', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:2012_Ben_Franklin_Bridge_and_Race_Street_Pier.jpg', 'daytime')],
   },
   {
     id: 'boathouse-row', name: 'Boathouse Row', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
@@ -88,7 +88,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '24-70mm + 70-200', tripod: true, settingsHint: 'f/11, ISO 100, 2–15s exposures' },
       ifCloudy: 'Still water and lights work in any sky; aim for just after sunset.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Boathouse_Row-wide.JPG/1280px-Boathouse_Row-wide.JPG', 'Boathouse Row along the Schuylkill', 'Jeffrey M. Vinocur', 'CC BY 2.5', 'https://commons.wikimedia.org/wiki/File:Boathouse_Row-wide.JPG', 'daytime')],
+    media: [pic('./spot-photos/boathouse-row-wide-c9f988.webp', 'Boathouse Row along the Schuylkill', 'Jeffrey M. Vinocur', 'CC BY 2.5', 'https://commons.wikimedia.org/wiki/File:Boathouse_Row-wide.JPG', 'daytime')],
   },
   {
     id: 'bok-bar', name: 'Bok Bar (rooftop)', category: 'rooftop', city: 'Philadelphia', region: 'philadelphia',
@@ -109,7 +109,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '24-70mm', tripod: false, settingsHint: 'Handheld, ISO 800–1600 for blue hour' },
       accessTips: 'Seasonal (Apr–Nov); no cover but it is a bar — first-come. Closed Mon–Tue.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Bok_School_Philly.jpg/960px-Bok_School_Philly.jpg', 'The Art Deco Bok building — the bar is on its roof', 'Smallbones', 'Public domain', 'https://commons.wikimedia.org/wiki/File:Bok_School_Philly.jpg', 'daytime')],
+    media: [pic('./spot-photos/bok-school-philly-8b3708.webp', 'The Art Deco Bok building — the bar is on its roof', 'Smallbones', 'Public domain', 'https://commons.wikimedia.org/wiki/File:Bok_School_Philly.jpg', 'daytime')],
   },
   {
     id: 'philadelphia-city-hall', name: 'Philadelphia City Hall', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
@@ -130,7 +130,7 @@ const SPOTS: Spot[] = [
       ifCloudy: 'The architecture works in soft light; shoot detail and the courtyard.',
       accessTips: 'Exterior + courtyard free anytime; the paid tower tour is weekday-only.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Philadelphia_city_hall.jpg/1280px-Philadelphia_city_hall.jpg', 'City Hall and the William Penn tower', 'Toniklemm', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Philadelphia_city_hall.jpg', 'daytime')],
+    media: [pic('./spot-photos/philadelphia-city-hall-3ebc23.webp', 'City Hall and the William Penn tower', 'Toniklemm', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Philadelphia_city_hall.jpg', 'daytime')],
   },
   {
     id: 'independence-hall', name: 'Independence Hall', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
@@ -147,7 +147,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '24-70mm', tripod: false, settingsHint: 'f/8; watch blown highlights on the white steeple' },
       accessTips: 'Exterior always free. Interior needs a free timed ticket; winter months may not require one.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Exterior_of_the_Independence_Hall%2C_Aug_2019.jpg/1280px-Exterior_of_the_Independence_Hall%2C_Aug_2019.jpg', 'Independence Hall', 'Mys 721tx', 'CC BY-SA 3.0', 'https://commons.wikimedia.org/wiki/File:Exterior_of_the_Independence_Hall,_Aug_2019.jpg', 'daytime')],
+    media: [pic('./spot-photos/exterior-of-the-independence-hall-aug-2019-6fbe46.webp', 'Independence Hall', 'Mys 721tx', 'CC BY-SA 3.0', 'https://commons.wikimedia.org/wiki/File:Exterior_of_the_Independence_Hall,_Aug_2019.jpg', 'daytime')],
   },
   {
     id: 'eastern-state-penitentiary', name: 'Eastern State Penitentiary', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
@@ -169,7 +169,7 @@ const SPOTS: Spot[] = [
       ifCloudy: 'Overcast softens the skylight beams but still works for moody texture shots.',
       accessTips: 'Personal handheld photography is encouraged; tripods require a $10/day pass sold on-site.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Eastern_state_penitentiary09.JPG/1280px-Eastern_state_penitentiary09.JPG', 'The castellated gothic facade on Fairmount Ave', 'Davidt8', 'Public domain', 'https://commons.wikimedia.org/wiki/File:Eastern_state_penitentiary09.JPG', 'daytime')],
+    media: [pic('./spot-photos/eastern-state-penitentiary09-ae01d9.webp', 'The castellated gothic facade on Fairmount Ave', 'Davidt8', 'Public domain', 'https://commons.wikimedia.org/wiki/File:Eastern_state_penitentiary09.JPG', 'daytime')],
   },
   {
     id: 'elfreths-alley', name: "Elfreth's Alley", category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
@@ -190,7 +190,7 @@ const SPOTS: Spot[] = [
       ifCloudy: 'Overcast is ideal for even color on the facades.',
       accessTips: 'Public street; the museum house (#126) tours Fri–Sun for a small fee.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Elfreth%27s_Alley.JPG/1280px-Elfreth%27s_Alley.JPG', 'Cobblestones and colonial rowhouses', 'Mr. Kjetil Ree', 'CC BY-SA 3.0', 'https://commons.wikimedia.org/wiki/File:Elfreth%27s_Alley.JPG', 'daytime')],
+    media: [pic('./spot-photos/elfreth-s-alley-adb151.webp', 'Cobblestones and colonial rowhouses', 'Mr. Kjetil Ree', 'CC BY-SA 3.0', 'https://commons.wikimedia.org/wiki/File:Elfreth%27s_Alley.JPG', 'daytime')],
   },
   {
     id: '30th-street-station', name: '30th Street Station', category: 'interiors', city: 'Philadelphia', region: 'philadelphia',
@@ -210,7 +210,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '16-35mm wide', tripod: false, settingsHint: 'Handheld, high ISO; tripods restricted' },
       accessTips: 'Free public hall; handheld photography OK, tripods discouraged.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Station_Concourse_of_30th_Street_Station.jpg/1280px-Station_Concourse_of_30th_Street_Station.jpg', 'The Art-Deco concourse', 'ZhengZhou', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Station_Concourse_of_30th_Street_Station.jpg', 'daytime')],
+    media: [pic('./spot-photos/station-concourse-of-30th-street-station-862411.webp', 'The Art-Deco concourse', 'ZhengZhou', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Station_Concourse_of_30th_Street_Station.jpg', 'daytime')],
   },
   {
     id: 'reading-terminal-market', name: 'Reading Terminal Market', category: 'interiors', city: 'Philadelphia', region: 'philadelphia',
@@ -231,7 +231,7 @@ const SPOTS: Spot[] = [
       ifCloudy: 'Weather-independent — it’s indoors.',
       accessTips: 'Free; shoot before the 11–2 lunch rush. Ask before photographing people.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Reading_Terminal_Market.png/1280px-Reading_Terminal_Market.png', 'Inside the historic market hall', 'Bruce Andersen', 'CC BY-SA 3.0', 'https://commons.wikimedia.org/wiki/File:Reading_Terminal_Market.png', 'daytime')],
+    media: [pic('./spot-photos/reading-terminal-market-46cd87.webp', 'Inside the historic market hall', 'Bruce Andersen', 'CC BY-SA 3.0', 'https://commons.wikimedia.org/wiki/File:Reading_Terminal_Market.png', 'daytime')],
   },
   {
     id: 'cathedral-basilica-ss-peter-paul', name: 'Cathedral Basilica of SS. Peter and Paul', category: 'interiors', city: 'Philadelphia', region: 'philadelphia',
@@ -251,7 +251,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '16-35mm wide', tripod: false, settingsHint: 'Handheld, ISO 1600+, no flash' },
       accessTips: 'Free; visit outside Mass (Mon–Fri 7–5, Sat 9–6:30, Sun 8–7:30). Be discreet.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Interior_Cathedral_Basilica_of_Saints_Peter_and_Paul_crop.JPG/1280px-Interior_Cathedral_Basilica_of_Saints_Peter_and_Paul_crop.JPG', "The cathedral's domed interior", 'Interstate295r, cropped by Beyond My Ken', 'CC BY-SA 3.0', 'https://commons.wikimedia.org/wiki/File:Interior_Cathedral_Basilica_of_Saints_Peter_and_Paul_crop.JPG', 'daytime')],
+    media: [pic('./spot-photos/interior-cathedral-basilica-of-saints-peter-and-paul-8f69b3.webp', "The cathedral's domed interior", 'Interstate295r, cropped by Beyond My Ken', 'CC BY-SA 3.0', 'https://commons.wikimedia.org/wiki/File:Interior_Cathedral_Basilica_of_Saints_Peter_and_Paul_crop.JPG', 'daytime')],
   },
   {
     id: 'shofuso-japanese-house', name: 'Shofuso Japanese House & Garden', category: 'gardens', city: 'Philadelphia', region: 'philadelphia',
@@ -273,7 +273,7 @@ const SPOTS: Spot[] = [
       ifCloudy: 'Overcast is ideal — even color on the garden and house.',
       accessTips: 'Timed tickets (~$15); shoes off inside. Closed Mon/Tue and deep winter.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Shofuso_Spring.jpg/1280px-Shofuso_Spring.jpg', 'The Japanese house mirrored in the koi pond', '松風荘', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Shofuso_Spring.jpg', 'open-shade')],
+    media: [pic('./spot-photos/shofuso-spring-6f0493.webp', 'The Japanese house mirrored in the koi pond', '松風荘', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Shofuso_Spring.jpg', 'open-shade')],
   },
   {
     id: 'bartrams-garden', name: "Bartram's Garden", category: 'gardens', city: 'Philadelphia', region: 'philadelphia',
@@ -294,7 +294,7 @@ const SPOTS: Spot[] = [
       ifCloudy: 'The historic house and meadows work in soft light.',
       accessTips: 'Grounds free, sunrise–sunset. Free parking in the 54th St loop.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/John_Bartram%27s_Stone_Barn_at_Bartram%27s_Garden_in_Philadelphia%2C_PA.jpg/1280px-John_Bartram%27s_Stone_Barn_at_Bartram%27s_Garden_in_Philadelphia%2C_PA.jpg', "Bartram's historic stone barn", 'Muran.Fox', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:John_Bartram%27s_Stone_Barn_at_Bartram%27s_Garden_in_Philadelphia,_PA.jpg', 'daytime')],
+    media: [pic('./spot-photos/john-bartram-s-stone-barn-at-bartram-s-garden-in-phi-403b8b.webp', "Bartram's historic stone barn", 'Muran.Fox', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:John_Bartram%27s_Stone_Barn_at_Bartram%27s_Garden_in_Philadelphia,_PA.jpg', 'daytime')],
   },
   {
     id: 'morris-arboretum', name: 'Morris Arboretum & Gardens', category: 'gardens', city: 'Philadelphia', region: 'philadelphia',
@@ -316,7 +316,7 @@ const SPOTS: Spot[] = [
       ifCloudy: 'Open shade / overcast is perfect for even garden and flower light.',
       accessTips: 'Open daily 10–5 (Apr–Oct weekends from 9). Casual photography free.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Canna_%C3%97_ehemannii%2C_Morris_Arboretum_01.jpg/1280px-Canna_%C3%97_ehemannii%2C_Morris_Arboretum_01.jpg', 'A canna bloom in the arboretum gardens', 'Shuvaev', 'CC BY 4.0', 'https://commons.wikimedia.org/wiki/File:Canna_%C3%97_ehemannii,_Morris_Arboretum_01.jpg', 'daytime')],
+    media: [pic('./spot-photos/canna-ehemannii-morris-arboretum-01-c05690.webp', 'A canna bloom in the arboretum gardens', 'Shuvaev', 'CC BY 4.0', 'https://commons.wikimedia.org/wiki/File:Canna_%C3%97_ehemannii,_Morris_Arboretum_01.jpg', 'daytime')],
   },
   {
     id: 'wissahickon-forbidden-drive', name: 'Wissahickon Valley (Forbidden Drive)', category: 'nature', city: 'Philadelphia', region: 'philadelphia',
@@ -337,7 +337,7 @@ const SPOTS: Spot[] = [
       ifCloudy: 'Overcast is ideal for even forest light and reflections.',
       accessTips: 'Free, dawn-to-dusk. Arrive early for the small Valley Green lot.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Wissahickon_Creek_in_autumn_near_the_Valley_Green_Inn.jpg/1280px-Wissahickon_Creek_in_autumn_near_the_Valley_Green_Inn.jpg', 'Wissahickon Creek along Forbidden Drive in autumn', 'Harrison Keely', 'CC BY 4.0', 'https://commons.wikimedia.org/wiki/File:Wissahickon_Creek_in_autumn_near_the_Valley_Green_Inn.jpg', 'morning-golden')],
+    media: [pic('./spot-photos/wissahickon-creek-in-autumn-near-the-valley-green-in-e95cb9.webp', 'Wissahickon Creek along Forbidden Drive in autumn', 'Harrison Keely', 'CC BY 4.0', 'https://commons.wikimedia.org/wiki/File:Wissahickon_Creek_in_autumn_near_the_Valley_Green_Inn.jpg', 'morning-golden')],
   },
   {
     id: 'philadelphia-museum-of-art', name: 'Philadelphia Museum of Art (Rocky Steps)', category: 'skyline', city: 'Philadelphia', region: 'philadelphia',
@@ -358,7 +358,7 @@ const SPOTS: Spot[] = [
       ifCloudy: 'The facade and grand staircase carry an overcast frame; shoot the building and details.',
       accessTips: 'Outdoor steps + terrace free anytime; the ticketed interior (~$25) has the Great Stair Hall.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/PhiladelphiaMuseumOfArt2017.jpg/1280px-PhiladelphiaMuseumOfArt2017.jpg', 'The Art Museum and the Rocky Steps', 'Meihe Chen', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:PhiladelphiaMuseumOfArt2017.jpg', 'daytime')],
+    media: [pic('./spot-photos/philadelphiamuseumofart2017-c7c775.webp', 'The Art Museum and the Rocky Steps', 'Meihe Chen', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:PhiladelphiaMuseumOfArt2017.jpg', 'daytime')],
   },
   {
     id: 'schuylkill-banks-boardwalk', name: 'Schuylkill Banks Boardwalk', category: 'skyline', city: 'Philadelphia', region: 'philadelphia',
@@ -375,7 +375,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '16-35mm + 24-70mm', tripod: true, settingsHint: 'f/11, ISO 100, 2-15s at blue hour' },
       ifCloudy: 'Low cloud catching city light adds drama over the river.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/The_Philadelphia_skyline_%28cropped%29.jpg/1280px-The_Philadelphia_skyline_%28cropped%29.jpg', 'Center City skyline mirrored in the Schuylkill', 'Mefman00', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:The_Philadelphia_skyline_(cropped).jpg', 'daytime')],
+    media: [pic('./spot-photos/the-philadelphia-skyline-cropped-f34ace.webp', 'Center City skyline mirrored in the Schuylkill', 'Mefman00', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:The_Philadelphia_skyline_(cropped).jpg', 'daytime')],
   },
   {
     id: 'penns-landing', name: "Penn's Landing (Delaware Waterfront)", category: 'skyline', city: 'Philadelphia', region: 'philadelphia',
@@ -392,7 +392,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '24-70mm + 70-200', tripod: true, settingsHint: 'f/11, ISO 100, 5-20s at blue hour' },
       ifCloudy: 'The bridge and lit waterfront carry any sky; aim for just after sunset.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Philadelphia209.jpg/1280px-Philadelphia209.jpg', 'The Benjamin Franklin Bridge over the Delaware at dusk', 'Diego Delso', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Philadelphia209.jpg', 'blue-hour')],
+    media: [pic('./spot-photos/philadelphia209-4a7431.webp', 'The Benjamin Franklin Bridge over the Delaware at dusk', 'Diego Delso', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Philadelphia209.jpg', 'blue-hour')],
   },
   {
     id: 'fairmount-water-works', name: 'Fairmount Water Works', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
@@ -412,7 +412,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '24-70mm', tripod: true, settingsHint: 'f/8; polarizer for the river' },
       ifCloudy: 'The neoclassical architecture works in soft light; focus on detail and reflections.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Fairmount_Water_Works_and_Philadelphia_Art_Museum.jpg/1280px-Fairmount_Water_Works_and_Philadelphia_Art_Museum.jpg', 'The Fairmount Water Works below the Art Museum', 'Laura Klotz', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Fairmount_Water_Works_and_Philadelphia_Art_Museum.jpg', 'daytime')],
+    media: [pic('./spot-photos/fairmount-water-works-and-philadelphia-art-museum-4e3f35.webp', 'The Fairmount Water Works below the Art Museum', 'Laura Klotz', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Fairmount_Water_Works_and_Philadelphia_Art_Museum.jpg', 'daytime')],
   },
   {
     id: 'swann-memorial-fountain', name: 'Swann Memorial Fountain (Logan Square)', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
@@ -429,7 +429,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '24-70mm; 70-200 for figures', tripod: true, settingsHint: 'Slow shutter to blur water; f/11' },
       ifCloudy: 'Overcast softens harsh highlights on the bronze — good for figure detail.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Swann_Memorial_Fountain%2C_Philadelphia.jpg/1280px-Swann_Memorial_Fountain%2C_Philadelphia.jpg', 'Swann Memorial Fountain on Logan Circle', 'Dudva', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Swann_Memorial_Fountain,_Philadelphia.jpg', 'daytime')],
+    media: [pic('./spot-photos/swann-memorial-fountain-philadelphia-dfc0f7.webp', 'Swann Memorial Fountain on Logan Circle', 'Dudva', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Swann_Memorial_Fountain,_Philadelphia.jpg', 'daytime')],
   },
   {
     id: 'rodin-museum-philadelphia', name: 'Rodin Museum', category: 'gardens', city: 'Philadelphia', region: 'philadelphia',
@@ -449,7 +449,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '24-70mm; 85mm for sculpture', tripod: false, settingsHint: 'f/5.6-8; open shade flatters bronze' },
       ifCloudy: 'Overcast is ideal — even, shadowless light on the bronzes and facade.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Rodin_Museum_-_Joy_of_Museums_2.jpg/1280px-Rodin_Museum_-_Joy_of_Museums_2.jpg', 'The Rodin Museum and its formal garden', 'GordonMakryllos', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Rodin_Museum_-_Joy_of_Museums_2.jpg', 'daytime')],
+    media: [pic('./spot-photos/rodin-museum-joy-of-museums-2-db5f89.webp', 'The Rodin Museum and its formal garden', 'GordonMakryllos', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Rodin_Museum_-_Joy_of_Museums_2.jpg', 'daytime')],
   },
   {
     id: 'memorial-hall-philadelphia', name: 'Memorial Hall (Fairmount Park)', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
@@ -466,7 +466,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '16-35mm wide; 70-200 for the dome figure', tripod: false, settingsHint: 'f/8 for sharp facade detail' },
       ifCloudy: 'The architecture holds soft light well; shoot the symmetry and detail.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Philadelphia_Memorial_Hall_20210715.jpg/1280px-Philadelphia_Memorial_Hall_20210715.jpg', "Memorial Hall's Beaux-Arts dome", 'Foolish Productions Photography', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Philadelphia_Memorial_Hall_20210715.jpg', 'daytime')],
+    media: [pic('./spot-photos/philadelphia-memorial-hall-20210715-13abd9.webp', "Memorial Hall's Beaux-Arts dome", 'Foolish Productions Photography', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Philadelphia_Memorial_Hall_20210715.jpg', 'daytime')],
   },
   {
     id: 'christ-church-philadelphia', name: 'Christ Church (Old City)', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
@@ -483,7 +483,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '24-70mm; 70-200 for the steeple', tripod: false, settingsHint: 'f/8; watch highlights on the white spire' },
       ifCloudy: 'Soft light suits the brick and white trim; shoot detail and the churchyard.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Christ_Church%2C_Philadelphia_12.2021_%28edited%29.jpg/1280px-Christ_Church%2C_Philadelphia_12.2021_%28edited%29.jpg', 'Christ Church and its Georgian steeple', 'Al R', 'CC BY-SA 2.0', 'https://commons.wikimedia.org/wiki/File:Christ_Church,_Philadelphia_12.2021_(edited).jpg', 'daytime')],
+    media: [pic('./spot-photos/christ-church-philadelphia-12-2021-edited-860c5b.webp', 'Christ Church and its Georgian steeple', 'Al R', 'CC BY-SA 2.0', 'https://commons.wikimedia.org/wiki/File:Christ_Church,_Philadelphia_12.2021_(edited).jpg', 'daytime')],
   },
   {
     id: 'head-house-square', name: 'Head House Square (Society Hill)', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
@@ -500,7 +500,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '24-70mm', tripod: false, settingsHint: 'f/5.6-8; shoot before the market crowds' },
       ifCloudy: 'Overcast evens the brick and cobblestone tones — ideal for the arcade.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Head_House_-_Philadelphia_%282642082521%29.jpg/1280px-Head_House_-_Philadelphia_%282642082521%29.jpg', 'The Head House and market shambles', 'Reading Tom', 'CC BY 2.0', 'https://commons.wikimedia.org/wiki/File:Head_House_-_Philadelphia_(2642082521).jpg', 'daytime')],
+    media: [pic('./spot-photos/head-house-philadelphia-2642082521-828629.webp', 'The Head House and market shambles', 'Reading Tom', 'CC BY 2.0', 'https://commons.wikimedia.org/wiki/File:Head_House_-_Philadelphia_(2642082521).jpg', 'daytime')],
   },
   {
     id: 'fisher-fine-arts-library', name: 'Fisher Fine Arts Library (Penn)', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
@@ -520,7 +520,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '16-35mm + 24-70mm', tripod: true, settingsHint: 'f/8, ISO 100, 1-8s at blue hour' },
       ifCloudy: 'The red sandstone saturates under soft light; shoot detail and the facade.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Fisher_Fine_Arts_Library_at_Night.jpg/1280px-Fisher_Fine_Arts_Library_at_Night.jpg', "Furness's Fisher Fine Arts Library at night", 'Shirt Vonnegut', 'CC0', 'https://commons.wikimedia.org/wiki/File:Fisher_Fine_Arts_Library_at_Night.jpg', 'blue-hour')],
+    media: [pic('./spot-photos/fisher-fine-arts-library-at-night-c105a5.webp', "Furness's Fisher Fine Arts Library at night", 'Shirt Vonnegut', 'CC0', 'https://commons.wikimedia.org/wiki/File:Fisher_Fine_Arts_Library_at_Night.jpg', 'blue-hour')],
   },
   {
     id: 'franklin-institute', name: 'The Franklin Institute', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
@@ -541,7 +541,7 @@ const SPOTS: Spot[] = [
       ifCloudy: 'The rotunda is interior — weather-independent; shoot the dome and statue.',
       accessTips: 'The rotunda is free; go early for empty frames. Tripods need museum permission.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Philadelphia_October_2017_10_%28The_Franklin_Institute%29.jpg/1280px-Philadelphia_October_2017_10_%28The_Franklin_Institute%29.jpg', 'The Franklin Institute', 'Michael Barera', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Philadelphia_October_2017_10_(The_Franklin_Institute).jpg', 'daytime')],
+    media: [pic('./spot-photos/philadelphia-october-2017-10-the-franklin-institute-dc8c80.webp', 'The Franklin Institute', 'Michael Barera', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Philadelphia_October_2017_10_(The_Franklin_Institute).jpg', 'daytime')],
   },
   {
     id: 'penn-museum', name: 'Penn Museum (Harrison Rotunda)', category: 'interiors', city: 'Philadelphia', region: 'philadelphia',
@@ -561,7 +561,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '16-35mm wide', tripod: false, settingsHint: 'Handheld, ISO 1600+, no flash' },
       ifCloudy: 'Interior — weather-independent; shoot the rotunda and sphinx.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/The_Rotunda_of_the_Penn_Museum.jpg/1280px-The_Rotunda_of_the_Penn_Museum.jpg', 'The Harrison Rotunda dome', 'AttaleianAnatolian', 'CC0', 'https://commons.wikimedia.org/wiki/File:The_Rotunda_of_the_Penn_Museum.jpg', 'daytime')],
+    media: [pic('./spot-photos/the-rotunda-of-the-penn-museum-d27cbc.webp', 'The Harrison Rotunda dome', 'AttaleianAnatolian', 'CC0', 'https://commons.wikimedia.org/wiki/File:The_Rotunda_of_the_Penn_Museum.jpg', 'daytime')],
   },
   {
     id: 'rittenhouse-square', name: 'Rittenhouse Square', category: 'nature', city: 'Philadelphia', region: 'philadelphia',
@@ -578,7 +578,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '24-70mm; 35mm for scenes', tripod: false, settingsHint: 'f/4-5.6; backlight the leaves' },
       ifCloudy: 'Overcast is perfect for even light on the canopy and paths.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Rittenhouse_Square_-_autumn_-_IMG_6571.JPG/1280px-Rittenhouse_Square_-_autumn_-_IMG_6571.JPG', 'Rittenhouse Square in autumn', 'Daderot', 'Public domain', 'https://commons.wikimedia.org/wiki/File:Rittenhouse_Square_-_autumn_-_IMG_6571.JPG', 'open-shade')],
+    media: [pic('./spot-photos/rittenhouse-square-autumn-img-6571-757ab0.webp', 'Rittenhouse Square in autumn', 'Daderot', 'Public domain', 'https://commons.wikimedia.org/wiki/File:Rittenhouse_Square_-_autumn_-_IMG_6571.JPG', 'open-shade')],
   },
   {
     id: 'washington-square', name: 'Washington Square', category: 'nature', city: 'Philadelphia', region: 'philadelphia',
@@ -595,7 +595,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '24-70mm', tripod: false, settingsHint: 'f/5.6; shoot the canopy backlit' },
       ifCloudy: 'Overcast evens the light for the paths and fall color.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Washington_Square_northeast_entrance.jpg/1280px-Washington_Square_northeast_entrance.jpg', "Washington Square's tree-lined entrance", 'Beyond My Ken', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Washington_Square_northeast_entrance.jpg', 'daytime')],
+    media: [pic('./spot-photos/washington-square-northeast-entrance-ae59df.webp', "Washington Square's tree-lined entrance", 'Beyond My Ken', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Washington_Square_northeast_entrance.jpg', 'daytime')],
   },
   {
     id: 'manayunk', name: 'Manayunk (Main Street & Canal)', category: 'nature', city: 'Philadelphia', region: 'philadelphia',
@@ -615,7 +615,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '24-70mm + 70-200', tripod: false, settingsHint: 'f/8; telephoto to stack the houses' },
       ifCloudy: 'Soft light suits the canal reflections and colorful streetscape.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Manayunk_III.jpg/1280px-Manayunk_III.jpg', 'Manayunk above the Schuylkill', 'Michael Stokes', 'CC BY 2.0', 'https://commons.wikimedia.org/wiki/File:Manayunk_III.jpg', 'daytime')],
+    media: [pic('./spot-photos/manayunk-iii-319a0e.webp', 'Manayunk above the Schuylkill', 'Michael Stokes', 'CC BY 2.0', 'https://commons.wikimedia.org/wiki/File:Manayunk_III.jpg', 'daytime')],
   },
   {
     id: 'fdr-park', name: 'FDR Park', category: 'nature', city: 'Philadelphia', region: 'philadelphia',
@@ -635,7 +635,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '24-70mm + 70-200', tripod: true, settingsHint: 'f/8; calm dawn for glassy water' },
       ifCloudy: 'Overcast gives even light and mist for moody reflections.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/FDR_Park_2A.JPG/1280px-FDR_Park_2A.JPG', 'The gazebo and lake at FDR Park', 'Smallbones', 'Public domain', 'https://commons.wikimedia.org/wiki/File:FDR_Park_2A.JPG', 'daytime')],
+    media: [pic('./spot-photos/fdr-park-2a-13d62f.webp', 'The gazebo and lake at FDR Park', 'Smallbones', 'Public domain', 'https://commons.wikimedia.org/wiki/File:FDR_Park_2A.JPG', 'daytime')],
   },
   {
     id: 'laurel-hill-cemetery', name: 'Laurel Hill Cemetery', category: 'nature', city: 'Philadelphia', region: 'philadelphia',
@@ -655,7 +655,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '35mm + 85mm', tripod: false, settingsHint: 'f/2.8-4 to isolate; open shade flatters stone' },
       ifCloudy: 'Overcast or fog is ideal — soft, even light for the statuary.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Yellow_Fever_Memorial_in_Laurel_Hill_Cemetery.jpg/1280px-Yellow_Fever_Memorial_in_Laurel_Hill_Cemetery.jpg', 'Victorian statuary at Laurel Hill', 'Dwkaminski', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Yellow_Fever_Memorial_in_Laurel_Hill_Cemetery.jpg', 'daytime')],
+    media: [pic('./spot-photos/yellow-fever-memorial-in-laurel-hill-cemetery-9098a2.webp', 'Victorian statuary at Laurel Hill', 'Dwkaminski', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Yellow_Fever_Memorial_in_Laurel_Hill_Cemetery.jpg', 'daytime')],
   },
   {
     id: 'manayunk-bridge-trail', name: 'Manayunk Bridge Trail', category: 'skyline', city: 'Philadelphia', region: 'philadelphia',
@@ -675,7 +675,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '24-70mm + 70-200', tripod: true, settingsHint: 'f/8; brace against deck vibration from cyclists' },
       ifCloudy: 'The graphic deck curve and bridge structure carry an overcast frame.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Aerial_View_of_Manayunk_Bridge.jpg/1280px-Aerial_View_of_Manayunk_Bridge.jpg', 'The S-curve viaduct over the Schuylkill', 'Sir Joseph', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Aerial_View_of_Manayunk_Bridge.jpg', 'daytime')],
+    media: [pic('./spot-photos/aerial-view-of-manayunk-bridge-202e95.webp', 'The S-curve viaduct over the Schuylkill', 'Sir Joseph', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Aerial_View_of_Manayunk_Bridge.jpg', 'daytime')],
   },
   {
     id: 'manayunk-canal-locks', name: 'Manayunk Canal & Locks', category: 'nature', city: 'Philadelphia', region: 'philadelphia',
@@ -695,7 +695,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '24-70mm', tripod: true, settingsHint: 'Polarizer to tune the reflection; f/8' },
       ifCloudy: 'Overcast flatters the brick, stone and water — an all-weather spot.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Manayunk_Canal_2009.jpg/1280px-Manayunk_Canal_2009.jpg', 'The canal and towpath at Manayunk', 'J Clear', 'CC BY-SA 3.0', 'https://commons.wikimedia.org/wiki/File:Manayunk_Canal_2009.jpg', 'daytime')],
+    media: [pic('./spot-photos/manayunk-canal-2009-95f9b4.webp', 'The canal and towpath at Manayunk', 'J Clear', 'CC BY-SA 3.0', 'https://commons.wikimedia.org/wiki/File:Manayunk_Canal_2009.jpg', 'daytime')],
   },
   {
     id: 'flat-rock-dam', name: 'Flat Rock Dam', category: 'nature', city: 'Philadelphia', region: 'philadelphia',
@@ -712,7 +712,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '70-200mm; ND filter', tripod: true, settingsHint: 'ND + 1/4-2s for the falls; fast shutter for herons' },
       ifCloudy: 'Overcast evens the white water — arguably better than sun here.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Flat_Rock_Dam_East.jpg/1280px-Flat_Rock_Dam_East.jpg', 'The Schuylkill spilling over Flat Rock Dam', 'Ii2nmd', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Flat_Rock_Dam_East.jpg', 'daytime')],
+    media: [pic('./spot-photos/flat-rock-dam-east-4c1eb7.webp', 'The Schuylkill spilling over Flat Rock Dam', 'Ii2nmd', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Flat_Rock_Dam_East.jpg', 'daytime')],
   },
   {
     id: 'love-park', name: 'LOVE Park (JFK Plaza)', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
@@ -732,7 +732,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '70-200mm for the stack; 24-70 wide', tripod: true, settingsHint: 'f/8; fast shutter to freeze the jets or 1/4s to soften' },
       ifCloudy: 'Work the red letters against the grey — they pop in flat light.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/LOVE_Park_Philly.JPG/1280px-LOVE_Park_Philly.JPG', 'The LOVE sculpture and fountain at JFK Plaza', 'Smallbones', 'Public domain', 'https://commons.wikimedia.org/wiki/File:LOVE_Park_Philly.JPG', 'daytime')],
+    media: [pic('./spot-photos/love-park-philly-697ec3.webp', 'The LOVE sculpture and fountain at JFK Plaza', 'Smallbones', 'Public domain', 'https://commons.wikimedia.org/wiki/File:LOVE_Park_Philly.JPG', 'daytime')],
   },
   {
     id: 'rail-park', name: 'The Rail Park', category: 'nature', city: 'Philadelphia', region: 'philadelphia',
@@ -749,7 +749,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '24-70mm', tripod: false, settingsHint: 'f/8; handheld — tripods awkward on the narrow deck' },
       ifCloudy: 'The industrial textures and plantings work in soft light.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/The_Rail_Park.jpg/1280px-The_Rail_Park.jpg', 'The elevated Rail Park deck', 'Bruhinb', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:The_Rail_Park.jpg', 'daytime')],
+    media: [pic('./spot-photos/the-rail-park-258c90.webp', 'The elevated Rail Park deck', 'Bruhinb', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:The_Rail_Park.jpg', 'daytime')],
   },
   {
     id: 'smith-memorial-arch', name: 'Smith Memorial Arch', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
@@ -766,7 +766,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '16-35mm', tripod: true, settingsHint: 'f/8-11; level the camera for clean verticals' },
       ifCloudy: 'The granite and bronzes hold detail under soft light.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Smith_Memorial_Arch_%26_Entryway_into_West_Fairmont_Park.jpg/1280px-Smith_Memorial_Arch_%26_Entryway_into_West_Fairmont_Park.jpg', 'The twin towers of Smith Memorial Arch', 'Muran.Fox', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Smith_Memorial_Arch_%26_Entryway_into_West_Fairmont_Park.jpg', 'daytime')],
+    media: [pic('./spot-photos/smith-memorial-arch-entryway-into-west-fairmont-park-1b4e6d.webp', 'The twin towers of Smith Memorial Arch', 'Muran.Fox', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Smith_Memorial_Arch_%26_Entryway_into_West_Fairmont_Park.jpg', 'daytime')],
   },
   {
     id: 'philadelphia-magic-gardens', name: "Philadelphia's Magic Gardens", category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
@@ -786,7 +786,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '16-35mm + a macro or 50mm', tripod: false, settingsHint: 'Handheld only (tripods banned); f/5.6-8' },
       ifCloudy: 'Overcast kills harsh mirror glare — great for even color.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Isaiah_Zagar_Magic_Gardens_1020_South_Street_Philadelphia_gate.jpg/1280px-Isaiah_Zagar_Magic_Gardens_1020_South_Street_Philadelphia_gate.jpg', 'The mosaic gate on South Street', 'Beyond My Ken', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Isaiah_Zagar_Magic_Gardens_1020_South_Street_Philadelphia_gate.jpg', 'daytime')],
+    media: [pic('./spot-photos/isaiah-zagar-magic-gardens-1020-south-street-philade-70dbae.webp', 'The mosaic gate on South Street', 'Beyond My Ken', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Isaiah_Zagar_Magic_Gardens_1020_South_Street_Philadelphia_gate.jpg', 'daytime')],
   },
   {
     id: 'italian-market', name: 'Italian Market (9th Street)', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
@@ -806,7 +806,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '35mm prime', tripod: false, settingsHint: 'ISO 400-800 under the awnings; stay nimble' },
       ifCloudy: 'The market is color and character — weather barely matters.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/ItalianMarketPhiladelphia.jpg/1280px-ItalianMarketPhiladelphia.jpg', 'The 9th Street market corridor', 'Massimo Catarinella', 'CC BY 3.0', 'https://commons.wikimedia.org/wiki/File:ItalianMarketPhiladelphia.jpg', 'daytime')],
+    media: [pic('./spot-photos/italianmarketphiladelphia-dbe315.webp', 'The 9th Street market corridor', 'Massimo Catarinella', 'CC BY 3.0', 'https://commons.wikimedia.org/wiki/File:ItalianMarketPhiladelphia.jpg', 'daytime')],
   },
   {
     id: 'chinatown-friendship-gate', name: 'Chinatown Friendship Gate', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
@@ -826,7 +826,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '24-70mm + 70-200', tripod: true, settingsHint: 'f/11, 2-8s at blue hour from the sidewalk' },
       ifCloudy: 'The colors saturate in flat light; rain doubles the neon on wet asphalt.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Friendship_Gate_Chinatown_Philadelphia_from_west.jpg/1280px-Friendship_Gate_Chinatown_Philadelphia_from_west.jpg', 'The Friendship Gate over 10th Street', 'Beyond My Ken', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Friendship_Gate_Chinatown_Philadelphia_from_west.jpg', 'daytime')],
+    media: [pic('./spot-photos/friendship-gate-chinatown-philadelphia-from-west-fecd6b.webp', 'The Friendship Gate over 10th Street', 'Beyond My Ken', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Friendship_Gate_Chinatown_Philadelphia_from_west.jpg', 'daytime')],
   },
   {
     id: 'spruce-street-harbor-park', name: 'Spruce Street Harbor Park', category: 'nature', city: 'Philadelphia', region: 'philadelphia',
@@ -843,7 +843,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '24-70mm f/2.8', tripod: false, settingsHint: 'Handheld ISO 1600-3200 — tripods awkward in the crowd' },
       ifCloudy: 'Clouds barely matter — the light show is man-made.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Spruce_Street_Harbor_Park.jpg/1280px-Spruce_Street_Harbor_Park.jpg', 'The boardwalk at Spruce Street Harbor Park', 'LittleT889', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Spruce_Street_Harbor_Park.jpg', 'daytime')],
+    media: [pic('./spot-photos/spruce-street-harbor-park-5ea042.webp', 'The boardwalk at Spruce Street Harbor Park', 'LittleT889', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Spruce_Street_Harbor_Park.jpg', 'daytime')],
   },
   {
     id: 'masonic-temple', name: 'Masonic Temple', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
@@ -863,7 +863,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '16-35mm f/2.8', tripod: false, settingsHint: 'Interior: ISO 3200+, no flash, shoot fast on the escorted tour' },
       ifCloudy: 'The granite reads moody in flat light; save the tour for any weather.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Masonic_Temple_Philadelphia_aerial_view.jpg/1280px-Masonic_Temple_Philadelphia_aerial_view.jpg', 'The temple towers from above', 'Nickvud', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Masonic_Temple_Philadelphia_aerial_view.jpg', 'daytime')],
+    media: [pic('./spot-photos/masonic-temple-philadelphia-aerial-view-61ea36.webp', 'The temple towers from above', 'Nickvud', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Masonic_Temple_Philadelphia_aerial_view.jpg', 'daytime')],
   },
   {
     id: 'cherry-street-pier', name: 'Cherry Street Pier', category: 'interiors', city: 'Philadelphia', region: 'philadelphia',
@@ -883,7 +883,7 @@ const SPOTS: Spot[] = [
       gear: { lens: '16-35mm + 24-70', tripod: true, settingsHint: 'Shed: handheld high ISO; garden: tripod at dusk' },
       ifCloudy: 'The covered shed is the rainy-day spot on the waterfront.',
     },
-    media: [pic('https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Municipal_Pier_No._9_N._Christopher_Columbus_Blvd_street_level.jpg/1280px-Municipal_Pier_No._9_N._Christopher_Columbus_Blvd_street_level.jpg', 'The 1919 pier shed (Municipal Pier 9)', 'Beyond My Ken', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Municipal_Pier_No._9_N._Christopher_Columbus_Blvd_street_level.jpg', 'daytime')],
+    media: [pic('./spot-photos/municipal-pier-no-9-n-christopher-columbus-blvd-stre-774fa6.webp', 'The 1919 pier shed (Municipal Pier 9)', 'Beyond My Ken', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Municipal_Pier_No._9_N._Christopher_Columbus_Blvd_street_level.jpg', 'daytime')],
   },
 ]
 
