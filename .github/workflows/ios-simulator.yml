@@ -1,7 +1,13 @@
-# Phase 1 of the iOS wrap (backlog J3): proves the Capacitor shell compiles and
+# Slow tier of the iOS wrap (backlog J3): proves the Capacitor shell compiles and
 # actually renders Vantage in a real WKWebView. No code signing, no Apple
 # Developer account, no cost — standard macOS runners are free and unmetered on
 # public repos.
+#
+# Deliberately NOT run on every push. Booting the simulator costs ~6 min of the
+# ~9 min job, and webview.yml already covers the web layer in ~1 min on Ubuntu.
+# So this fires only when the NATIVE surface changes (ios/, capacitor config,
+# dependencies) or on manual dispatch — the cases WebKit-on-Linux cannot speak
+# to: the capacitor:// scheme, the native bridge, plugins, real iOS chrome.
 #
 # SECURITY: this repo is public. Signed release workflows added later MUST keep
 # this same trigger discipline — push to main / tags / manual dispatch only.
@@ -13,12 +19,8 @@ on:
   push:
     branches: [main]
     paths:
-      - 'src/**'
-      - 'public/**'
       - 'ios/**'
-      - 'index.html'
       - 'capacitor.config.ts'
-      - 'vite.config.ts'
       - 'package.json'
       - 'package-lock.json'
       - '.github/workflows/ios-simulator.yml'
@@ -46,9 +48,8 @@ jobs:
 
       - run: npm ci
 
-      - name: Unit tests
-        run: npm test
-
+      # Unit tests + the relative-asset check live in webview.yml on Ubuntu,
+      # where they cost seconds instead of a minute of macOS runner time.
       - name: Build web assets
         run: npm run build
 

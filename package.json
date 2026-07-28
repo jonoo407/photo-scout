@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:webview": "playwright test --project=webkit"
   },
   "dependencies": {
     "@capacitor/core": "^8.4.2",

@@ -1,0 +1,68 @@
+# Fast tier of the iOS wrap (backlog J3): runs the built bundle through WebKit at
+# iPhone viewport on a free Ubuntu runner, in about a minute.
+#
+# This is the every-push gate. It catches the web-layer failures that would
+# otherwise need a ~10-minute macOS simulator run: white screens, asset 404s
+# (the `base: './'` class of bug), and JS that only breaks in WebKit. The
+# simulator workflow now only fires when the NATIVE surface changes.
+#
+# Uses no secrets, so running on pull_request is safe even from forks.
+name: WebKit wrapper gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: webview-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  webkit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build web assets
+        run: npm run build
+
+      - name: Assert built asset URLs stay relative
+        # Cheap static twin of the runtime check below — absolute /assets/...
+        # 404s under capacitor://localhost while the hosted site stays healthy.
+        run: |
+          set -uo pipefail
+          if grep -Eo '(src|href)="/[^/][^"]*"' dist/index.html; then
+            echo "::error::dist/index.html has absolute asset paths — these 404 under capacitor://localhost. Restore base:'./' in vite.config.ts."
+            exit 1
+          fi
+          echo "OK: all asset URLs in dist/index.html are relative"
+
+      - name: Install WebKit
+        run: npx playwright install --with-deps webkit
+
+      - name: WebKit wrapper gate
+        run: npm run test:webview
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: webkit-failure
+          path: test-results/
+          if-no-files-found: ignore
