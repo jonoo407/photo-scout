@@ -23,6 +23,10 @@ on:
         description: 'Upload to TestFlight (off = build a signed IPA only)'
         type: boolean
         default: true
+      beta_review:
+        description: 'Also submit for EXTERNAL beta review (needs Test Information filled in)'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -136,10 +140,18 @@ jobs:
         if: steps.record.outputs.exists == 'true' && (github.event_name == 'push' || inputs.publish)
         run: |
           set -euo pipefail
+          # Plain upload by default: once processing finishes, INTERNAL testers
+          # get the build immediately with no review. `--testflight` additionally
+          # submits for EXTERNAL beta review — a human review gate that needs
+          # Test Information filled in, and that you do not want on every build.
+          extra=()
+          if [ "${{ inputs.beta_review || 'false' }}" = "true" ]; then
+            extra+=(--testflight)
+          fi
           app-store-connect publish \
             --path 'build/ios/ipa/*.ipa' \
-            --testflight \
-            --max-build-processing-wait 30
+            --max-build-processing-wait 30 \
+            "${extra[@]}"
 
       - uses: actions/upload-artifact@v4
         if: always()
