@@ -37,7 +37,7 @@
 | V17 | st-paul-ame photo (75/75 coverage)      | 🤖  | —          | XS   |
 | J1  | Google SSO console setup                | 🧑  | —          | S    |
 | J2  | Allow push on a real device             | 🧑  | —          | XS   |
-| J3  | iOS App Store deployment                | 🤝  | —          | XL   |
+| J3  | iOS App Store (phases 1–3 done; native+submit left) | 🤝 | — | L |
 | J4  | Ambassador business deals               | 🧑  | —          | —    |
 | J5  | Supabase billing / storage plan         | 🧑  | —          | —    |
 
@@ -165,11 +165,32 @@ scoreboard picking city #3.
   Prerequisite for V4's quick-login path.
 - **J2 — Device notification tap** (was A4): Settings → Conditions alerts →
   Turn on → Allow, on a real phone/desktop. Physical tap only.
-- **J3 — iOS App Store** (was A1): Capacitor wrap + cloud CI (Codemagic /
-  Capawesome; NOT Appflow — sunsetting). Claude does code + CI config; Jon:
-  Apple Developer enrollment ($99/yr), App Store Connect agreements,
-  signing-key approval. Includes web-push → APNs swap in the wrapper.
-  Interim: the PWA installs from Safari today with push working.
+- **J3 — iOS App Store** (was A1): **Phases 1–3 shipped 2026-07-28** — Capacitor 8
+  shell, tiered free CI, and a signed-archive → TestFlight pipeline. Build
+  0.1.0 (3) is live on TestFlight (app `6795605010`, bundle
+  `com.shootvantage.app`). `git tag vX.Y.Z && git push --tags` now ships a
+  build with no Mac and no manual step. Details + gotchas in HANDOFF.
+  **Not** Codemagic as originally planned — GitHub's standard macOS runners are
+  free and unmetered on public repos. Remaining work:
+  - **Phase 4 — native surface** (the real work): web-push VAPID → APNs
+    (`@capacitor/push-notifications`, an APNs auth key, and a Worker branch to
+    send APNs tokens vs web subscriptions); native camera + geolocation plugins
+    instead of web APIs; brand icon/splash into `Assets.xcassets` (Capacitor's
+    placeholders ship today). Capacitor's template also still uses the
+    pre-`UIScene` lifecycle — a runtime warning now, a hard assert on some
+    future iOS.
+  - **⚠️ UNVERIFIED — service workers under `capacitor://localhost`.** Offline
+    caching AND web push both ride on `dist/sw.js`. Evidence cut both ways
+    (WebKit did provision a ServiceWorkers dir for the bundle). Test directly;
+    do not assume either works in the wrapper.
+  - **Guideline 4.2 (minimum functionality)**: Apple rejects thin website
+    wrappers. Using native plugins rather than web APIs for camera/location/push
+    is what makes the difference at review. Account deletion (also required)
+    already ships.
+  - **Jon**: external TestFlight testers need Test Information filled in (then
+    the `beta_review` dispatch input submits for beta review). App Store
+    submission additionally needs screenshots, privacy nutrition labels
+    (location, photos, user content) and the review submission itself.
 - **J4 — Ambassador business side** (was A6): recruit one pro/influencer per
   city; agree rev-share terms (percentage, payout, contract). Mechanics = V6.
 - **J5 — Supabase billing / storage** (was A5 + storage note): free plan has a
