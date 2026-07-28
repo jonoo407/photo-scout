@@ -66,7 +66,8 @@ describe('spot media (seeded reference photos)', () => {
   it('attributes every photo to an allowed original source', () => {
     for (const s of SPOTS) {
       for (const m of s.media) {
-        const host = new URL(m.sourceUrl).host
+        expect(m.sourceUrl, `${s.id} must credit an original source`).toBeTruthy()
+        const host = new URL(m.sourceUrl as string).host
         expect(
           /(^|\.)wikimedia\.org$/.test(host) || /(^|\.)flickr\.com$/.test(host),
           `${s.id} sourceUrl host ${host}`,
