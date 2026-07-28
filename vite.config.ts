@@ -44,6 +44,11 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
+    // Day planning works in device-local time, and every region we ship
+    // (Tampa Bay, Philadelphia) is US Eastern — so specs that freeze a clock
+    // with `new Date(y, m, d, h, m)` are implicitly Eastern. Pin it, or they
+    // pass on an Eastern laptop and fail on a UTC CI runner.
+    env: { TZ: 'America/New_York' },
     setupFiles: './src/test/setup.ts',
     include: ['tests/**/*.test.{ts,tsx}', 'src/**/*.test.{ts,tsx}'],
   },
