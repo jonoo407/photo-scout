@@ -105,11 +105,20 @@ jobs:
           set -euo pipefail
           mkdir -p artifacts
 
-          xcrun simctl spawn "$UDID" log stream --style compact \
+          # --level debug: Capacitor forwards webview console output at debug
+          # level, which `log stream` drops by default. Without this the
+          # capability probe's line never appears and the gate can't see it.
+          xcrun simctl spawn "$UDID" log stream --style compact --level debug \
             --predicate 'processImagePath CONTAINS "App.app"' > artifacts/app.log 2>&1 &
           log_pid=$!
 
           xcrun simctl install "$UDID" "$RUNNER_TEMP/dd/Build/Products/Debug-iphonesimulator/App.app"
+
+          # Pre-grant location: a headless run has nobody to tap "Allow", and an
+          # unanswered prompt looks identical to a missing usage string — both
+          # hang forever. Granting isolates the thing we mean to test.
+          xcrun simctl privacy "$UDID" grant location-always com.shootvantage.app \
+            || echo "note: could not pre-grant location on this image"
           app_pid=$(xcrun simctl launch "$UDID" com.shootvantage.app | awk -F': ' '{print $2}')
           echo "launched pid $app_pid"
 
