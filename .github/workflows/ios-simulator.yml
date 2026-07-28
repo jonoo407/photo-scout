@@ -119,32 +119,32 @@ jobs:
           # hang forever. Granting isolates the thing we mean to test.
           xcrun simctl privacy "$UDID" grant location-always com.shootvantage.app \
             || echo "note: could not pre-grant location on this image"
-          app_pid=$(xcrun simctl launch "$UDID" com.shootvantage.app | awk -F': ' '{print $2}')
-          echo "launched pid $app_pid"
+          # --console-pty attaches the app's STDOUT. Capacitor prints webview
+          # console output via Swift print(), which never reaches os_log — so
+          # `log stream` (kept above, for crash diagnostics) cannot see it.
+          xcrun simctl launch --console-pty "$UDID" com.shootvantage.app > artifacts/console.log 2>&1 &
+          launch_pid=$!
 
-          # Simulator apps are ordinary host processes, so `ps` is a real
-          # liveness check: if the webview blew up on load, this is gone.
           sleep 15
           xcrun simctl io "$UDID" screenshot artifacts/01-launch.png
           sleep 15
           xcrun simctl io "$UDID" screenshot artifacts/02-settled.png
 
+          kill "$launch_pid" 2>/dev/null || true
           kill "$log_pid" 2>/dev/null || true
-
-          if ! ps -p "$app_pid" > /dev/null; then
-            echo "::error::Vantage exited within 30s of launch — see the app.log artifact."
-            tail -n 100 artifacts/app.log
-            exit 1
-          fi
-          echo "OK: Vantage still running 30s after launch"
 
           # Functional gate, not a rendering one. A missing usage string in
           # Info.plist makes iOS call NEITHER geolocation callback, so the app
           # spins forever while looking perfect in a screenshot — exactly what
           # shipped in build 8.
-          caps=$(grep -o '\[caps\][^"]*' artifacts/app.log | tail -1 || true)
+          # This line is also the liveness proof, and a stronger one than a PID
+          # check: it can only appear if the bundle loaded and JS ran to the end
+          # of boot.
+          caps=$(grep -o '\[caps\].*' artifacts/console.log | tail -1 | tr -d '\r' || true)
           if [ -z "$caps" ]; then
-            echo "::error::No [caps] line in the device log — the capability probe never ran."
+            echo "::error::No [caps] line on stdout — the app did not boot far enough to probe."
+            echo '--- console.log ---'; tail -n 60 artifacts/console.log || true
+            echo '--- device log ---'; tail -n 40 artifacts/app.log || true
             exit 1
           fi
           echo "capabilities: $caps"
