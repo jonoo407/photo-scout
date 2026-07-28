@@ -26,6 +26,18 @@
 	     export rules. Declaring it here stops App Store Connect asking about
 	     export compliance on every single upload. Revisit if we ever add
 	     custom/proprietary crypto. -->
+	<!-- iOS fails CLOSED and SILENTLY without these: getCurrentPosition never
+	     prompts and never calls back, so the UI spins forever (TestFlight
+	     build 8, "Detecting…"). Wording is user-facing — it appears verbatim in
+	     the permission dialog and is read at App Store review. -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Vantage uses your location to rank nearby photo spots by drive time and to set your home base.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Vantage needs your photo library so you can add your own shots to a spot.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Vantage saves photos to your library so you can keep the shots you capture here.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Vantage uses the camera so you can photograph a spot without leaving the app.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>

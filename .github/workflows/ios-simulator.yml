@@ -94,6 +94,9 @@ jobs:
           echo "udid=$udid" >> "$GITHUB_OUTPUT"
           xcrun simctl boot "$udid"
           xcrun simctl bootstatus "$udid" -b
+          # Give it a fix so geolocation can genuinely succeed — without this a
+          # pass would only prove the API exists, not that it returns.
+          xcrun simctl location "$udid" set 27.9506,-82.4572 || echo "note: simctl location unavailable on this image"
 
       - name: Launch Vantage and capture proof
         env:
@@ -125,6 +128,24 @@ jobs:
             exit 1
           fi
           echo "OK: Vantage still running 30s after launch"
+
+          # Functional gate, not a rendering one. A missing usage string in
+          # Info.plist makes iOS call NEITHER geolocation callback, so the app
+          # spins forever while looking perfect in a screenshot — exactly what
+          # shipped in build 8.
+          caps=$(grep -o '\[caps\][^"]*' artifacts/app.log | tail -1 || true)
+          if [ -z "$caps" ]; then
+            echo "::error::No [caps] line in the device log — the capability probe never ran."
+            exit 1
+          fi
+          echo "capabilities: $caps"
+          case "$caps" in
+            *geolocation=ok*) echo "OK: geolocation returns a position in the wrapper" ;;
+            *geolocation=timeout*)
+              echo "::error::geolocation timed out — usually a missing NSLocation*UsageDescription in ios/App/App/Info.plist."
+              exit 1 ;;
+            *) echo "::error::geolocation not usable: $caps"; exit 1 ;;
+          esac
 
           echo "--- last 60 log lines ---"
           tail -n 60 artifacts/app.log || true
