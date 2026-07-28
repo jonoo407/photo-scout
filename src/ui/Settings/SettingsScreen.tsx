@@ -9,6 +9,7 @@ import { REGION_LIST, nearestRegion } from '../../data/regions'
 import { geocodeAddress } from '../../spots/geocode'
 import AccountSection from './AccountSection'
 import AlertsSection from './AlertsSection'
+import { APP_VERSION_LABEL } from '../../app-version'
 
 export default function SettingsScreen() {
   const nav = useNavigate()
@@ -174,6 +175,13 @@ export default function SettingsScreen() {
 
       <p className="small tertiary" style={{ margin: '14px 2px 0', lineHeight: 1.6 }}>
         Hours, fees and closures are spot-checked but can change — confirm before a special trip.
+      </p>
+
+      {/* Build identity — the only way to tell TestFlight builds apart from
+          inside the app, and to catch a stale bundle still running after an
+          update (WKWebView storage survives app updates). */}
+      <p className="small tertiary" style={{ margin: '10px 2px 0' }}>
+        Vantage {APP_VERSION_LABEL}
       </p>
     </div>
   )

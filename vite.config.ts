@@ -1,11 +1,22 @@
 /// <reference types="vitest/config" />
+import { readFileSync } from 'node:fs'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { manifestIcons } from './src/brand/icons'
 
+// Read rather than imported: a JSON import would need resolveJsonModule wiring
+// in the config's own tsconfig scope.
+const pkgVersion = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')).version
+
 export default defineConfig({
   base: './',
+  define: {
+    // Surfaced in Settings so a TestFlight build is identifiable from inside
+    // the app. BUILD_NUMBER is the CI run number, matching CFBundleVersion.
+    __APP_VERSION__: JSON.stringify(pkgVersion),
+    __APP_BUILD__: JSON.stringify(process.env.BUILD_NUMBER ?? 'dev'),
+  },
   plugins: [
     react(),
     VitePWA({
