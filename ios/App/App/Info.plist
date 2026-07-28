@@ -32,6 +32,11 @@
 	     the permission dialog and is read at App Store review. -->
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Vantage uses your location to rank nearby photo spots by drive time and to set your home base.</string>
+	<!-- @capacitor/geolocation builds on ion-ios-geolocation, which can report
+	     in the background, so Apple requires the Always key too. Same wording is
+	     fine — the background prompt is never shown. -->
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Vantage uses your location to rank nearby photo spots by drive time and to set your home base.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Vantage needs your photo library so you can add your own shots to a spot.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>

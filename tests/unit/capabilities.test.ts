@@ -12,31 +12,30 @@ import { probeCapabilities, formatCapabilities } from '../../src/pwa/capabilitie
  * missing usage string never calls EITHER callback, so an absent result is not
  * an error — it is silence.
  */
-const geo = (impl: 'ok' | 'error' | 'silent') => ({
-  getCurrentPosition: (ok: (p: unknown) => void, err: (e: unknown) => void) => {
-    if (impl === 'ok') ok({ coords: { latitude: 27.9, longitude: -82.5 } })
-    if (impl === 'error') err({ code: 1, message: 'denied' })
-    // 'silent': never calls back — the missing-usage-string failure mode
-  },
-})
+// The probe resolves position through the SAME function the app uses, so a
+// green gate means the real code path works rather than that some API exists.
+const resolver = (impl: 'ok' | 'error' | 'silent') => () =>
+  impl === 'ok' ? Promise.resolve({ lat: 27.9, lng: -82.5 })
+    : impl === 'error' ? Promise.reject(new Error('denied'))
+      : new Promise<never>(() => {}) // never settles — the WKWebView failure mode
 
 describe('probeCapabilities', () => {
   it('reports ok when a position comes back', async () => {
-    const r = await probeCapabilities({ geolocation: geo('ok') } as never, {} as never, 50)
+    const r = await probeCapabilities({} as never, {} as never, 50, resolver('ok'))
     expect(r.geolocation).toBe('ok')
   })
 
-  it('reports error when the callback rejects', async () => {
-    const r = await probeCapabilities({ geolocation: geo('error') } as never, {} as never, 50)
+  it('reports error when the resolver rejects', async () => {
+    const r = await probeCapabilities({} as never, {} as never, 50, resolver('error'))
     expect(r.geolocation).toBe('error')
   })
 
-  it('reports timeout when neither callback ever fires', async () => {
-    const r = await probeCapabilities({ geolocation: geo('silent') } as never, {} as never, 20)
+  it('reports timeout when it never settles', async () => {
+    const r = await probeCapabilities({} as never, {} as never, 20, resolver('silent'))
     expect(r.geolocation).toBe('timeout')
   })
 
-  it('reports absent when the API is missing entirely', async () => {
+  it('reports absent when no resolver is wired', async () => {
     const r = await probeCapabilities({} as never, {} as never, 20)
     expect(r.geolocation).toBe('absent')
   })

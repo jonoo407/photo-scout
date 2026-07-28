@@ -10,6 +10,7 @@ import { geocodeAddress } from '../../spots/geocode'
 import AccountSection from './AccountSection'
 import AlertsSection from './AlertsSection'
 import { APP_VERSION_LABEL } from '../../app-version'
+import { getPosition } from '../../geo/position'
 
 export default function SettingsScreen() {
   const nav = useNavigate()
@@ -31,19 +32,16 @@ export default function SettingsScreen() {
   const [detecting, setDetecting] = useState(false)
 
   const detectCity = () => {
-    if (!navigator.geolocation) { setGeoErr('Location unavailable — pick a city below.'); return }
     setGeoErr(''); setDetecting(true)
-    navigator.geolocation.getCurrentPosition(
-      (p) => {
-        const lat = p.coords.latitude, lng = p.coords.longitude
+    getPosition(8000).then(
+      ({ lat, lng }) => {
         // Pick the nearest city AND pin home to where the user actually is, so
         // drive times/distances are from their location — not the city default.
         setRegion(nearestRegion(lat, lng))
         setHome({ label: 'Current location', lat, lng })
         setDetecting(false)
       },
-      () => { setGeoErr("Couldn't get your location — pick a city below."); setDetecting(false) },
-      { timeout: 8000 },
+      (e: Error) => { setGeoErr(e.message || "Couldn't get your location — pick a city below."); setDetecting(false) },
     )
   }
 
@@ -53,20 +51,14 @@ export default function SettingsScreen() {
     : REGION_LIST
 
   const useCurrent = () => {
-    if (!navigator.geolocation) {
-      setGeoErr('Location unavailable on this device — type an address instead.')
-      return
-    }
     setGeoErr(''); setLocating(true)
-    navigator.geolocation.getCurrentPosition(
-      (p) => {
-        const lat = p.coords.latitude, lng = p.coords.longitude
+    getPosition(8000).then(
+      ({ lat, lng }) => {
         setRegion(nearestRegion(lat, lng)) // keep the active city in sync with home
         setHome({ label: 'Current location', lat, lng })
         setLocating(false)
       },
-      () => { setGeoErr("Couldn't get your location — check permissions, or type an address instead."); setLocating(false) },
-      { timeout: 8000 },
+      (e: Error) => { setGeoErr(e.message || "Couldn't get your location — type an address instead."); setLocating(false) },
     )
   }
 

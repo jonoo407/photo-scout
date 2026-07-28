@@ -45,10 +45,11 @@ describe('Settings — set home by typing an address', () => {
 
   it('gives feedback when "Use my current location" is unavailable (no geolocation)', async () => {
     const user = userEvent.setup()
-    // jsdom has no navigator.geolocation → the unavailable branch
+    // jsdom has no navigator.geolocation, so getPosition() rejects and the
+    // screen surfaces that reason. Copy now comes from src/geo/position.ts.
     renderSettings()
     await user.click(screen.getByRole('button', { name: /current location/i }))
-    expect(await screen.findByText(/location unavailable/i)).toBeInTheDocument()
+    expect(await screen.findByText(/location is not available/i)).toBeInTheDocument()
   })
 
   it('switches the theme to dark from Settings', async () => {

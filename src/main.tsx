@@ -9,6 +9,7 @@ import { initWatchSync } from './push/watch-sync'
 import { wireUpdateChecks } from './pwa/sw-updates'
 import { shouldRegisterServiceWorker, purgeServiceWorkers } from './pwa/native'
 import { probeCapabilities, formatCapabilities } from './pwa/capabilities'
+import { getPosition } from './geo/position'
 
 initWatchSync()
 
@@ -42,7 +43,8 @@ if (shouldRegisterServiceWorker({ isNative })) {
   /* Report what actually works in WKWebView. Screenshots can't see the
      difference between "rendered" and "functional" — build 8 looked perfect
      while geolocation hung forever. ios-simulator.yml asserts on this line. */
-  void probeCapabilities(navigator, window).then((r) => console.log(formatCapabilities(r)))
+  void probeCapabilities(navigator, window, 8000, getPosition)
+    .then((r) => console.log(formatCapabilities(r)))
 }
 
 createRoot(document.getElementById('root')!).render(

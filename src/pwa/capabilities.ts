@@ -22,16 +22,17 @@ export async function probeCapabilities(
   nav: Navigator,
   win: Window,
   timeoutMs = 8000,
+  getPos: (() => Promise<unknown>) | undefined = undefined,
 ): Promise<CapabilityReport> {
   const geolocation = await new Promise<GeoState>((resolve) => {
-    if (!nav?.geolocation?.getCurrentPosition) return resolve('absent')
-    // The timeout is the whole point — a missing NSLocation*UsageDescription
-    // produces no callback at all, so only a clock can detect it.
+    if (!getPos) return resolve('absent')
+    // The timeout is the whole point: WKWebView's navigator.geolocation calls
+    // back neither handler, so only a clock can tell "broken" from "slow".
     const timer = setTimeout(() => resolve('timeout'), timeoutMs)
     const settle = (s: GeoState) => { clearTimeout(timer); resolve(s) }
-    try {
-      nav.geolocation.getCurrentPosition(() => settle('ok'), () => settle('error'))
-    } catch { settle('error') }
+    // Deliberately the SAME resolver the app uses, so a green gate means the
+    // real code path works — not merely that some API exists.
+    getPos().then(() => settle('ok'), () => settle('error'))
   })
 
   return {
