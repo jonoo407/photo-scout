@@ -144,14 +144,13 @@ jobs:
           # get the build immediately with no review. `--testflight` additionally
           # submits for EXTERNAL beta review — a human review gate that needs
           # Test Information filled in, and that you do not want on every build.
-          extra=()
+          # Explicit branch rather than an args array: macOS runners ship bash
+          # 3.2, where "${arr[@]}" on an EMPTY array trips `set -u`.
           if [ "${{ inputs.beta_review || 'false' }}" = "true" ]; then
-            extra+=(--testflight)
+            app-store-connect publish --path 'build/ios/ipa/*.ipa' --max-build-processing-wait 30 --testflight
+          else
+            app-store-connect publish --path 'build/ios/ipa/*.ipa' --max-build-processing-wait 30
           fi
-          app-store-connect publish \
-            --path 'build/ios/ipa/*.ipa' \
-            --max-build-processing-wait 30 \
-            "${extra[@]}"
 
       - uses: actions/upload-artifact@v4
         if: always()
