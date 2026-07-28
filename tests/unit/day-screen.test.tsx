@@ -87,6 +87,20 @@ describe('DayScreen', () => {
   })
 })
 
+// V18: opening Day in the small hours used to render the empty state, because
+// dayBlocks resolved to the previous solar day and every window read as past.
+describe('DayScreen — built in the small hours (V18)', () => {
+  it('plans the day at 1 AM instead of showing "no open spots"', () => {
+    // setSystemTime, not another useFakeTimers — re-installing the fake timers
+    // that beforeEach already put in place leaves the clock at 4:30.
+    vi.setSystemTime(new Date(2026, 5, 25, 1, 0))
+    renderDay('/day')
+    // The empty-state copy is split across elements, hence the loose matcher.
+    expect(screen.queryByText(/No open spots/i)).not.toBeInTheDocument()
+    expect(screen.getAllByText(/min$/).length).toBeGreaterThanOrEqual(2)
+  })
+})
+
 describe('DayScreen — save & share (plans persist, feedback #5/#6)', () => {
   it('saves the built day (with any swaps) to the store', async () => {
     const user = userEvent.setup()

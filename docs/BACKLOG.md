@@ -35,7 +35,6 @@
 | V15 | Golden-hour reminders                   | 🤖  | —          | S    |
 | V16 | True Golden Hour engine (v1.1 signature)| 🤖  | —          | XL   |
 | V17 | st-paul-ame photo (75/75 coverage)      | 🤖  | —          | XS   |
-| V18 | Day plan empty after midnight (solar roll)| 🤖  | —          | S    |
 | J1  | Google SSO console setup                | 🧑  | —          | S    |
 | J2  | Allow push on a real device             | 🧑  | —          | XS   |
 | J3  | iOS App Store deployment                | 🤝  | —          | XL   |
@@ -43,8 +42,7 @@
 | J5  | Supabase billing / storage plan         | 🧑  | —          | —    |
 
 **Recommended order: V1 → V2 → V3, then decide V4** (it unblocks the
-V5 → V6 growth chain). V10 is a good gap-filler any time. V18 is a live
-user-facing bug and small — worth slotting in ahead of the feature work.
+V5 → V6 growth chain). V10 is a good gap-filler any time.
 
 ---
 
@@ -117,34 +115,6 @@ chip, and UI all exist and are tested, but zero spots have data (chip hides
 behind `hasPetData`). Verify all ~75 spots per the two-source rule
 (`docs/ADDING_SPOTS.md`): true/false + short note ("leashed only, not on the
 beach"), shown as a fact chip on detail.
-
-### V18 — Day plan comes up empty after midnight 🤖
-Open the Day screen between local midnight and ~1:30 AM and it renders "No open
-spots for today's windows" instead of a plan. `dayBlocks()`
-(`src/spots/day-plan.ts:53`) passes the raw `now` instant to `computeSunTimes`,
-and SunCalc snaps to the nearest solar day **by longitude** — before solar
-midnight (~05:34 UTC for Tampa) that resolves to *yesterday*, whose three blocks
-are all in the past, so the `b.time > now` filter empties the plan.
-
-Measured for Tampa on 2026-06-25: at 01:00 EDT blocks come back as 06-24
-10:45/17:33 + 06-25 00:22 with 0 ahead; at 04:00 EDT they correctly return
-06-25 with 3 ahead.
-
-The codebase already knows this hazard — `sunTimesFor` at `day-plan.ts:137` and
-`:165` shifts by `+12h` with the comment "local-noon to avoid the midnight
-roll". `dayBlocks` just never got the same guard. Fix is to anchor on local noon
-of the intended calendar day (`startOfDayInZone` + 12h from `src/util/tz.ts`,
-using the region's `timeZone`) rather than on `now`.
-
-Not hypothetical for this audience: 1 AM is when an astro or blue-hour shooter
-actually opens the app. This is **not** a device-vs-region timezone gap — that
-part is handled correctly (`REGIONS[].timeZone`, `src/util/tz.ts`,
-`resolveOpenStatus`); it's specifically the solar-day roll.
-
-Found 2026-07-28 while adding iOS CI: the same root cause made
-`day-screen.test.tsx` fail on a UTC runner. The suite now pins
-`TZ=America/New_York` (`vite.config.ts`), which fixed the test but leaves this
-product bug open. Write the failing test at 01:00 local first.
 
 ### V14 — Magic Layers: rockets + birds (was B5) 🤖
 Rocket-launch calendar (Launch Library 2, keyless) + birding overlay (eBird —

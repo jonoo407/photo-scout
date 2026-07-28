@@ -49,7 +49,7 @@ export default function DayScreen() {
     () => pinned?.date ?? new Date(Date.now() + dayOffset * 86400000),
     [pinned, dayOffset],
   )
-  const blocks = useMemo(() => dayBlocks(date, home.lat, home.lng), [date, home.lat, home.lng])
+  const blocks = useMemo(() => dayBlocks(date, home.lat, home.lng, tz), [date, home.lat, home.lng, tz])
 
   // Fetch precip + cloud at each block's shooting time for the planned day.
   useEffect(() => {
@@ -73,14 +73,14 @@ export default function DayScreen() {
 
   const plan = useMemo(() => {
     if (pinned) {
-      return pinPlan({ date, home, spots: [...pinnedById.values()], stops: pinned.stops })
+      return pinPlan({ date, home, spots: [...pinnedById.values()], stops: pinned.stops, timeZone: tz })
     }
     // Building for today skips windows that already passed; tomorrow keeps all.
     return planDay({
-      date, home, spots, wishlist: new Set(wishlistArr), anchorId, blockWeather,
+      date, home, spots, wishlist: new Set(wishlistArr), anchorId, blockWeather, timeZone: tz,
       now: dayOffset === 0 ? new Date() : undefined,
     })
-  }, [pinned, pinnedById, date, home, spots, wishlistArr, anchorId, blockWeather, dayOffset])
+  }, [pinned, pinnedById, date, home, spots, wishlistArr, anchorId, blockWeather, dayOffset, tz])
 
   const Header = (
     <>

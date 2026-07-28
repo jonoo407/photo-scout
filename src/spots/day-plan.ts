@@ -5,6 +5,7 @@ import { resolveOpenStatus, type OpenStatus } from './hours'
 import { haversineMiles } from './distance'
 import { matchesLight } from './next-up'
 import { getRegion } from '../data/regions'
+import { zoneParts, zonedWallToInstant } from '../util/tz'
 import type { Spot, Light } from './types'
 import type { HomeLocation } from '../data/home.config'
 import type { WeatherVerdict, WeatherMood } from '../weather/verdict'
@@ -37,6 +38,8 @@ export interface PlanDayInput {
   wishlist?: Set<string>
   anchorId?: string
   blockWeather?: Partial<Record<BlockKey, WeatherVerdict>>
+  /** IANA zone the day is planned in — the region's, not the viewer's device. */
+  timeZone: string
   /** When set, blocks whose shooting moment already passed are skipped —
       a 9 AM build must not schedule 5:49 AM golden hour. */
   now?: Date
@@ -50,8 +53,15 @@ const BLOCK_REASON: Record<BlockKey, string> = {
   sunset: 'Great at sunset',
 }
 
-export function dayBlocks(date: Date, lat: number, lng: number): PlanBlock[] {
-  const t = computeSunTimes(date, lat, lng)
+export function dayBlocks(date: Date, lat: number, lng: number, timeZone: string): PlanBlock[] {
+  // Anchor on local noon of the calendar day `date` falls on in `timeZone`.
+  // SunCalc rounds to the nearest solar day by LONGITUDE, so handing it a raw
+  // early-morning instant resolves to the previous day — every block then reads
+  // as already past and the plan comes back empty (V18). Noon is the furthest
+  // point from either roll boundary, so it is stable under DST too.
+  const z = zoneParts(date, timeZone)
+  const localNoon = zonedWallToInstant(z.year, z.month - 1, z.day, 12, 0, timeZone)
+  const t = computeSunTimes(localNoon, lat, lng)
   const mid = (a: Date, b: Date) => new Date((a.getTime() + b.getTime()) / 2)
   return [
     { key: 'sunrise', label: 'Sunrise & morning golden', start: t.blueHourMorning.start, time: mid(t.goldenHourMorning.start, t.goldenHourMorning.end), lights: ['sunrise', 'morning-golden'] },
@@ -124,6 +134,8 @@ export interface PinPlanInput {
   home: HomeLocation
   spots: Spot[]
   stops: Array<{ block: BlockKey; spotId: string }>
+  /** IANA zone the day is planned in — the region's, not the viewer's device. */
+  timeZone: string
 }
 
 /**
@@ -131,8 +143,8 @@ export interface PinPlanInput {
  * by time of day, with fresh open-status and drive legs for the given date.
  * No re-planning, no alternatives — the plan is the plan.
  */
-export function pinPlan({ date, home, spots, stops }: PinPlanInput): PlanStop[] {
-  const blocks = dayBlocks(date, home.lat, home.lng)
+export function pinPlan({ date, home, spots, stops, timeZone }: PinPlanInput): PlanStop[] {
+  const blocks = dayBlocks(date, home.lat, home.lng, timeZone)
   const sunTimesFor = (d: Date) => {
     const tt = computeSunTimes(new Date(d.getTime() + 12 * 3600 * 1000), home.lat, home.lng)
     return { sunrise: tt.sunrise, sunset: tt.sunset }
@@ -159,8 +171,8 @@ export function pinPlan({ date, home, spots, stops }: PinPlanInput): PlanStop[] 
   return out
 }
 
-export function planDay({ date, home, spots, wishlist, anchorId, blockWeather, now }: PlanDayInput): PlanStop[] {
-  const blocks = dayBlocks(date, home.lat, home.lng).filter((b) => !now || b.time > now)
+export function planDay({ date, home, spots, wishlist, anchorId, blockWeather, timeZone, now }: PlanDayInput): PlanStop[] {
+  const blocks = dayBlocks(date, home.lat, home.lng, timeZone).filter((b) => !now || b.time > now)
   const sunTimesFor = (d: Date) => {
     const tt = computeSunTimes(new Date(d.getTime() + 12 * 3600 * 1000), home.lat, home.lng) // local-noon to avoid the midnight roll
     return { sunrise: tt.sunrise, sunset: tt.sunset }
