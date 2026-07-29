@@ -10,6 +10,7 @@ import {
 } from '../../hunts/hunts-api'
 import { huntStatus, stopState, isOpen, type Hunt, type HuntProgressRow } from '../../hunts/hunts'
 import { uploadSpotPhoto, spotPhotoUrl } from '../../spots/photos-api'
+import { capturePhoto, nativeCaptureAvailable } from '../../spots/capture'
 import { getPosition } from '../../hunts/geo'
 import { fmtDay } from '../../util/format'
 import HuntCompleteSheet from './HuntCompleteSheet'
@@ -109,6 +110,20 @@ export default function HuntDetailScreen() {
     }
   }
 
+  /* Native capture, then the same submit path. A null result is a cancelled
+     picker, which must stay silent. */
+  const onNativeCapture = async () => {
+    setError(null)
+    let file: File | null
+    try {
+      file = await capturePhoto()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not open the camera — try again.')
+      return
+    }
+    if (file) await onFile(file)
+  }
+
   return (
     <div className="screen">
       <button className="back" onClick={() => nav('/hunts')}><IconChevronLeft size={16} /> Hunts</button>
@@ -192,17 +207,25 @@ export default function HuntDetailScreen() {
                 <p className="small tertiary" style={{ margin: '5px 0 10px', lineHeight: 1.5 }}>
                   Submit from your camera roll or the in-app camera — the shot must be taken within 150 m of the stop.
                 </p>
-                <label className="cta" style={{ cursor: busy ? 'default' : 'pointer', opacity: busy ? 0.6 : 1 }} role="button" aria-disabled={busy}>
-                  <IconCameraPlus size={17} /> {busy ? 'Verifying…' : 'Submit a shot'}
-                  <input
-                    ref={inputRef}
-                    type="file"
-                    accept="image/*"
-                    disabled={busy}
-                    style={{ display: 'none' }}
-                    onChange={(e) => void onFile(e.target.files?.[0])}
-                  />
-                </label>
+                {nativeCaptureAvailable() ? (
+                  // Native opens the iOS camera sheet; a file input here would
+                  // land in the document picker instead (J3 phase 4).
+                  <button className="cta" disabled={busy} onClick={() => void onNativeCapture()}>
+                    <IconCameraPlus size={17} /> {busy ? 'Verifying…' : 'Submit a shot'}
+                  </button>
+                ) : (
+                  <label className="cta" style={{ cursor: busy ? 'default' : 'pointer', opacity: busy ? 0.6 : 1 }} role="button" aria-disabled={busy}>
+                    <IconCameraPlus size={17} /> {busy ? 'Verifying…' : 'Submit a shot'}
+                    <input
+                      ref={inputRef}
+                      type="file"
+                      accept="image/*"
+                      disabled={busy}
+                      style={{ display: 'none' }}
+                      onChange={(e) => void onFile(e.target.files?.[0])}
+                    />
+                  </label>
+                )}
                 {error && <p className="small" style={{ color: 'var(--skip-ink)', margin: '8px 0 0' }}>{error}</p>}
                 <button
                   className="parklink"

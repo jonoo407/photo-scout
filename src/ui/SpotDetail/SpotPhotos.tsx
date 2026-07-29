@@ -5,6 +5,7 @@ import { listMyPhotos, uploadSpotPhoto, deleteSpotPhoto, type MyPhoto } from '..
 import { fetchMyPointEvents } from '../../craft/points-api'
 import { pointsTotal, photoQuotaForPoints } from '../../craft/points'
 import { useStore } from '../../state/store'
+import { capturePhoto, nativeCaptureAvailable } from '../../spots/capture'
 import StandardsGate from './StandardsGate'
 
 /* Your shots from this spot — shared with the community and rate-able.
@@ -57,6 +58,21 @@ export default function SpotPhotos({ spotId }: { spotId: string }) {
     }
   }
 
+  /* Native: open the iOS camera sheet. A null result means the user backed out,
+     which must stay silent — only a real failure gets a message. */
+  const onNativeCapture = async () => {
+    if (!agreedAt) { setGate(true); return }
+    setError(null)
+    let file: File | null
+    try {
+      file = await capturePhoto()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not open the camera — try again.')
+      return
+    }
+    if (file) await onFile(file)
+  }
+
   return (
     <>
       <h3 className="h3">Your shots</h3>
@@ -83,7 +99,19 @@ export default function SpotPhotos({ spotId }: { spotId: string }) {
             </button>
           </div>
         ))}
-        {!atLimit && (agreedAt ? (
+        {!atLimit && (nativeCaptureAvailable() ? (
+          // Native: a button, not a file input — inside the wrapper an input
+          // opens the document picker rather than the camera.
+          <button
+            className="myshot-add"
+            aria-label="Add your photo"
+            disabled={busy}
+            onClick={() => void onNativeCapture()}
+          >
+            <IconCameraPlus size={20} />
+            <span className="small">{busy ? 'Uploading…' : photos.length ? 'Add' : 'Add your photo'}</span>
+          </button>
+        ) : agreedAt ? (
           <label className="myshot-add">
             <IconCameraPlus size={20} />
             <span className="small">{busy ? 'Uploading…' : photos.length ? 'Add' : 'Add your photo'}</span>
