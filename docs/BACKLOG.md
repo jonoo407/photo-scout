@@ -44,8 +44,8 @@ this is the TestFlight-phase stand-in.
 | V4  | Auth-gate + guest accounts — DECISION   | 🤝  | J1 helps   | M    |
 | V5  | Referral mechanics                      | 🤖  | V4         | M    |
 | V6  | City ambassadors — product mechanics    | 🤖  | V5, J4     | M    |
-| V7  | Spot discussion threads                 | 🤖  | V1         | L    |
-| V8  | Photo critiques                         | 🤖  | V1         | L    |
+| V7  | Spot discussion threads                 | 🤖  | —          | L    |
+| V8  | Photo critiques                         | 🤖  | —          | L    |
 | V9  | City statuses / titles                  | 🤖  | V8         | M    |
 | V10 | Storage janitor (deleted-account files) | 🤖  | —          | S    |
 | V11 | Playwright e2e flows + axe a11y         | 🤖  | —          | M    |
@@ -56,25 +56,48 @@ this is the TestFlight-phase stand-in.
 | V16 | True Golden Hour engine (v1.1 signature)| 🤖  | —          | XL   |
 | V17 | st-paul-ame photo (75/75 coverage)      | 🤖  | —          | XS   |
 | V19 | Offline: download a city (tiles + data) | 🤖  | —          | L    |
-| J1  | Google SSO console setup                | 🧑  | —          | S    |
+| V20 | App Store screenshots (generated)       | 🤖  | —          | S    |
+| J1  | Google SSO — Google Console half only    | 🤝  | —          | S    |
 | J2  | Allow push on a real device             | 🧑  | —          | XS   |
 | J3  | iOS App Store (phases 1–3 done; native+submit left) | 🤝 | — | L |
 | J4  | Ambassador business deals               | 🧑  | —          | —    |
 | J5  | Supabase billing / storage plan         | 🧑  | —          | —    |
 
-**Recommended order: V2 → V3, then decide V4** (it unblocks the
-V5 → V6 growth chain). V10 is a good gap-filler any time.
+### Priority order
 
+**Ship-to-App-Store is the long pole**, so it leads. Everything else reaches
+users as a web deploy the moment it's merged; only the store has a review queue.
+
+1. **J3 phase 4 — native camera + APNs push.** The last *engineering* blocker.
+   Guideline 4.2 rejects thin web wrappers, and native plugins for
+   camera/location/push are what avoid that. V1 cleared the other review
+   blocker (guideline 1.2), so this completes the review-readiness set.
+2. **V20 — screenshots**, then the remaining store metadata.
+3. **V2 → V3** — product depth; both small, both unblocked.
+4. **Decide V4**, which unblocks the V5 → V6 growth chain.
+
+V10 and V17 are good gap-fillers any time. V11 is worth pulling forward if the
+report/block flows are going to keep changing.
 
 ---
 
 ## Community & trust
 
 ### V7 — Spot discussion threads (was B8, design 3b) 🤖
-Per-spot comments visible to the community; moderation + report tooling
-required (build on V1). Part of the Craft-Cards/Trusted-Circle v3 vision in
-the plan file: recipes-not-pins, privacy tiers, follow photographers.
-Community tab already has its "soon" pill placeholder.
+Per-spot comments visible to the community. **Moderation is no longer a
+prerequisite — V1 shipped it** (2026-07-28): reason-picker reporting,
+auto-hide on 2 independent reports, a curator email leg, and blocking. Reuse
+rather than rebuild:
+- `block_photographer(ref)` already blocks by opaque ref, so it works on a
+  comment with no photo attached — that was designed for this.
+- `photo_reports` is photo-shaped. Threads need either a sibling table or a
+  polymorphic target; decide at build.
+- The posting filter (`src/community/standards.ts` + `StandardsGate`) should
+  gate a first comment the same way it gates a first upload.
+
+Part of the Craft-Cards/Trusted-Circle v3 vision in the plan file:
+recipes-not-pins, privacy tiers, follow photographers. Community tab already
+has its "soon" pill placeholder.
 
 ### V8 — Photo critiques (was B13, design 1k) 🤖
 Submit a shot for structured critique: scores on 3–4 axes (candidate set:
@@ -83,6 +106,11 @@ comments; aggregate per-axis averages. Star ratings (shipped) are the
 lightweight precursor. **Monetization note (Jon's call, pair with pricing):
 gate SUBMITTING behind a paid/founder tier; critiquing stays free.**
 `critiqueGiven` +15 already exists in `src/craft/points.ts`.
+
+Moderation prerequisite is **met** — V1 shipped reporting, takedown and
+blocking. A critique is user text about someone's photo, so it needs the report
+path pointed at critique rows; see the V7 note on making the target
+polymorphic, and do both at once if V7 lands first.
 
 ### V9 — City statuses / titles (was B15) 🤖
 Ranked per-city standings ("Mayor" on down) earned by contribution quality:
@@ -115,14 +143,23 @@ so rev-share can be computed; admin mapping data-driven like REGIONS.
 ## Product & data
 
 ### V2 — In-app feedback capture (was #14/B1) 🤖
-(a) Permanent "Send feedback" row on Settings — short form: what's working /
-what's missing, kind = feedback|feature, optional email for signed-out users;
-(b) monthly non-annoying nudge — one dismissible Today card, max once per 30
-days per device (`feedbackPromptAt` in the persisted store), never a modal,
-never during onboarding, only after 3+ sessions; submit AND dismiss both
-reset the clock; (c) insert-only `feedback` table (RLS like
-`spot_suggestions`, no public reads); (d) periodic review sessions pull +
-summarize via SQL into new backlog items here.
+**Re-scoped 2026-07-29 — most of this already shipped** with the TestFlight
+tester-feedback button (2026-07-28). Done: the insert-only `feedback` table
+with `spot_suggestions`-style RLS and no public reads; the form itself
+(`/you/feedback`, kind + message + optional email, build number captured
+automatically); the email leg via `feedback_notify` → `/api/feedback-hook`;
+and the SQL review loop, documented at the top of this file.
+
+Actually remaining, and it is small:
+- **(a) Placement.** The entry point sits on **You**, framed as a
+  TestFlight-phase thing. Decide whether it becomes a permanent Settings row,
+  stays on You, or both — then reword it for real users rather than testers.
+- **(b) The nudge.** Not built. One dismissible Today card, max once per 30
+  days per device (`feedbackPromptAt` in the persisted store), never a modal,
+  never during onboarding, only after 3+ sessions; submit AND dismiss both
+  reset the clock.
+
+Size is now **XS–S**, not S.
 
 ### V3 — Pet-friendly data pass (was B16) 🤖
 The feature is one dataset from shipping: `petFriendly` field, Explore filter
@@ -154,8 +191,10 @@ split is the natural foundation for this feature, so consider doing them
 together.
 
 ### V14 — Magic Layers: rockets + birds (was B5) 🤖
-Rocket-launch calendar (Launch Library 2, keyless) + birding overlay (eBird —
-free key, 2-min form is a tiny Jon assist). Tides already shipped.
+Rocket-launch calendar (Launch Library 2, keyless) + birding overlay. Tides
+already shipped. The eBird half needs a free API key from a 2-minute form —
+**that is a key to hand over, not a task**: Jon requests it at
+`ebird.org/api/keygen` and pastes it, and Claude does the rest.
 
 ### V15 — Golden-hour reminders (was B6) 🤖
 Daily "golden hour in 40 min" ping. Decide overlap vs Conditions alerts
@@ -183,12 +222,26 @@ key never has to leave the platform).
 
 ### V11 — Playwright e2e flows + axe a11y (was B4) 🤖
 `e2e/visual.spec.ts` (screens) exists; no flow suite yet. Add core-flow e2e +
-axe checks at iPhone viewport.
+axe checks at iPhone viewport. **Worth pulling forward**: V1's report / block /
+standards-gate flows were verified with throwaway Playwright scripts that were
+deleted after use (2026-07-28/29) — those are exactly the flows that should be
+committed tests, and the stubbing pattern that made them work (route-intercept
+Supabase RPCs, inject a session into localStorage) is written up in HANDOFF.
 
 ### V12 — Hunt geo anti-spoof hardening 🤖
 `submit_hunt_stop()` trusts browser coords (150 m haversine). Points still
 require a real per-stop photo upload, but EXIF cross-check / attestation is a
 future pass.
+
+### V20 — App Store screenshots 🤖
+Previously filed under J3 as Jon's job; it isn't. Screenshots are generated,
+not taken: drive the built app with Playwright at Apple's required device
+sizes (6.9" and 6.5" iPhone at minimum), on seeded data, and save the set.
+`e2e/` already runs the app at iPhone viewport, so the harness exists — this is
+choosing the strongest 5–8 screens and scripting them, not new infrastructure.
+Do it alongside V11 so the flows and the screenshots share one driver.
+
+Uploading them to App Store Connect needs an ASC API key (see J3).
 
 ### V13 — Scale-tier work (was B9) 🤖 · conditional on city #3
 Phased plan in `docs/SCALING.md`: spot-index for `useAllSpots`, Worker cron
@@ -197,9 +250,26 @@ scoreboard picking city #3.
 
 ## Jon-only queue
 
-- **J1 — Google SSO** (was A3): Google Cloud Console OAuth client + enable the
-  provider in Supabase. App side already flag-gated (`VITE_AUTH_GOOGLE`).
-  Prerequisite for V4's quick-login path.
+**Read this before adding anything here.** An item earns a place in this list
+only if it is *genuinely impossible* for Claude: a physical act, a decision
+that is Jon's to make (money, strategy, tradeoffs), a human relationship, or a
+credential that exists somewhere unreadable (e.g. CI-only secrets). "There's no
+MCP tool for it" does **not** qualify — Claude holds privileged API keys for
+Cloudflare, GitHub, Resend and Supabase, and must probe those before
+delegating. See global RULE 4 and the `check-credentials-before-delegating`
+memory. When only part is blocked, the entry names **the key to hand over**,
+not the chore to perform.
+
+*(This list was audited on 2026-07-29 after Claude wrongly asked Jon to add a
+Cloudflare DNS record and two Worker secrets it had the token to do itself.)*
+
+- **J1 — Google SSO** (was A3): **only the Google Cloud Console half is Jon's.**
+  Create the OAuth client there, then hand Claude the **client ID + client
+  secret** — enabling the provider in Supabase is a Management API call Claude
+  can make (`SUPABASE_ACCESS_TOKEN` is present). No `gcloud` and no Google
+  credentials exist locally, which is the only reason the console step can't be
+  automated. App side already flag-gated (`VITE_AUTH_GOOGLE`). Prerequisite for
+  V4's quick-login path.
 - **J2 — Device notification tap** (was A4): Settings → Conditions alerts →
   Turn on → Allow, on a real phone/desktop. Physical tap only.
 - **J3 — iOS App Store** (was A1): **Phases 1–3 shipped 2026-07-28** — Capacitor 8
@@ -228,10 +298,17 @@ scoreboard picking city #3.
     wrappers. Using native plugins rather than web APIs for camera/location/push
     is what makes the difference at review. Account deletion (also required)
     already ships.
-  - **Jon**: external TestFlight testers need Test Information filled in (then
-    the `beta_review` dispatch input submits for beta review). App Store
-    submission additionally needs screenshots, privacy nutrition labels
-    (location, photos, user content) and the review submission itself.
+  - **Store metadata — mostly NOT Jon's, corrected 2026-07-29.** App Store
+    Connect credentials live only in GitHub Actions secrets
+    (`APP_STORE_CONNECT_ISSUER_ID` / `_KEY_ID` / `_PRIVATE_KEY`), which are
+    write-only from outside CI — that is the *only* thing blocking Claude here.
+    **The unblock is one action: put an ASC API key (.p8 + issuer/key id) where
+    Claude can read it.** With that, Claude can fill Test Information, set
+    privacy nutrition labels (location, photos, user content) and upload
+    screenshots via the App Store Connect API. Screenshots themselves need no
+    key at all — see **V20**, they are generated with Playwright.
+    Genuinely Jon's regardless: pressing **submit** on the review, and any
+    judgement call about what the listing should say.
 - **J4 — Ambassador business side** (was A6): recruit one pro/influencer per
   city; agree rev-share terms (percentage, payout, contract). Mechanics = V6.
 - **J5 — Supabase billing / storage** (was A5 + storage note): free plan has a
