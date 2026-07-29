@@ -15,6 +15,9 @@ import { shouldAlert, alertMessage, type AlertPayload } from '../src/push/alert-
 import { generateVapidKeys, vapidAuthHeader, bytesToB64url, type VapidKeys } from '../src/push/vapid'
 import { listOgHtml } from '../src/spots/list-og'
 import { responseEmail } from '../src/push/response-email'
+import {
+  isApnsEndpoint, apnsDeviceToken, sendApnsWith, type ApnsConfig,
+} from '../src/push/apns'
 import { verifySvixSignature } from '../src/push/svix'
 import { buildForward, receivedEmailId, type ReceivedEmail } from '../src/push/forward-mail'
 import type { Spot } from '../src/spots/types'
@@ -59,6 +62,23 @@ interface Env {
   RESEND_WEBHOOK_SECRET?: string
   /** Where support@shootvantage.com is forwarded. */
   SUPPORT_FORWARD_TO?: string
+  /* Apple Push Notification service (J3 phase 4). Without all three, native
+     devices simply never get pushed — web push is unaffected. */
+  APNS_TEAM_ID?: string
+  APNS_KEY_ID?: string
+  /** Contents of the AuthKey_XXXXXXXXXX.p8 file. */
+  APNS_PRIVATE_KEY?: string
+}
+
+/** APNs config, or null when the Worker hasn't been given the key. */
+function apnsConfig(env: Env): ApnsConfig | null {
+  if (!env.APNS_TEAM_ID || !env.APNS_KEY_ID || !env.APNS_PRIVATE_KEY) return null
+  return {
+    teamId: env.APNS_TEAM_ID,
+    keyId: env.APNS_KEY_ID,
+    privateKeyPem: env.APNS_PRIVATE_KEY,
+    bundleId: 'com.shootvantage.app',
+  }
 }
 
 /** Call a public (anon-executable) Supabase RPC. */
@@ -86,8 +106,50 @@ const subKey = async (endpoint: string) => {
 
 export class AlertsDO {
   private storage: DOStorage
-  constructor(state: DOState) {
+  private env: Env
+  // Cloudflare constructs a Durable Object with (state, env); env was unused
+  // until APNs needed the signing key in here.
+  constructor(state: DOState, env: Env) {
     this.storage = state.storage
+    this.env = env
+  }
+
+  /**
+   * Deliver one alert to one subscriber, whichever kind it is.
+   *
+   * Web push is a tickle: the empty POST wakes the service worker, which then
+   * fetches the queued payload. Native has no service worker, so APNs must
+   * carry the text itself — hence the payload being queued either way but only
+   * *read back* by the web path.
+   *
+   * @returns whether the subscription is gone and should be dropped.
+   */
+  private async deliver(
+    sub: Subscription, keys: VapidKeys, alert: AlertPayload, ttl: string,
+  ): Promise<{ ok: boolean; gone: boolean }> {
+    const token = apnsDeviceToken(sub.endpoint)
+    if (token) {
+      const cfg = apnsConfig(this.env)
+      // No key configured: a native device simply gets nothing. Never an error
+      // — web subscribers must keep working regardless.
+      if (!cfg) return { ok: false, gone: false }
+      const res = await sendApnsWith(
+        fetch as never, cfg, token,
+        { title: alert.title, body: alert.body, url: alert.url },
+      )
+      return { ok: res.ok, gone: res.gone }
+    }
+
+    const res = await fetch(sub.endpoint, {
+      method: 'POST',
+      headers: {
+        Authorization: await vapidAuthHeader(sub.endpoint, keys, VAPID_SUBJECT),
+        TTL: ttl,
+        Urgency: 'normal',
+      },
+    }).catch(() => null)
+    if (!res) return { ok: false, gone: false }
+    return { ok: res.ok, gone: res.status === 404 || res.status === 410 }
   }
 
   private async vapid(): Promise<VapidKeys> {
@@ -109,7 +171,8 @@ export class AlertsDO {
 
     if (path === '/subscribe' && request.method === 'POST') {
       const body = (await request.json()) as { endpoint?: string; spotIds?: string[]; userId?: string | null }
-      if (!body.endpoint || !/^https:\/\//.test(body.endpoint)) return json({ error: 'bad endpoint' }, 400)
+      // A native device token arrives as apns://<token>; web push is https.
+      if (!body.endpoint || !/^(https:\/\/|apns:\/\/)/.test(body.endpoint)) return json({ error: 'bad endpoint' }, 400)
       const spotIds = (body.spotIds ?? []).filter((id) => ALL_SPOTS.has(id)).slice(0, MAX_WATCHED)
       const key = await subKey(body.endpoint)
       const userId = typeof body.userId === 'string' && UUID_RE.test(body.userId) ? body.userId : null
@@ -130,18 +193,11 @@ export class AlertsDO {
         const pendingKey = `pending:${key}`
         const existing = (await this.storage.get<AlertPayload[]>(pendingKey)) ?? []
         await this.storage.put(pendingKey, [...existing, body.alert].slice(-5))
-        const res = await fetch(sub.endpoint, {
-          method: 'POST',
-          headers: {
-            Authorization: await vapidAuthHeader(sub.endpoint, keys, VAPID_SUBJECT),
-            TTL: '86400',
-            Urgency: 'normal',
-          },
-        }).catch(() => null)
-        if (res && (res.status === 404 || res.status === 410)) {
+        const out = await this.deliver(sub, keys, body.alert, '86400')
+        if (out.gone) {
           await this.storage.delete(storageKey)
           await this.storage.delete(pendingKey)
-        } else if (res && res.ok) {
+        } else if (out.ok) {
           sent++
         }
       }
@@ -221,21 +277,17 @@ export class AlertsDO {
       const existing = (await this.storage.get<AlertPayload[]>(pendingKey)) ?? []
       await this.storage.put(pendingKey, [...existing, ...alerts].slice(-5))
 
-      const res = await fetch(sub.endpoint, {
-        method: 'POST',
-        headers: {
-          Authorization: await vapidAuthHeader(sub.endpoint, keys, VAPID_SUBJECT),
-          TTL: '21600',
-          Urgency: 'normal',
-        },
-      }).catch(() => null)
+      // Several spots can fire at once. Web push shows them all from the
+      // pending queue; APNs carries one payload, so lead with the newest.
+      const out = await this.deliver(sub, keys, alerts[alerts.length - 1], '21600')
 
-      if (res && (res.status === 404 || res.status === 410)) {
-        // Endpoint is gone — the browser dropped the subscription.
+      if (out.gone) {
+        // The browser dropped the subscription, or Apple says the device is
+        // unregistered.
         await this.storage.delete(storageKey)
         await this.storage.delete(pendingKey)
         dropped++
-      } else if (res && res.ok) {
+      } else if (out.ok) {
         alerted++
       }
     }

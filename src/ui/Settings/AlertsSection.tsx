@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { IconBellRinging } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
 import { useAuth } from '../../auth/useAuth'
-import { pushSupported, alertsEnabled, enableConditionAlerts, disableConditionAlerts } from '../../push/client'
+import { alertsSupported, alertsAreOn, enableAlerts, disableAlerts } from '../../push/alerts'
 import { ALERT_SCORE } from '../../push/alert-rules'
 
 /* Conditions alerts: the app pings YOU when a watched (want-to-go) spot's
@@ -11,7 +11,7 @@ import { ALERT_SCORE } from '../../push/alert-rules'
 export default function AlertsSection() {
   const wishlist = useStore((s) => s.wishlist)
   const user = useAuth((s) => s.user)
-  const supported = pushSupported()
+  const supported = alertsSupported()
   const [on, setOn] = useState<boolean | null>(null) // null = still checking
   const [busy, setBusy] = useState(false)
   const [denied, setDenied] = useState(false)
@@ -19,7 +19,7 @@ export default function AlertsSection() {
   useEffect(() => {
     if (!supported) { setOn(false); return }
     let alive = true
-    alertsEnabled().then((v) => { if (alive) setOn(v) }).catch(() => { if (alive) setOn(false) })
+    alertsAreOn().then((v) => { if (alive) setOn(v) }).catch(() => { if (alive) setOn(false) })
     return () => { alive = false }
   }, [supported])
 
@@ -29,10 +29,10 @@ export default function AlertsSection() {
     setDenied(false)
     try {
       if (on) {
-        await disableConditionAlerts()
+        await disableAlerts()
         setOn(false)
       } else {
-        const ok = await enableConditionAlerts(wishlist, user?.id ?? null)
+        const ok = await enableAlerts(wishlist, user?.id ?? null)
         setOn(ok)
         if (!ok) setDenied(true)
       }
@@ -50,7 +50,7 @@ export default function AlertsSection() {
             ? `Pushes you when a Want-to-go spot's light lines up (score ${ALERT_SCORE}+)`
             : 'Pushes you when a saved spot lines up'}
         </span>
-        {denied && <span className="small" style={{ color: 'var(--skip-ink)' }}>Notifications are blocked for this site — allow them in the browser and try again.</span>}
+        {denied && <span className="small" style={{ color: 'var(--skip-ink)' }}>Notifications are blocked — allow them for Vantage in your device or browser settings, then try again.</span>}
       </span>
       {supported ? (
         <button className={`chip ${on ? 'on' : ''}`} disabled={busy || on == null} onClick={() => void toggle()}>
