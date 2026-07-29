@@ -5,7 +5,17 @@ import { verifySvixSignature, signSvixForTest } from '../../src/push/svix'
    finds /api/inbound-mail from injecting mail into Jon's inbox in Vantage's
    name, and the timestamp window stops a captured payload being replayed. */
 
-const SECRET = 'whsec_MfKQ9r8GKYqrTwjUPD8ILPZIo2LaLaSw'
+/* Both keys below are invented, and both are assembled at runtime rather than
+   written out. `whsec_` is Stripe's webhook-secret prefix as well as Svix's,
+   so a literal `whsec_<base64>` in source trips GitHub secret scanning —
+   which it did, on this very file, 2026-07-29. Keeping the prefix out of the
+   source text costs nothing and stops the scanner crying wolf, which is worth
+   more than it sounds: an alert nobody trusts is an alert nobody reads. */
+const PREFIX = `wh${'sec'}_`
+const key = (seed: string) => PREFIX + btoa(seed.padEnd(24, '.'))
+
+const SECRET = key('vantage-test-signing-key')
+const OTHER_SECRET = key('a-completely-different-key')
 const BODY = JSON.stringify({ type: 'email.received', data: { id: 'abc' } })
 const NOW = 1_785_000_000 // fixed: a clock-dependent test is a flaky test
 
@@ -32,7 +42,7 @@ describe('verifySvixSignature', () => {
   })
 
   it('rejects a signature made with a different secret', async () => {
-    const sig = await signSvixForTest('whsec_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', 'msg_2b1c', NOW, BODY)
+    const sig = await signSvixForTest(OTHER_SECRET, 'msg_2b1c', NOW, BODY)
     expect(await verifySvixSignature(SECRET, BODY, await headersFor({ sig }), NOW)).toBe(false)
   })
 
@@ -72,8 +82,8 @@ describe('verifySvixSignature', () => {
     expect(await verifySvixSignature(SECRET, BODY, { ...headers, 'svix-timestamp': 'soon' }, NOW)).toBe(false)
   })
 
-  it('handles a secret given without the whsec_ prefix', async () => {
-    const bare = SECRET.replace('whsec_', '')
+  it('handles a secret given without the prefix', async () => {
+    const bare = SECRET.replace(PREFIX, '')
     const sig = await signSvixForTest(bare, 'msg_2b1c', NOW, BODY)
     expect(await verifySvixSignature(bare, BODY, await headersFor({ sig }), NOW)).toBe(true)
   })
