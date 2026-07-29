@@ -61,13 +61,10 @@ this is the TestFlight-phase stand-in.
 | J3  | iOS App Store (phases 1–3 done; native+submit left) | 🤝 | — | L |
 | J4  | Ambassador business deals               | 🧑  | —          | —    |
 | J5  | Supabase billing / storage plan         | 🧑  | —          | —    |
-| J6  | Make support@shootvantage.com deliver   | 🧑  | —          | XS   |
 
 **Recommended order: V2 → V3, then decide V4** (it unblocks the
 V5 → V6 growth chain). V10 is a good gap-filler any time.
 
-⚠️ **J6 blocks App Store submission** — `support@shootvantage.com` is published
-in-app but its MX record does not resolve. See the Jon-only queue.
 
 ---
 
@@ -240,27 +237,3 @@ scoreboard picking city #3.
 - **J5 — Supabase billing / storage** (was A5 + storage note): free plan has a
   1 GB storage ceiling community uploads will eventually hit; Pro also
   unlocks leaked-password protection. Billing decision, no code.
-- **J6 — Make `support@shootvantage.com` actually deliver** ⚠️ **blocks App
-  Store submission.** V1 publishes that address in-app (Settings → Community
-  guidelines → Contact) because guideline 1.2 requires published contact
-  information. Jon chose (2026-07-29) to make the address real rather than
-  publish a personal one. **The app side is done and deployed**; two manual
-  steps remain, both outside what the MCPs here can reach.
-  - ✅ `/api/inbound-mail` is live — Svix-verified, fetches the body from the
-    receiving API (the webhook carries metadata only), forwards from the
-    verified domain with the sender in `reply_to`. It returns
-    `503 not configured` until the vars below exist, so it is inert, not open.
-  - ✅ Resend webhook created (`email.received` → that URL), id
-    `99adf63b-a4d5-4292-b2f6-dfb61cc9e52a`. Its signing secret was given to Jon
-    in chat on 2026-07-29 and is **not stored in this repo** — Resend will not
-    show it again; delete and recreate the webhook if it is lost.
-  - ⬜ **Jon — Cloudflare DNS**: add MX on the **root** (`@`) →
-    `inbound-smtp.us-east-1.amazonaws.com`, priority `10`. Verified safe:
-    shootvantage.com had **no MX at all** on 2026-07-29, and Resend requires
-    its record to be the *lowest priority* on the domain, so nothing conflicts.
-    Sending is unaffected (that rides the `send` subdomain's SPF).
-  - ⬜ **Jon — Worker vars** on the `vantage` Worker: `RESEND_WEBHOOK_SECRET`
-    (the `whsec_…` above, as a **secret**) and `SUPPORT_FORWARD_TO` (the inbox
-    to forward to). Both are read in `worker/index.ts`.
-  - Then verify by emailing support@shootvantage.com and watching it arrive.
-    Until the MX resolves, mail to that address still bounces.
