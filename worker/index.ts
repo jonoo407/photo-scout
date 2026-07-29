@@ -16,7 +16,7 @@ import { generateVapidKeys, vapidAuthHeader, bytesToB64url, type VapidKeys } fro
 import { listOgHtml } from '../src/spots/list-og'
 import { responseEmail } from '../src/push/response-email'
 import { verifySvixSignature } from '../src/push/svix'
-import { buildForward, type ReceivedEmail } from '../src/push/forward-mail'
+import { buildForward, receivedEmailId, type ReceivedEmail } from '../src/push/forward-mail'
 import type { Spot } from '../src/spots/types'
 
 const ALL_SPOTS = new Map<string, Spot>([...TAMPA, ...PHILLY].map((s) => [s.id, s]))
@@ -398,9 +398,9 @@ export default {
       })
       if (!ok) return json({ ok: false, reason: 'bad signature' }, 401)
 
-      const event = JSON.parse(raw) as { type?: string; data?: { id?: string } }
+      const event = JSON.parse(raw) as { type?: string }
       if (event.type !== 'email.received') return json({ ok: true, skipped: event.type })
-      const id = event.data?.id
+      const id = receivedEmailId(event)
       if (!id) return json({ ok: false, reason: 'no id' }, 400)
 
       const got = await fetch(`https://api.resend.com/emails/receiving/${id}`, {

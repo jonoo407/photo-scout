@@ -32,6 +32,17 @@ export interface ForwardMessage {
 const esc = (s: string) =>
   s.replace(/[<>&"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c]!))
 
+/** Pull the received-email id out of an `email.received` webhook payload.
+    It is `data.email_id` — NOT `data.id`, which is what this route assumed on
+    its first deploy, earning a 400 on every delivery. `id` is kept only as a
+    fallback in case the shape ever changes back. */
+export function receivedEmailId(event: unknown): string | null {
+  const data = (event as { data?: Record<string, unknown> } | null)?.data
+  if (!data) return null
+  const id = data.email_id ?? data.id
+  return typeof id === 'string' && id ? id : null
+}
+
 /** Pull the address out of `Name <addr@host>` or a bare `addr@host`. */
 export function extractAddress(from: string): string | null {
   const angled = /<([^<>]+@[^<>]+)>/.exec(from)
