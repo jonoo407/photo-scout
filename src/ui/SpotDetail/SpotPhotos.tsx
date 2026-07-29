@@ -4,18 +4,27 @@ import { useAuth } from '../../auth/useAuth'
 import { listMyPhotos, uploadSpotPhoto, deleteSpotPhoto, type MyPhoto } from '../../spots/photos-api'
 import { fetchMyPointEvents } from '../../craft/points-api'
 import { pointsTotal, photoQuotaForPoints } from '../../craft/points'
+import { useStore } from '../../state/store'
+import StandardsGate from './StandardsGate'
 
 /* Your shots from this spot — shared with the community and rate-able.
    Uploads are capped per spot by craft level (2 at Apprentice, up to 8 at
    Master) — the server enforces the same map; this UI just avoids the
-   dead end. */
+   dead end.
+
+   The first upload is gated on agreeing to the posting rules (V1) — the
+   filter-before-posting leg of App Review guideline 1.2. Agreement is per
+   device and persists; it is not asked twice. */
 export default function SpotPhotos({ spotId }: { spotId: string }) {
   const user = useAuth((s) => s.user)
+  const agreedAt = useStore((s) => s.communityRulesAcceptedAt)
+  const acceptRules = useStore((s) => s.acceptCommunityRules)
   const [photos, setPhotos] = useState<MyPhoto[]>([])
   const [quota, setQuota] = useState<number>(photoQuotaForPoints(0))
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [armed, setArmed] = useState<string | null>(null)
+  const [gate, setGate] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const reload = () => listMyPhotos(spotId).then(setPhotos).catch(() => {})
@@ -74,7 +83,7 @@ export default function SpotPhotos({ spotId }: { spotId: string }) {
             </button>
           </div>
         ))}
-        {!atLimit && (
+        {!atLimit && (agreedAt ? (
           <label className="myshot-add">
             <IconCameraPlus size={20} />
             <span className="small">{busy ? 'Uploading…' : photos.length ? 'Add' : 'Add your photo'}</span>
@@ -88,8 +97,19 @@ export default function SpotPhotos({ spotId }: { spotId: string }) {
               onChange={(e) => void onFile(e.target.files?.[0])}
             />
           </label>
-        )}
+        ) : (
+          <button className="myshot-add" onClick={() => setGate(true)}>
+            <IconCameraPlus size={20} />
+            <span className="small">{photos.length ? 'Add' : 'Add your photo'}</span>
+          </button>
+        ))}
       </div>
+      {gate && (
+        <StandardsGate
+          onClose={() => setGate(false)}
+          onAgree={() => { acceptRules(); setGate(false) }}
+        />
+      )}
       {error && <p className="small" style={{ color: 'var(--skip-ink)', margin: '4px 2px 0' }}>{error}</p>}
       <p className="small tertiary" style={{ margin: '4px 2px 0' }}>
         {photos.length} of {quota} shots at this spot

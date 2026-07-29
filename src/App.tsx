@@ -19,6 +19,7 @@ import HuntsHubScreen from './ui/Hunts/HuntsHubScreen'
 import HuntDetailScreen from './ui/Hunts/HuntDetailScreen'
 import ClientListScreen from './ui/ClientList/ClientListScreen'
 import SuggestScreen from './ui/Suggest/SuggestScreen'
+import GuidelinesScreen from './ui/Settings/GuidelinesScreen'
 import ErrorScreen from './ui/ErrorScreen'
 
 /* The five-tab IA (redesign 1a): Today · Explore · Plan · You · Community.
@@ -44,6 +45,7 @@ export const routes: RouteObject[] = [
       { path: '/spot/:id', element: <SpotDetailScreen /> },
       { path: '/suggest', element: <SuggestScreen /> },
       { path: '/settings', element: <SettingsScreen /> },
+      { path: '/guidelines', element: <GuidelinesScreen /> },
       // Retired routes (pre-2026-07 IA) — keep old bookmarks working.
       { path: '/browse', element: <Navigate to="/explore" replace /> },
       { path: '/map', element: <Navigate to="/explore?view=map" replace /> },

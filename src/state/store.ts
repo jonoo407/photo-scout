@@ -75,6 +75,9 @@ interface AppState {
   listsSeenAt: string | null
   /** Transient: a client response arrived since listsSeenAt (Saved-tab dot). */
   newClientResponse: boolean
+  /** When this photographer agreed to the posting rules (ISO), or null. The
+      pre-post filter guideline 1.2 asks for — no upload control until it's set. */
+  communityRulesAcceptedAt: string | null
 
   toggleWishlist: (id: string) => void
   toggleVisited: (id: string) => void
@@ -93,6 +96,7 @@ interface AppState {
   toggleSunTable: () => void
   markListsSeen: () => void
   setNewClientResponse: (v: boolean) => void
+  acceptCommunityRules: () => void
 }
 
 const toggle = (list: string[], id: string) =>
@@ -133,6 +137,7 @@ export const useStore = create<AppState>()(
       sunTableCollapsed: false,
       listsSeenAt: null,
       newClientResponse: false,
+      communityRulesAcceptedAt: null,
 
       toggleWishlist: (id) => set((s) => ({ wishlist: toggle(s.wishlist, id) })),
       toggleVisited: (id) => set((s) => ({ visited: toggle(s.visited, id) })),
@@ -175,6 +180,7 @@ export const useStore = create<AppState>()(
       toggleSunTable: () => set((s) => ({ sunTableCollapsed: !s.sunTableCollapsed })),
       markListsSeen: () => set({ listsSeenAt: new Date().toISOString(), newClientResponse: false }),
       setNewClientResponse: (newClientResponse) => set({ newClientResponse }),
+      acceptCommunityRules: () => set({ communityRulesAcceptedAt: new Date().toISOString() }),
     }),
     {
       name: 'photo-scout',

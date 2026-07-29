@@ -39,7 +39,6 @@ this is the TestFlight-phase stand-in.
 
 | ID  | Item                                    | Who | Depends on | Size |
 |-----|-----------------------------------------|-----|------------|------|
-| V1  | Photo reporting + takedown (moderation) | 🤖  | —          | M    |
 | V2  | In-app feedback capture                 | 🤖  | —          | S    |
 | V3  | Pet-friendly data pass                  | 🤖  | —          | S    |
 | V4  | Auth-gate + guest accounts — DECISION   | 🤝  | J1 helps   | M    |
@@ -62,20 +61,17 @@ this is the TestFlight-phase stand-in.
 | J3  | iOS App Store (phases 1–3 done; native+submit left) | 🤝 | — | L |
 | J4  | Ambassador business deals               | 🧑  | —          | —    |
 | J5  | Supabase billing / storage plan         | 🧑  | —          | —    |
+| J6  | Make support@shootvantage.com deliver   | 🧑  | —          | XS   |
 
-**Recommended order: V1 → V2 → V3, then decide V4** (it unblocks the
+**Recommended order: V2 → V3, then decide V4** (it unblocks the
 V5 → V6 growth chain). V10 is a good gap-filler any time.
+
+⚠️ **J6 blocks App Store submission** — `support@shootvantage.com` is published
+in-app but its MX record does not resolve. See the Jon-only queue.
 
 ---
 
 ## Community & trust
-
-### V1 — Photo reporting + takedown 🤖
-Community shots are now public content with no report mechanism or takedown
-path — the most exposed gap in the app. Ship: a report action on community
-shots (reason picker), insert-only `photo_reports` table (RLS like
-`spot_suggestions`), a hide-on-N-reports or curator-review rule, and a
-removal path. This is also the moderation foundation V7/V8 require.
 
 ### V7 — Spot discussion threads (was B8, design 3b) 🤖
 Per-spot comments visible to the community; moderation + report tooling
@@ -244,3 +240,20 @@ scoreboard picking city #3.
 - **J5 — Supabase billing / storage** (was A5 + storage note): free plan has a
   1 GB storage ceiling community uploads will eventually hit; Pro also
   unlocks leaked-password protection. Billing decision, no code.
+- **J6 — Make `support@shootvantage.com` actually deliver** ⚠️ **blocks App
+  Store submission.** V1 publishes that address in-app (Settings → Community
+  guidelines → Contact) because guideline 1.2 requires published contact
+  information — but as of 2026-07-28 the Resend domain's **receiving MX record
+  reports `failed`** (root `@` → `inbound-smtp.us-east-1.amazonaws.com`,
+  priority 10) and there are **zero webhooks**, so nothing @shootvantage.com
+  receives mail. A published address that bounces is worse than none.
+  Two ways to close it, Jon's call:
+  1. **Make it real** — add the MX row in Cloudflare DNS, then a Resend
+     inbound webhook that forwards to Jon's inbox. Keeps a professional
+     address off his personal one. (Claude can do the webhook; the DNS record
+     needs Jon, as the Cloudflare MCP here exposes no DNS tools.)
+  2. **Change the address** — point `SUPPORT_EMAIL` in
+     `src/community/standards.ts` at an inbox that already works. One-line
+     change, but it publishes whatever address is chosen in an App Store app.
+  The in-app "Send feedback" path beside it already works either way, so the
+  contact requirement is partly met today — but reviewers do email the address.

@@ -341,6 +341,38 @@ export default {
       return json({ ok: true, emailed })
     }
 
+    // Supabase DB webhook: someone reported a community shot → email it. The
+    // guideline the whole feature exists for asks for "timely responses", and
+    // a queue nobody is paged about is not timely. Two independent reports
+    // already auto-hid the shot server-side by the time this fires.
+    if (url.pathname === '/api/report-hook' && request.method === 'POST') {
+      const body = (await request.json().catch(() => null)) as
+        | { record?: { photo_id?: string; reason?: string; note?: string | null; spot_id?: string | null; path?: string | null; hidden?: boolean } }
+        | null
+      const r = body?.record
+      if (!r?.photo_id) return json({ ok: false, reason: 'no photo' }, 400)
+
+      let emailed = false
+      if (env.RESEND_API_KEY) {
+        const esc = (s: string) => s.replace(/[<>&]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]!))
+        const res = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'content-type': 'application/json' },
+          body: JSON.stringify({
+            from: 'Vantage <alerts@shootvantage.com>',
+            to: ['flahertyjon@gmail.com'],
+            subject: `Vantage: shot reported (${r.reason ?? 'unknown'})${r.hidden ? ' — AUTO-HIDDEN' : ''}`,
+            html: `<p><strong>${esc(r.reason ?? 'unknown')}</strong>${r.hidden ? ' · <strong>already hidden</strong>' : ' · still visible'}</p>`
+              + `<p>Spot: ${esc(r.spot_id ?? '—')}<br>Photo: ${esc(r.photo_id)}</p>`
+              + (r.note ? `<p style="white-space:pre-wrap">“${esc(r.note)}”</p>` : '')
+              + `<p style="color:#777;font-size:12px">Triage: select * from photo_reports where status='new';</p>`,
+          }),
+        }).catch(() => null)
+        emailed = !!res && res.ok
+      }
+      return json({ ok: true, emailed })
+    }
+
     if (url.pathname.startsWith('/api/push/')) {
       const inner = url.pathname.slice('/api/push'.length) + url.search
       return doStub(env).fetch(new Request(`https://do${inner}`, request))

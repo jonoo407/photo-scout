@@ -9,6 +9,7 @@ import { REGION_LIST, nearestRegion } from '../../data/regions'
 import { geocodeAddress } from '../../spots/geocode'
 import AccountSection from './AccountSection'
 import AlertsSection from './AlertsSection'
+import SafetySection from './SafetySection'
 import { APP_VERSION_LABEL } from '../../app-version'
 import { getPosition } from '../../geo/position'
 
@@ -158,6 +159,8 @@ export default function SettingsScreen() {
           </span>
         </div>
       </div>
+
+      <SafetySection />
 
       <p className="shdr">MORE</p>
       <div className="card list">

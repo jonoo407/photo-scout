@@ -45,6 +45,9 @@
 .list { overflow: hidden; }
 .row { display: flex; justify-content: space-between; align-items: center; padding: 11px 12px; border-bottom: 0.5px solid var(--line); font-size: 14px; width: 100%; box-sizing: border-box; }
 .row.last, .row:last-child { border-bottom: none; }
+/* Rows that are links (guidelines, contact) — every other row is a button or a
+   div, so without this they render as default browser blue. */
+a.row { color: inherit; text-decoration: none; }
 .rowleft { display: inline-flex; align-items: center; gap: 8px; }
 .val { color: var(--ink-2); display: inline-flex; align-items: center; gap: 4px; }
 .addrset { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
@@ -256,8 +259,12 @@ button.stat:active { transform: scale(0.98); }
 /* community shots strip (social feature, 2026-07-16) */
 .commshots { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
 .commshots::-webkit-scrollbar { display: none; }
-.commshot { flex: none; width: 150px; }
+.commshot { flex: none; width: 150px; position: relative; }
 .commshot img { width: 150px; height: 110px; object-fit: cover; border-radius: var(--radius-sm); display: block; border: 0.5px solid var(--line); }
+/* Report flag (V1). Deliberately quiet — present on every shot that isn't
+   yours, but never competing with the photograph for attention. */
+.commshot-report { position: absolute; top: 4px; right: 4px; appearance: none; border: 0; cursor: pointer; border-radius: var(--radius-pill); background: rgba(28, 18, 8, 0.55); color: #fff3e6; padding: 4px; display: inline-flex; opacity: 0.75; }
+.commshot-report:hover, .commshot-report:focus-visible { opacity: 1; }
 .commshot-stars { display: flex; gap: 2px; margin-top: 5px; }
 .commshot-stars button { appearance: none; border: 0; background: none; cursor: pointer; padding: 2px; display: inline-flex; }
 .commshot-stars button:disabled { cursor: default; }

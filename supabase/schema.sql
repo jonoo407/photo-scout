@@ -341,3 +341,88 @@ $$;
 drop trigger if exists feedback_notify on public.feedback;
 create trigger feedback_notify after insert on public.feedback
   for each row execute function public.feedback_notify();
+
+-- ── Photo reporting, blocking, takedown (V1, 2026-07-28) ────────────────────
+-- Applied as migration `photo_reports_and_blocking` via the Supabase MCP.
+-- Community shots went public 2026-07-16 with no report path and no way to
+-- mute a poster. App Review guideline 1.2 requires FOUR things of any app
+-- carrying user-generated content, and this migration is three of them
+-- (the fourth, a filter on posting, is the client-side standards gate in
+-- src/ui/SpotDetail/StandardsGate.tsx + src/community/standards.ts):
+--   · report mechanism + timely response  → report_photo() + the email leg
+--   · ability to block abusive users      → blocked_users + block_photo_owner()
+--   · removal of violating content        → user_photos.hidden_at
+--
+-- Both RPCs are definer functions rather than table writes, for one reason:
+-- spot_community_photos reduces a photo's owner to two initials, so the client
+-- has no owner uuid with which to block. Blocking is keyed off the PHOTO and
+-- the server resolves the owner. Likewise the auto-hide threshold — a report
+-- count the client can write is a report count an abuser can forge.
+
+create table if not exists public.photo_reports (
+  id uuid primary key default gen_random_uuid(),
+  photo_id uuid not null references public.user_photos (id) on delete cascade,
+  -- set null, not cascade: the moderation record outlives the reporter's account
+  reporter uuid references auth.users (id) on delete set null,
+  reason text not null check (reason in ('offensive','harassment','copyright','spam','other')),
+  note text check (char_length(note) <= 1000),
+  status text not null default 'new' check (status in ('new','upheld','dismissed')),
+  created_at timestamptz not null default now()
+);
+-- RLS on with NO policies: writes go through report_photo(), reads are SQL-only.
+-- Anything else would let one user enumerate who reported whom.
+alter table public.photo_reports enable row level security;
+create unique index if not exists photo_reports_one_per_user
+  on public.photo_reports (photo_id, reporter) where reporter is not null;
+create index if not exists photo_reports_triage_idx
+  on public.photo_reports (status, created_at desc);
+
+create table if not exists public.blocked_users (
+  blocker uuid not null references auth.users (id) on delete cascade,
+  blocked uuid not null references auth.users (id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (blocker, blocked),
+  constraint no_self_block check (blocker <> blocked)
+);
+alter table public.blocked_users enable row level security;
+create policy "own block list" on public.blocked_users
+  for all to authenticated using (auth.uid() = blocker) with check (auth.uid() = blocker);
+
+-- Takedown latch (once set it stays set; un-hiding is a deliberate SQL act):
+--   alter table public.user_photos
+--     add column hidden_at timestamptz, add column hidden_reason text;
+-- The public read respects it too — the listing RPC is not the only way to
+-- reach this table. The owner still sees their own hidden shot via the
+-- "own photos" policy, so they can delete it:
+--   drop policy "shots are community content" on public.user_photos;
+--   create policy "shots are community content" on public.user_photos
+--     for select to anon, authenticated using (hidden_at is null);
+--
+-- Functions (full bodies in the migration):
+--   report_photo(photo, reason, note) — auth required, rejects reporting your
+--     own shot, one report per person per photo (upsert), AUTO-HIDES on the
+--     second DISTINCT reporter and marks that photo's reports 'upheld'.
+--     Returns {hidden, reports}. With one curator, automation is what makes
+--     "timely responses" true; a human still reviews the queue.
+--   block_photo_owner(photo)  — resolves owner server-side, refuses self-block
+--   blocked_count() / unblock_everyone() — drive the Settings row
+--   spot_community_photos()   — now also filters `hidden_at is null` and
+--     `not exists (blocked_users where blocker = auth.uid())`
+--   photo_report_notify()     — after-insert trigger → /api/report-hook → email
+--
+-- Integration-tested 2026-07-28 w/ rollback, 17 assertions: owner refused,
+-- duplicate report does not tip the threshold, 2nd distinct reporter hides,
+-- reports marked upheld, raw table read drops the hidden row, block is
+-- per-viewer (others still see the shot), self-block refused, owner still sees
+-- own hidden shot, unblock restores, signed-out refused.
+
+-- Triage the queue:
+--   select r.created_at, r.reason, r.note, p.spot_id, p.path, p.hidden_at
+--   from photo_reports r join user_photos p on p.id = r.photo_id
+--   where r.status = 'new' order by r.created_at desc;
+-- Uphold a report the auto-rule didn't catch (removes it for everyone):
+--   update user_photos set hidden_at = now(), hidden_reason = '<reason>'
+--   where id = '<photo>';
+-- Dismiss:
+--   update photo_reports set status = 'dismissed' where id = '<report>';
+--   update user_photos set hidden_at = null, hidden_reason = null where id = '<photo>';

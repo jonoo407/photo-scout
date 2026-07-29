@@ -12,11 +12,15 @@ vi.mock('../../src/auth/supabase', () => ({ authAvailable: () => true }))
 
 import SpotPhotos from '../../src/ui/SpotDetail/SpotPhotos'
 import { useAuth } from '../../src/auth/useAuth'
+import { useStore } from '../../src/state/store'
 
 beforeEach(() => {
   vi.clearAllMocks()
   mocks.listMyPhotos.mockResolvedValue([])
   act(() => useAuth.setState({ user: { id: 'u1', email: 'x@y.z' } }))
+  // These cover the upload path itself; the standards gate that precedes a
+  // photographer's FIRST upload has its own suite (community-standards).
+  act(() => useStore.setState({ communityRulesAcceptedAt: '2026-07-28T00:00:00.000Z' }))
 })
 
 describe('SpotPhotos', () => {
