@@ -5,6 +5,16 @@ coverage
 *.tsbuildinfo
 .vite
 *.local
+
+# Env files. `.env.local` is already covered by *.local, but a plain `.env`
+# was not — one careless `echo KEY=... > .env` would have committed a live
+# secret to a PUBLIC repo. Ignore them all, then force-track the two that are
+# safe by construction: .env.example holds names only, and VITE_-prefixed
+# values are compiled into the client bundle so they can never be secret.
+.env
+.env.*
+!.env.example
+!.env.production
 .DS_Store
 .session
 
