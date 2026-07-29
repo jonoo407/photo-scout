@@ -426,3 +426,52 @@ create policy "own block list" on public.blocked_users
 -- Dismiss:
 --   update photo_reports set status = 'dismissed' where id = '<report>';
 --   update user_photos set hidden_at = null, hidden_reason = null where id = '<photo>';
+
+-- ── Opaque photographer refs + per-row block management (2026-07-29) ────────
+-- Applied as migration `photographer_refs_and_block_management`.
+--
+-- V1 (the day before) keyed blocking off the PHOTO, because
+-- spot_community_photos reduces owners to two initials and the client
+-- therefore had no handle for a person. That kept auth uuids off the client —
+-- worth keeping, since a stable uuid would let anyone enumerate photos and map
+-- where a given photographer shoots — but it meant Settings could only show
+-- "2 blocked" with a single Unblock all. An accidental block had no individual
+-- undo, and there was no blocking path at all for surfaces with no photo
+-- attached (V7 threads, V8 critiques).
+--
+-- The handle is a RANDOM ref, deliberately not a hash of the uuid: a hash
+-- needs a salt, and any authenticated user can read a function body out of
+-- pg_proc, so the salt would not stay secret. A random ref reverses to nothing
+-- and has no secret to keep, while still being stable per person — which is
+-- what lets the client group someone's shots and label a block-list row.
+
+create table if not exists public.photographers (
+  owner uuid primary key references auth.users (id) on delete cascade,
+  ref uuid not null unique default gen_random_uuid(),
+  created_at timestamptz not null default now()
+);
+-- No policies: refs reach clients only through the definer RPCs, so this can
+-- never be read as a directory of everyone who has ever posted.
+alter table public.photographers enable row level security;
+
+-- spot_community_photos is STABLE and so cannot mint a ref itself; a BEFORE
+-- INSERT trigger on user_photos (`ensure_photographer_ref`) does it at upload
+-- time, and the migration backfilled existing owners.
+--
+-- Functions (full bodies in the migration):
+--   spot_community_photos()   — now also returns `owner_ref` (additive: a
+--     client from before the deploy simply ignores the extra column)
+--   block_photographer(ref)   — the real block; works anywhere a ref is known
+--   unblock_photographer(ref) — lifts ONE block
+--   blocked_photographers()   — ref + initials + blocked_at, for the list
+--   block_photo_owner(photo)  — kept for clients mid-rollout; resolves the ref
+--     (minting one if the photo predates the trigger) and defers to the above
+--   unblock_everyone()        — now UNUSED by the client; left rather than
+--     spending a migration to drop it
+--
+-- Integration-tested 2026-07-29 w/ rollback, 16 assertions: refs are per
+-- PHOTOGRAPHER not per photo, one photographer's shots share a ref, ref differs
+-- from the auth uuid, blocking by ref removes all their shots, the list names
+-- them, unblocking one restores only that one, unknown ref and self-block are
+-- refused, the legacy photo-keyed call still works, signed-out sees an empty
+-- list rather than an error.

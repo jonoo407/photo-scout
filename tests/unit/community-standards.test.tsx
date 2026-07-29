@@ -15,14 +15,6 @@ vi.mock('../../src/spots/photos-api', () => ({
 }))
 vi.mock('../../src/craft/points-api', () => ({ fetchMyPointEvents: async () => [] }))
 
-const fetchBlockedCount = vi.fn(async () => 2)
-const unblockEveryone = vi.fn(async () => true)
-vi.mock('../../src/spots/photo-reports-api', async (orig) => ({
-  ...(await orig<typeof import('../../src/spots/photo-reports-api')>()),
-  fetchBlockedCount: () => fetchBlockedCount(),
-  unblockEveryone: () => unblockEveryone(),
-}))
-
 vi.mock('../../src/auth/supabase', () => ({
   authAvailable: () => true,
   googleEnabled: () => false,
@@ -31,15 +23,12 @@ vi.mock('../../src/auth/supabase', () => ({
 
 import SpotPhotos from '../../src/ui/SpotDetail/SpotPhotos'
 import GuidelinesScreen from '../../src/ui/Settings/GuidelinesScreen'
-import SafetySection from '../../src/ui/Settings/SafetySection'
 import { SUPPORT_EMAIL } from '../../src/community/standards'
 import { useAuth } from '../../src/auth/useAuth'
 import { useStore } from '../../src/state/store'
 
 beforeEach(() => {
   uploadSpotPhoto.mockClear()
-  fetchBlockedCount.mockClear()
-  unblockEveryone.mockClear()
   useAuth.setState({ user: { id: 'u1', email: 'jon@example.com' }, status: 'ready', errorMsg: null, linkError: null })
   useStore.setState({ communityRulesAcceptedAt: null })
 })
@@ -74,33 +63,9 @@ describe('posting filter — standards agreed before the first upload', () => {
   })
 })
 
-describe('block management in Settings', () => {
-  it('shows how many photographers you have blocked', async () => {
-    wrap(<SafetySection />)
-    expect(await screen.findByText(/2 blocked/i)).toBeInTheDocument()
-  })
-
-  it('unblocks everyone and drops the count to zero', async () => {
-    const user = userEvent.setup()
-    wrap(<SafetySection />)
-    await user.click(await screen.findByRole('button', { name: /unblock all/i }))
-    expect(unblockEveryone).toHaveBeenCalled()
-    expect(await screen.findByText(/nobody blocked/i)).toBeInTheDocument()
-  })
-
-  it('hides the unblock control when nobody is blocked', async () => {
-    fetchBlockedCount.mockResolvedValueOnce(0)
-    wrap(<SafetySection />)
-    expect(await screen.findByText(/nobody blocked/i)).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /unblock all/i })).not.toBeInTheDocument()
-  })
-
-  it('links to the community guidelines', async () => {
-    wrap(<SafetySection />)
-    expect(await screen.findByRole('link', { name: /community guidelines/i }))
-      .toHaveAttribute('href', '/guidelines')
-  })
-})
+/* Block-list management moved to blocked-list.test.tsx when refs made the list
+   per-row undoable (2026-07-29). What stays here is the posting filter and the
+   published-contact leg. */
 
 describe('published contact information', () => {
   it('publishes a reachable contact route on the guidelines screen', () => {

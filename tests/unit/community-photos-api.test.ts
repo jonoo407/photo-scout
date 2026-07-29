@@ -24,7 +24,8 @@ describe('fetchSpotCommunityPhotos', () => {
   it('maps RPC rows to photos with public urls', async () => {
     rpcResult = {
       data: [{
-        id: 'p1', path: 'u1/bayshore-boulevard/a.jpg', owner_initials: 'SR', is_mine: false,
+        id: 'p1', path: 'u1/bayshore-boulevard/a.jpg', owner_initials: 'SR',
+        owner_ref: 'ref-sarah', is_mine: false,
         ratings_count: 3, avg_rating: 4.33, score: 3.813, my_rating: 5, created_at: '2026-07-16T00:00:00Z',
       }],
       error: null,
@@ -33,8 +34,21 @@ describe('fetchSpotCommunityPhotos', () => {
     expect(rpc).toHaveBeenCalledWith('spot_community_photos', { p_spot_id: 'bayshore-boulevard' })
     expect(photos).toEqual([{
       id: 'p1', url: 'https://cdn.example/u1/bayshore-boulevard/a.jpg', ownerInitials: 'SR',
+      ownerRef: 'ref-sarah',
       isMine: false, ratingsCount: 3, avgRating: 4.33, score: 3.813, myRating: 5,
     }])
+  })
+
+  it('tolerates a row from before refs existed rather than dropping the shot', async () => {
+    rpcResult = {
+      data: [{
+        id: 'p1', path: 'a.jpg', owner_initials: '—', owner_ref: null, is_mine: false,
+        ratings_count: 0, avg_rating: 0, score: 3.5, my_rating: null, created_at: '2026-07-16T00:00:00Z',
+      }],
+      error: null,
+    }
+    const [photo] = await fetchSpotCommunityPhotos('x')
+    expect(photo.ownerRef).toBeNull()
   })
 
   it('returns empty on error', async () => {

@@ -11,6 +11,9 @@ export interface CommunityPhoto {
   id: string
   url: string
   ownerInitials: string
+  /** Opaque, stable per photographer — the only handle the client ever gets
+      for a person (see photo-reports-api). Null only for rows predating refs. */
+  ownerRef: string | null
   isMine: boolean
   ratingsCount: number
   avgRating: number
@@ -19,7 +22,8 @@ export interface CommunityPhoto {
 }
 
 interface Row {
-  id: string; path: string; owner_initials: string; is_mine: boolean
+  id: string; path: string; owner_initials: string; owner_ref: string | null
+  is_mine: boolean
   ratings_count: number; avg_rating: number; score: number
   my_rating: number | null; created_at: string
 }
@@ -34,6 +38,7 @@ export async function fetchSpotCommunityPhotos(spotId: string): Promise<Communit
       id: r.id,
       url: store.getPublicUrl(r.path).data.publicUrl,
       ownerInitials: r.owner_initials,
+      ownerRef: r.owner_ref ?? null,
       isMine: r.is_mine,
       ratingsCount: Number(r.ratings_count),
       avgRating: Number(r.avg_rating),

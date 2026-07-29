@@ -24,8 +24,8 @@ import CommunityShots from '../../src/ui/SpotDetail/CommunityShots'
 import { useAuth } from '../../src/auth/useAuth'
 
 const shot = (over: Partial<CommunityPhoto>): CommunityPhoto => ({
-  id: 'p1', url: 'https://cdn.example/a.jpg', ownerInitials: 'SR', isMine: false,
-  ratingsCount: 3, avgRating: 4.33, score: 3.8, myRating: null, ...over,
+  id: 'p1', url: 'https://cdn.example/a.jpg', ownerInitials: 'SR', ownerRef: 'ref-sr',
+  isMine: false, ratingsCount: 3, avgRating: 4.33, score: 3.8, myRating: null, ...over,
 })
 
 beforeEach(() => {

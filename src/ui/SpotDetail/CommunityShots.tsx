@@ -23,7 +23,7 @@ export default function CommunityShots({ spotId }: { spotId: string }) {
   const [photos, setPhotos] = useState<CommunityPhoto[]>([])
   const [nudge, setNudge] = useState<null | 'rate' | 'report'>(null)
   const [error, setError] = useState<string | null>(null)
-  const [reporting, setReporting] = useState<string | null>(null)
+  const [reporting, setReporting] = useState<CommunityPhoto | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
 
   const load = () => fetchSpotCommunityPhotos(spotId).then(setPhotos)
@@ -37,7 +37,7 @@ export default function CommunityShots({ spotId }: { spotId: string }) {
   const openReport = (photo: CommunityPhoto) => {
     if (!user) { setNudge('report'); return }
     setNotice(null)
-    setReporting(photo.id)
+    setReporting(photo)
   }
 
   const finishReport = (id: string, outcome: SheetOutcome) => {
@@ -130,9 +130,10 @@ export default function CommunityShots({ spotId }: { spotId: string }) {
       {error && <p className="small" style={{ color: 'var(--skip-ink)', margin: '6px 2px 0' }}>{error}</p>}
       {reporting && (
         <ReportShotSheet
-          photoId={reporting}
+          photoId={reporting.id}
+          ownerRef={reporting.ownerRef}
           onClose={() => setReporting(null)}
-          onDone={(outcome) => finishReport(reporting, outcome)}
+          onDone={(outcome) => finishReport(reporting.id, outcome)}
         />
       )}
     </>

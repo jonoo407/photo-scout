@@ -52,12 +52,24 @@ export async function reportPhoto(
 
 export type BlockResult = { ok: true } | { ok: false; message: string }
 
-/** Block whoever posted this photo. Their shots disappear from every spot
-    for you, immediately and permanently, until you unblock. */
-export async function blockPhotoOwner(photoId: string): Promise<BlockResult> {
+/* Blocking is keyed off an opaque per-photographer `ref` (added 2026-07-29),
+   not an auth uuid and no longer a photo id.
+
+   The uuid stays server-side on purpose: it is a stable handle, and with one
+   you could enumerate photos and map where a given photographer shoots — a
+   real exposure for an app about going to real places. The ref is random, so
+   it reveals nothing and reverses to nothing, but it IS stable per person,
+   which is what lets the app group someone's shots and, more importantly, show
+   a block list you can undo one row at a time. Blocking by photo (what V1
+   shipped) could not do that, and had no answer at all for surfaces with no
+   photo attached — discussion threads and critiques, both on the backlog. */
+
+/** Block a photographer by their opaque ref. Their shots disappear from every
+    spot for you, immediately, until you unblock. */
+export async function blockPhotographer(ref: string): Promise<BlockResult> {
   try {
     const supabase = await getSupabase()
-    const { error } = await supabase.rpc('block_photo_owner', { p_photo_id: photoId })
+    const { error } = await supabase.rpc('block_photographer', { p_ref: ref })
     if (error) return { ok: false, message: error.message }
     return { ok: true }
   } catch {
@@ -65,25 +77,40 @@ export async function blockPhotoOwner(photoId: string): Promise<BlockResult> {
   }
 }
 
-/** How many people you have blocked — drives the Settings row. Never throws;
-    signed-out simply has nobody blocked. */
-export async function fetchBlockedCount(): Promise<number> {
+/** Lift a single block, leaving the rest alone. */
+export async function unblockPhotographer(ref: string): Promise<BlockResult> {
   try {
     const supabase = await getSupabase()
-    const { data, error } = await supabase.rpc('blocked_count', {})
-    if (error || data == null) return 0
-    return Number(data)
+    const { error } = await supabase.rpc('unblock_photographer', { p_ref: ref })
+    if (error) return { ok: false, message: error.message }
+    return { ok: true }
   } catch {
-    return 0
+    return { ok: false, message: 'Could not reach the server — try again.' }
   }
 }
 
-export async function unblockEveryone(): Promise<boolean> {
+export interface BlockedPhotographer {
+  ref: string
+  /** The same two initials shown on a shot — enough to recognise a row. */
+  initials: string
+  blockedAt: string
+}
+
+/** Who you have blocked. Never throws; signed-out simply has nobody blocked. */
+export async function fetchBlockedPhotographers(): Promise<BlockedPhotographer[]> {
   try {
     const supabase = await getSupabase()
-    const { error } = await supabase.rpc('unblock_everyone', {})
-    return !error
+    const { data, error } = await supabase.rpc('blocked_photographers', {})
+    if (error || !data) return []
+    return (data as Array<{ ref: string; initials: string; blocked_at: string }>).map((r) => ({
+      ref: r.ref, initials: r.initials, blockedAt: r.blocked_at,
+    }))
   } catch {
-    return false
+    return []
   }
 }
+
+/* `unblockEveryone` was removed on 2026-07-29. It only ever existed because
+   the block list could not be shown, so "all or nothing" was the only undo the
+   client could offer. Per-row unblock replaced it. The `unblock_everyone()`
+   RPC is left in the database, unused, rather than spending a migration. */

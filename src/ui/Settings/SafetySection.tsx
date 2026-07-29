@@ -1,26 +1,33 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { IconShieldCheck, IconUserOff, IconChevronRight } from '@tabler/icons-react'
-import { fetchBlockedCount, unblockEveryone } from '../../spots/photo-reports-api'
+import {
+  fetchBlockedPhotographers, unblockPhotographer, type BlockedPhotographer,
+} from '../../spots/photo-reports-api'
 
-/* Settings → Community & safety (V1, guideline 1.2): the block list has to be
-   undoable somewhere, and the guidelines have to be findable without first
-   finding a shot to report. */
+/* Settings → Community & safety (V1, guideline 1.2).
+
+   The list is per-row undoable (2026-07-29). It shipped a day earlier as a
+   bare count with one Unblock all, because blocking was keyed off a photo and
+   the client had no handle for a person — so an accidental block could only be
+   undone by unblocking everyone. Opaque refs fixed that. */
 export default function SafetySection() {
-  const [blocked, setBlocked] = useState<number | null>(null)
-  const [busy, setBusy] = useState(false)
+  const [blocked, setBlocked] = useState<BlockedPhotographer[] | null>(null)
+  const [busy, setBusy] = useState<string | null>(null)
 
   useEffect(() => {
     let alive = true
-    void fetchBlockedCount().then((n) => { if (alive) setBlocked(n) })
+    void fetchBlockedPhotographers().then((b) => { if (alive) setBlocked(b) })
     return () => { alive = false }
   }, [])
 
-  const unblockAll = async () => {
-    setBusy(true)
-    const ok = await unblockEveryone()
-    setBusy(false)
-    if (ok) setBlocked(0)
+  const unblock = async (ref: string) => {
+    setBusy(ref)
+    const res = await unblockPhotographer(ref)
+    setBusy(null)
+    // Drop the row only once the server agrees — otherwise a failed unblock
+    // looks like it worked until the next reload.
+    if (res.ok) setBlocked((b) => (b ?? []).filter((p) => p.ref !== ref))
   }
 
   return (
@@ -31,19 +38,38 @@ export default function SafetySection() {
           <span className="rowleft"><IconShieldCheck size={18} /> Community guidelines</span>
           <IconChevronRight size={16} className="val" />
         </Link>
-        <div className="row last">
-          <span className="rowleft"><IconUserOff size={18} /> Blocked photographers</span>
-          <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <span className="val small">
-              {blocked === null ? '…' : blocked === 0 ? 'Nobody blocked' : `${blocked} blocked`}
-            </span>
-            {!!blocked && (
-              <button className="chip" onClick={() => void unblockAll()} disabled={busy}>
-                {busy ? '…' : 'Unblock all'}
-              </button>
-            )}
-          </span>
-        </div>
+
+        {blocked === null ? (
+          <div className="row last">
+            <span className="rowleft"><IconUserOff size={18} /> Blocked photographers</span>
+            <span className="val small">…</span>
+          </div>
+        ) : blocked.length === 0 ? (
+          <div className="row last">
+            <span className="rowleft"><IconUserOff size={18} /> Blocked photographers</span>
+            <span className="val small">Nobody blocked</span>
+          </div>
+        ) : (
+          <>
+            <div className="row">
+              <span className="rowleft"><IconUserOff size={18} /> Blocked photographers</span>
+              <span className="val small">{blocked.length}</span>
+            </div>
+            {blocked.map((p, i) => (
+              <div className={`row ${i === blocked.length - 1 ? 'last' : ''}`} key={p.ref}>
+                <span className="rowleft">
+                  <span className="commshot-owner" style={{ marginLeft: 0 }}>{p.initials}</span>
+                  <span className="small tertiary">
+                    blocked {new Date(p.blockedAt).toLocaleDateString()}
+                  </span>
+                </span>
+                <button className="chip" onClick={() => void unblock(p.ref)} disabled={busy === p.ref}>
+                  {busy === p.ref ? '…' : 'Unblock'}
+                </button>
+              </div>
+            ))}
+          </>
+        )}
       </div>
     </>
   )

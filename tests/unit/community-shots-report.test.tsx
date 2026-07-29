@@ -19,11 +19,11 @@ type Reported = { ok: true; hidden: boolean } | { ok: false; message: string }
 type Blocked = { ok: true } | { ok: false; message: string }
 const reportPhoto = vi.fn(async (_id: string, _reason: string, _note?: string): Promise<Reported> =>
   ({ ok: true, hidden: false }))
-const blockPhotoOwner = vi.fn(async (_id: string): Promise<Blocked> => ({ ok: true }))
+const blockPhotographer = vi.fn(async (_ref: string): Promise<Blocked> => ({ ok: true }))
 vi.mock('../../src/spots/photo-reports-api', async (orig) => ({
   ...(await orig<typeof import('../../src/spots/photo-reports-api')>()),
   reportPhoto: (id: string, reason: string, note?: string) => reportPhoto(id, reason, note),
-  blockPhotoOwner: (id: string) => blockPhotoOwner(id),
+  blockPhotographer: (ref: string) => blockPhotographer(ref),
 }))
 
 vi.mock('../../src/auth/supabase', () => ({
@@ -36,14 +36,14 @@ import CommunityShots from '../../src/ui/SpotDetail/CommunityShots'
 import { useAuth } from '../../src/auth/useAuth'
 
 const shot = (over: Partial<CommunityPhoto>): CommunityPhoto => ({
-  id: 'p1', url: 'https://cdn.example/a.jpg', ownerInitials: 'SR', isMine: false,
-  ratingsCount: 3, avgRating: 4.33, score: 3.8, myRating: null, ...over,
+  id: 'p1', url: 'https://cdn.example/a.jpg', ownerInitials: 'SR', ownerRef: 'ref-sr',
+  isMine: false, ratingsCount: 3, avgRating: 4.33, score: 3.8, myRating: null, ...over,
 })
 
 beforeEach(() => {
   photos = []
   reportPhoto.mockClear()
-  blockPhotoOwner.mockClear()
+  blockPhotographer.mockClear()
   fetchSpotCommunityPhotos.mockClear()
   useAuth.setState({ user: { id: 'u1', email: 'jon@example.com' }, status: 'ready', errorMsg: null, linkError: null })
 })
@@ -136,13 +136,16 @@ describe('reporting a community shot', () => {
 })
 
 describe('blocking a photographer', () => {
-  it('blocks from the report sheet and clears their shot from the list', async () => {
+  it('blocks by the photographer ref, not the photo — one block covers all their shots', async () => {
     const user = userEvent.setup()
-    photos = [shot({ id: 'p1', ownerInitials: 'SR' }), shot({ id: 'p2', ownerInitials: 'LO' })]
+    photos = [
+      shot({ id: 'p1', ownerInitials: 'SR', ownerRef: 'ref-sr' }),
+      shot({ id: 'p2', ownerInitials: 'LO', ownerRef: 'ref-lo' }),
+    ]
     renderShots()
     const dialog = await openSheetFor(user, 'p1')
     await user.click(within(dialog).getByRole('button', { name: /block this photographer/i }))
-    expect(blockPhotoOwner).toHaveBeenCalledWith('p1')
+    expect(blockPhotographer).toHaveBeenCalledWith('ref-sr')
     // the block hides everything of theirs, so the list is re-read from the server
     expect(await screen.findByText(/you won't see their shots/i)).toBeInTheDocument()
     expect(fetchSpotCommunityPhotos).toHaveBeenCalledTimes(2)
@@ -150,11 +153,22 @@ describe('blocking a photographer', () => {
 
   it('surfaces the guard message when the block is refused', async () => {
     const user = userEvent.setup()
-    blockPhotoOwner.mockResolvedValueOnce({ ok: false, message: 'you cannot block yourself' })
+    blockPhotographer.mockResolvedValueOnce({ ok: false, message: 'you cannot block yourself' })
     photos = [shot({ id: 'p1' })]
     renderShots()
     const dialog = await openSheetFor(user, 'p1')
     await user.click(within(dialog).getByRole('button', { name: /block this photographer/i }))
     expect(await screen.findByText(/you cannot block yourself/i)).toBeInTheDocument()
+  })
+
+  it('offers no block on a shot from before refs existed, rather than a dead button', async () => {
+    const user = userEvent.setup()
+    photos = [shot({ id: 'p1', ownerRef: null })]
+    renderShots()
+    const dialog = await openSheetFor(user, 'p1')
+    expect(within(dialog).queryByRole('button', { name: /block this photographer/i }))
+      .not.toBeInTheDocument()
+    // reporting still works — the content path does not depend on knowing who
+    expect(within(dialog).getByRole('button', { name: /^report$/i })).toBeInTheDocument()
   })
 })

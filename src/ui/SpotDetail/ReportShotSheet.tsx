@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { IconFlag, IconUserOff } from '@tabler/icons-react'
 import {
-  REPORT_REASONS, reportPhoto, blockPhotoOwner, type ReportReason,
+  REPORT_REASONS, reportPhoto, blockPhotographer, type ReportReason,
 } from '../../spots/photo-reports-api'
 
 /* Report / block sheet for a community shot (V1, App Review guideline 1.2).
@@ -16,9 +16,12 @@ export type SheetOutcome =
   | { kind: 'blocked' }
 
 export default function ReportShotSheet({
-  photoId, onClose, onDone,
+  photoId, ownerRef, onClose, onDone,
 }: {
   photoId: string
+  /** Opaque photographer handle from the listing. Null only for rows that
+      predate refs, in which case blocking is simply not offered. */
+  ownerRef: string | null
   onClose: () => void
   onDone: (outcome: SheetOutcome) => void
 }) {
@@ -37,9 +40,9 @@ export default function ReportShotSheet({
   }
 
   const block = async () => {
-    if (busy) return
+    if (busy || !ownerRef) return
     setBusy(true); setError(null)
-    const res = await blockPhotoOwner(photoId)
+    const res = await blockPhotographer(ownerRef)
     setBusy(false)
     if (!res.ok) { setError(res.message); return }
     onDone({ kind: 'blocked' })
@@ -54,17 +57,21 @@ export default function ReportShotSheet({
         {/* Block sits first, deliberately. It is the one action that works
             instantly and needs nobody's review — someone being harassed should
             not have to scroll past a taxonomy to reach it. */}
-        <button
-          className="chip"
-          onClick={() => void block()}
-          disabled={busy}
-          style={{ width: '100%', margin: '10px 0 4px', color: 'var(--skip-ink)' }}
-        >
-          <IconUserOff size={15} /> Block this photographer
-        </button>
-        <p className="small tertiary" style={{ margin: '0 2px 14px', textAlign: 'center' }}>
-          Hides every shot of theirs from you, everywhere. Undo in Settings.
-        </p>
+        {ownerRef && (
+          <>
+            <button
+              className="chip"
+              onClick={() => void block()}
+              disabled={busy}
+              style={{ width: '100%', margin: '10px 0 4px', color: 'var(--skip-ink)' }}
+            >
+              <IconUserOff size={15} /> Block this photographer
+            </button>
+            <p className="small tertiary" style={{ margin: '0 2px 14px', textAlign: 'center' }}>
+              Hides every shot of theirs from you, everywhere. Undo in Settings.
+            </p>
+          </>
+        )}
 
         <p className="small muted" style={{ margin: '0 2px 8px' }}>
           Or tell a curator what's wrong — two independent reports hide a shot straight away.
