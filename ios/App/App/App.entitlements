@@ -2,9 +2,15 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- Apple Push Notification service. "production" is what TestFlight and
-	     App Store builds use; an Xcode debug build registers against sandbox,
-	     which the Worker handles by retrying there on BadDeviceToken. -->
+	<!-- Apple push notifications. "production" is what TestFlight and App Store
+	     builds use.
+
+	     This file is attached to the RELEASE configuration ONLY. The simulator
+	     gate builds Debug unsigned, and on a simulator entitlements are still
+	     applied via ad-hoc signing — an aps-environment entitlement with no
+	     provisioning profile to grant it stops the app launching at all, with
+	     no crash log and an empty stdout. That is exactly how it failed on
+	     2026-07-29: the gate screenshot showed the iOS home screen. -->
 	<key>aps-environment</key>
 	<string>production</string>
 </dict>
