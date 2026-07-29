@@ -281,3 +281,8 @@ button.stat:active { transform: scale(0.98); }
 .fbfield::placeholder { color: var(--ink-3); }
 .fbfield:focus-visible { outline: 2px solid var(--terracotta); outline-offset: 1px; }
 textarea.fbfield { resize: vertical; min-height: 120px; }
+
+/* Inline text buttons inside a card row (auth mode switches, "Forgot password?").
+   A button that reads as a link — the app has no other <a>-styled control. */
+.linky { appearance: none; border: 0; background: none; padding: 0; cursor: pointer; font: inherit; font-size: 12px; color: var(--terracotta); text-decoration: underline; }
+.linky:disabled { color: var(--ink-3); cursor: default; text-decoration: none; }

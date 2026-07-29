@@ -273,9 +273,9 @@ Cloudflare DNS record and two Worker secrets it had the token to do itself.)*
 - **J2 — Device notification tap** (was A4): Settings → Conditions alerts →
   Turn on → Allow, on a real phone/desktop. Physical tap only.
 - **J3 — iOS App Store** (was A1): **Phases 1–3 shipped 2026-07-28** — Capacitor 8
-  shell, tiered free CI, and a signed-archive → TestFlight pipeline. Build
-  0.1.0 (3) is live on TestFlight (app `6795605010`, bundle
-  `com.shootvantage.app`). `git tag vX.Y.Z && git push --tags` now ships a
+  shell, tiered free CI, and a signed-archive → TestFlight pipeline. Builds up
+  to **11** are live and VALID on TestFlight (verified via the App Store Connect
+  API 2026-07-29; app `6795605010`, bundle `com.shootvantage.app`). `git tag vX.Y.Z && git push --tags` now ships a
   build with no Mac and no manual step. Details + gotchas in HANDOFF.
   **Not** Codemagic as originally planned — GitHub's standard macOS runners are
   free and unmetered on public repos. Remaining work:

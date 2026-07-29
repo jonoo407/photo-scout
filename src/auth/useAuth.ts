@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { authAvailable, getSupabase } from './supabase'
 import { startSync, stopSync, pullAndMerge } from './sync'
 import { consumeEmailLink } from './email-link'
+import { passwordProblem } from './password-rules'
 
 export interface AuthUser {
   id: string
@@ -17,8 +18,26 @@ interface AuthState {
   linkError: string | null
   signInWithEmail: (email: string) => Promise<void>
   signInWithGoogle: () => Promise<void>
+  /* Password auth (2026-07-29). Magic links remain the default and the
+     recommended path; passwords exist because a link cannot be handed to
+     someone — an App Store reviewer, most concretely — and because some email
+     clients mangle or pre-consume links. */
+  signUpWithPassword: (email: string, password: string) => Promise<void>
+  signInWithPassword: (email: string, password: string) => Promise<void>
+  sendPasswordReset: (email: string) => Promise<void>
   signOut: () => Promise<void>
   dismissLinkError: () => void
+}
+
+const redirectHere = () => window.location.origin + window.location.pathname
+
+/** Supabase surfaces failures as an `error` object on the result, not as a
+    thrown Error, so `instanceof Error` silently loses the real message and
+    everything degrades to the fallback. Read `.message` off whatever arrives. */
+function messageOf(e: unknown, fallback: string): string {
+  if (typeof e === 'string') return e || fallback
+  const m = (e as { message?: unknown } | null)?.message
+  return typeof m === 'string' && m ? m : fallback
 }
 
 /* Session auth state (not persisted by us — supabase-js keeps its own session
@@ -43,7 +62,7 @@ export const useAuth = create<AuthState>((set) => ({
       if (error) throw error
       set({ status: 'sent' })
     } catch (e) {
-      set({ status: 'error', errorMsg: e instanceof Error ? e.message : 'Could not send the link' })
+      set({ status: 'error', errorMsg: messageOf(e, 'Could not send the link') })
     }
   },
 
@@ -59,7 +78,65 @@ export const useAuth = create<AuthState>((set) => ({
       })
       if (error) throw error
     } catch (e) {
-      set({ status: 'error', errorMsg: e instanceof Error ? e.message : 'Google sign-in failed' })
+      set({ status: 'error', errorMsg: messageOf(e, 'Google sign-in failed') })
+    }
+  },
+
+  signUpWithPassword: async (email: string, password: string) => {
+    // Check locally first so a weak password costs one keystroke of feedback
+    // rather than a round trip and a generic server error.
+    const problem = passwordProblem(password)
+    if (problem) { set({ status: 'error', errorMsg: problem }); return }
+    set({ status: 'sending', errorMsg: null })
+    try {
+      const supabase = await getSupabase()
+      const { data, error } = await supabase.auth.signUp({
+        email, password, options: { emailRedirectTo: redirectHere() },
+      })
+      if (error) throw error
+      // With confirmations on, signUp returns no session — the user must click
+      // the emailed link. With them off, they are already in and
+      // onAuthStateChange takes over.
+      set({ status: data?.session ? 'ready' : 'sent' })
+    } catch (e) {
+      set({ status: 'error', errorMsg: messageOf(e, 'Could not create the account') })
+    }
+  },
+
+  signInWithPassword: async (email: string, password: string) => {
+    // No strength check here — that would lock out anyone holding a password
+    // set before the rules tightened. Strength is enforced where one is CHOSEN.
+    set({ status: 'sending', errorMsg: null })
+    try {
+      const supabase = await getSupabase()
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) throw error
+      set({ status: 'ready' })
+    } catch (e) {
+      const raw = messageOf(e, '')
+      // Supabase says "Invalid login credentials" for both a wrong password and
+      // an unknown email — deliberately, so the endpoint isn't an account
+      // oracle. Keep that property, but say it in plain words.
+      set({
+        status: 'error',
+        errorMsg: /invalid login credentials/i.test(raw)
+          ? 'That email or password is wrong.'
+          : raw || 'Could not sign in',
+      })
+    }
+  },
+
+  sendPasswordReset: async (email: string) => {
+    set({ status: 'sending', errorMsg: null })
+    try {
+      const supabase = await getSupabase()
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: redirectHere(),
+      })
+      if (error) throw error
+      set({ status: 'sent' })
+    } catch (e) {
+      set({ status: 'error', errorMsg: messageOf(e, 'Could not send the reset email') })
     }
   },
 
