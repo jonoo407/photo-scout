@@ -15,6 +15,8 @@ import { shouldAlert, alertMessage, type AlertPayload } from '../src/push/alert-
 import { generateVapidKeys, vapidAuthHeader, bytesToB64url, type VapidKeys } from '../src/push/vapid'
 import { listOgHtml } from '../src/spots/list-og'
 import { responseEmail } from '../src/push/response-email'
+import { verifySvixSignature } from '../src/push/svix'
+import { buildForward, type ReceivedEmail } from '../src/push/forward-mail'
 import type { Spot } from '../src/spots/types'
 
 const ALL_SPOTS = new Map<string, Spot>([...TAMPA, ...PHILLY].map((s) => [s.id, s]))
@@ -51,6 +53,12 @@ interface Env {
   /** Worker secrets (dashboard/wrangler) — email leg no-ops without them. */
   RESEND_API_KEY?: string
   SUPABASE_HOOK_SECRET?: string
+  /** Svix signing secret for the Resend inbound-mail webhook (`whsec_…`).
+      Without it /api/inbound-mail refuses everything — an unverified forwarder
+      is an open relay wearing our return address. */
+  RESEND_WEBHOOK_SECRET?: string
+  /** Where support@shootvantage.com is forwarded. */
+  SUPPORT_FORWARD_TO?: string
 }
 
 /** Call a public (anon-executable) Supabase RPC. */
@@ -371,6 +379,42 @@ export default {
         emailed = !!res && res.ok
       }
       return json({ ok: true, emailed })
+    }
+
+    // Resend inbound mail: someone emailed support@shootvantage.com (published
+    // in-app under guideline 1.2) → forward it to Jon. The webhook carries
+    // METADATA ONLY, so the body is fetched from the receiving API by id.
+    if (url.pathname === '/api/inbound-mail' && request.method === 'POST') {
+      const forwardTo = env.SUPPORT_FORWARD_TO
+      if (!env.RESEND_WEBHOOK_SECRET || !env.RESEND_API_KEY || !forwardTo) {
+        return json({ ok: false, reason: 'not configured' }, 503)
+      }
+      // Raw text, never a re-stringified object — that breaks the signature.
+      const raw = await request.text()
+      const ok = await verifySvixSignature(env.RESEND_WEBHOOK_SECRET, raw, {
+        'svix-id': request.headers.get('svix-id'),
+        'svix-timestamp': request.headers.get('svix-timestamp'),
+        'svix-signature': request.headers.get('svix-signature'),
+      })
+      if (!ok) return json({ ok: false, reason: 'bad signature' }, 401)
+
+      const event = JSON.parse(raw) as { type?: string; data?: { id?: string } }
+      if (event.type !== 'email.received') return json({ ok: true, skipped: event.type })
+      const id = event.data?.id
+      if (!id) return json({ ok: false, reason: 'no id' }, 400)
+
+      const got = await fetch(`https://api.resend.com/emails/receiving/${id}`, {
+        headers: { Authorization: `Bearer ${env.RESEND_API_KEY}` },
+      }).catch(() => null)
+      if (!got || !got.ok) return json({ ok: false, reason: 'fetch failed' }, 502)
+      const received = (await got.json()) as ReceivedEmail
+
+      const sent = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'content-type': 'application/json' },
+        body: JSON.stringify(buildForward(received, forwardTo)),
+      }).catch(() => null)
+      return json({ ok: !!sent && sent.ok })
     }
 
     if (url.pathname.startsWith('/api/push/')) {
