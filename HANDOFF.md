@@ -11,7 +11,7 @@ app for Tampa Bay. iPhone-form-factor web app now → native iOS later (Capacito
 
 ## Status: MVP built, tested, and verified live (2026-06-14) · competitive backlog (8 items) shipped + taste-reviewed (2026-07-05)
 
-- **601 unit tests green (108 files, 2026-07-28)**, every logic module written test-first (red→green).
+- **623 unit tests green (110 files, 2026-07-29)**, every logic module written test-first (red→green).
 - **📋 The live backlog is `docs/BACKLOG.md`** — single source of truth for ALL open work. Backlog sections below in this file are historical record only.
 - **Brand kit done** (2026-06-15): location-pin + golden-hour-sun icon (`public/icon.svg` + maskable/apple-touch PNGs, registry in `src/brand/icons.ts`), Fraunces wordmark. See `brand/README.md`.
 - **Real photos seeded** (2026-06-15): 24 spots, 65 license-clean Wikimedia Commons photos in `src/data/spot-media.ts` (sourced via `scripts/*.mjs`), with the carousel wired into the Spot hero (`src/ui/SpotDetail/SpotHero.tsx`).

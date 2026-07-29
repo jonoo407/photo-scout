@@ -243,17 +243,24 @@ scoreboard picking city #3.
 - **J6 — Make `support@shootvantage.com` actually deliver** ⚠️ **blocks App
   Store submission.** V1 publishes that address in-app (Settings → Community
   guidelines → Contact) because guideline 1.2 requires published contact
-  information — but as of 2026-07-28 the Resend domain's **receiving MX record
-  reports `failed`** (root `@` → `inbound-smtp.us-east-1.amazonaws.com`,
-  priority 10) and there are **zero webhooks**, so nothing @shootvantage.com
-  receives mail. A published address that bounces is worse than none.
-  Two ways to close it, Jon's call:
-  1. **Make it real** — add the MX row in Cloudflare DNS, then a Resend
-     inbound webhook that forwards to Jon's inbox. Keeps a professional
-     address off his personal one. (Claude can do the webhook; the DNS record
-     needs Jon, as the Cloudflare MCP here exposes no DNS tools.)
-  2. **Change the address** — point `SUPPORT_EMAIL` in
-     `src/community/standards.ts` at an inbox that already works. One-line
-     change, but it publishes whatever address is chosen in an App Store app.
-  The in-app "Send feedback" path beside it already works either way, so the
-  contact requirement is partly met today — but reviewers do email the address.
+  information. Jon chose (2026-07-29) to make the address real rather than
+  publish a personal one. **The app side is done and deployed**; two manual
+  steps remain, both outside what the MCPs here can reach.
+  - ✅ `/api/inbound-mail` is live — Svix-verified, fetches the body from the
+    receiving API (the webhook carries metadata only), forwards from the
+    verified domain with the sender in `reply_to`. It returns
+    `503 not configured` until the vars below exist, so it is inert, not open.
+  - ✅ Resend webhook created (`email.received` → that URL), id
+    `99adf63b-a4d5-4292-b2f6-dfb61cc9e52a`. Its signing secret was given to Jon
+    in chat on 2026-07-29 and is **not stored in this repo** — Resend will not
+    show it again; delete and recreate the webhook if it is lost.
+  - ⬜ **Jon — Cloudflare DNS**: add MX on the **root** (`@`) →
+    `inbound-smtp.us-east-1.amazonaws.com`, priority `10`. Verified safe:
+    shootvantage.com had **no MX at all** on 2026-07-29, and Resend requires
+    its record to be the *lowest priority* on the domain, so nothing conflicts.
+    Sending is unaffected (that rides the `send` subdomain's SPF).
+  - ⬜ **Jon — Worker vars** on the `vantage` Worker: `RESEND_WEBHOOK_SECRET`
+    (the `whsec_…` above, as a **secret**) and `SUPPORT_FORWARD_TO` (the inbox
+    to forward to). Both are read in `worker/index.ts`.
+  - Then verify by emailing support@shootvantage.com and watching it arrive.
+    Until the MX resolves, mail to that address still bounces.
