@@ -13,6 +13,7 @@ import SunAlignment from './SunAlignment'
 import MilkyWay from './MilkyWay'
 import CompassMode from './CompassMode'
 import SpotNotes from './SpotNotes'
+import { hasGoodToKnow } from '../../spots/good-to-know'
 import SpotPhotos from './SpotPhotos'
 import HuntSpotBanner from '../Hunts/HuntSpotBanner'
 import { useStore } from '../../state/store'
@@ -184,6 +185,7 @@ export default function SpotDetailScreen() {
 
       <SpotNotes spotId={spot.id} />
 
+      {hasGoodToKnow(spot) && (<>
       <h3 className="h3">Good to know</h3>
       <div className="goodtoknow">
         {spot.logistics?.parking && (
@@ -202,6 +204,7 @@ export default function SpotDetailScreen() {
         {spot.caveats && <p style={{ color: 'var(--skip-ink)' }}>{spot.caveats}</p>}
         {c.accessTips && <p>{c.accessTips}</p>}
       </div>
+      </>)}
 
       <button className="linkrow" style={{ margin: '14px 0', color: 'var(--terracotta)' }} onClick={() => nav(`/day?anchor=${spot.id}`)}>
         <span><IconCalendarEvent size={16} /> Plan a day around this spot</span>

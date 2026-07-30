@@ -20,6 +20,8 @@ vi.mock('../../src/craft/points-api', () => ({
   fetchMyPointEvents: async () => serverEvents,
 }))
 
+vi.mock('../../src/auth/supabase', () => ({ authAvailable: () => true }))
+
 import SpotPhotos from '../../src/ui/SpotDetail/SpotPhotos'
 import { useAuth } from '../../src/auth/useAuth'
 

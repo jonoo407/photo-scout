@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { IconX, IconCurrentLocation, IconSunset2, IconStar, IconSun } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
 import { nearestRegion, REGION_LIST } from '../../data/regions'
+import { getPosition } from '../../geo/position'
 import { useRegionSpots } from '../../state/useRegion'
 import { introPicks } from '../../spots/intro-picks'
 import { SpotCard } from '../SpotCard'
@@ -22,20 +23,21 @@ export default function IntroCard() {
 
   if (introSeen) return null
 
-  const useLocation = () => {
-    if (!navigator.geolocation) { setStep(2); return }
+  /* Through getPosition, never navigator.geolocation directly: the raw
+     interface never calls back inside the iOS webview (see geo/position.ts),
+     so this button silently failed on every phone while LOOKING like it
+     worked — the failure path advanced the intro anyway (tester report,
+     build 15). Failure still advances: the intro must never dead-end, and
+     the default city is a fine landing. */
+  const useLocation = async () => {
     setLocating(true)
-    navigator.geolocation.getCurrentPosition(
-      (p) => {
-        const { latitude: lat, longitude: lng } = p.coords
-        setRegion(nearestRegion(lat, lng))
-        setHome({ label: 'Current location', lat, lng })
-        setLocating(false)
-        setStep(2)
-      },
-      () => { setLocating(false); setStep(2) },
-      { timeout: 8000 },
-    )
+    try {
+      const { lat, lng } = await getPosition(8000)
+      setRegion(nearestRegion(lat, lng))
+      setHome({ label: 'Current location', lat, lng })
+    } catch { /* keep the current/default city */ }
+    setLocating(false)
+    setStep(2)
   }
 
   const picks = step === 2 ? introPicks(spots, 5) : []
@@ -61,7 +63,7 @@ export default function IntroCard() {
             First: where do you shoot?
           </p>
           <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
-            <button className="chip on" onClick={useLocation}>
+            <button className="chip on" onClick={() => void useLocation()}>
               <IconCurrentLocation size={14} /> {locating ? 'Locating…' : 'Use my location'}
             </button>
             {REGION_LIST.map((r) => (

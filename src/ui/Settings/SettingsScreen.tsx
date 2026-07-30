@@ -29,34 +29,27 @@ export default function SettingsScreen() {
   const [addr, setAddr] = useState('')
   const [geoBusy, setGeoBusy] = useState(false)
   const [geoErr, setGeoErr] = useState('')
+  const [geoDone, setGeoDone] = useState('')
   const [citySearch, setCitySearch] = useState('')
-  const [detecting, setDetecting] = useState(false)
-
-  const detectCity = () => {
-    setGeoErr(''); setDetecting(true)
-    getPosition(8000).then(
-      ({ lat, lng }) => {
-        // Pick the nearest city AND pin home to where the user actually is, so
-        // drive times/distances are from their location — not the city default.
-        setRegion(nearestRegion(lat, lng))
-        setHome({ label: 'Current location', lat, lng })
-        setDetecting(false)
-      },
-      (e: Error) => { setGeoErr(e.message || "Couldn't get your location — pick a city below."); setDetecting(false) },
-    )
-  }
 
   const manyCities = REGION_LIST.length > 8
   const cityList = manyCities
     ? REGION_LIST.filter((r) => r.label.toLowerCase().includes(citySearch.trim().toLowerCase()))
     : REGION_LIST
 
+  /* ONE location button (tester report, build 15: "there are two of them,
+     neither does anything"). The old CITY-section detect and this were the
+     same two writes under different spinners — and success was invisible
+     whenever you were already home, which reads as broken. So: one control,
+     and it SAYS what it did. */
   const useCurrent = () => {
-    setGeoErr(''); setLocating(true)
+    setGeoErr(''); setGeoDone(''); setLocating(true)
     getPosition(8000).then(
       ({ lat, lng }) => {
-        setRegion(nearestRegion(lat, lng)) // keep the active city in sync with home
+        const regionId = nearestRegion(lat, lng)
+        setRegion(regionId) // keep the active city in sync with home
         setHome({ label: 'Current location', lat, lng })
+        setGeoDone(REGION_LIST.find((r) => r.id === regionId)?.label ?? regionId)
         setLocating(false)
       },
       (e: Error) => { setGeoErr(e.message || "Couldn't get your location — type an address instead."); setLocating(false) },
@@ -81,10 +74,6 @@ export default function SettingsScreen() {
 
       <p className="shdr">CITY</p>
       <div className="card list">
-        <button className="row" onClick={detectCity}>
-          <span className="rowleft" style={{ color: 'var(--terracotta)' }}><IconCurrentLocation size={18} /> {detecting ? 'Detecting…' : 'Use my location'}</span>
-          <IconChevronRight size={16} className="val" />
-        </button>
         {manyCities && (
           <div className="row">
             <input
@@ -128,6 +117,11 @@ export default function SettingsScreen() {
           <span className="rowleft" style={{ color: 'var(--terracotta)' }}><IconCurrentLocation size={18} /> {locating ? 'Locating…' : 'Use my current location'}</span>
           <IconChevronRight size={16} className="val" />
         </button>
+        {geoDone && (
+          <p className="small geo-confirm" style={{ color: 'var(--go-ink)', margin: '0 12px 10px' }}>
+            ✓ {geoDone} — home set to your current location.
+          </p>
+        )}
       </div>
 
       <p className="shdr">GETTING THERE</p>

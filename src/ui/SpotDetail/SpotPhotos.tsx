@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { IconCameraPlus, IconX } from '@tabler/icons-react'
 import { useAuth } from '../../auth/useAuth'
+import { authAvailable } from '../../auth/supabase'
 import { listMyPhotos, uploadSpotPhoto, deleteSpotPhoto, type MyPhoto } from '../../spots/photos-api'
 import { fetchMyPointEvents } from '../../craft/points-api'
 import { pointsTotal, photoQuotaForPoints } from '../../craft/points'
@@ -17,6 +19,7 @@ import StandardsGate from './StandardsGate'
    filter-before-posting leg of App Review guideline 1.2. Agreement is per
    device and persists; it is not asked twice. */
 export default function SpotPhotos({ spotId }: { spotId: string }) {
+  const nav = useNavigate()
   const user = useAuth((s) => s.user)
   const agreedAt = useStore((s) => s.communityRulesAcceptedAt)
   const acceptRules = useStore((s) => s.acceptCommunityRules)
@@ -37,7 +40,26 @@ export default function SpotPhotos({ spotId }: { spotId: string }) {
     return () => { alive = false }
   }, [user, spotId])
 
-  if (!user) return null
+  // Auth not configured at all: nothing to offer, say nothing.
+  if (!authAvailable()) return null
+
+  /* Signed out: show the section anyway (tester report, build 15 — "no button
+     to add my own photos"). Hiding a feature until after sign-in means nobody
+     discovers the reason to sign in. */
+  if (!user) {
+    return (
+      <>
+        <h3 className="h3">Your shots</h3>
+        <p className="small tertiary" style={{ margin: '0 2px 8px' }}>
+          Add your own shots from this spot — shared with the community, rateable,
+          and synced across your devices.
+        </p>
+        <button className="chip act" onClick={() => nav('/settings')}>
+          <IconCameraPlus size={14} /> Sign in to add your shots
+        </button>
+      </>
+    )
+  }
 
   const atLimit = photos.length >= quota
 

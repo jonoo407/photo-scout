@@ -60,7 +60,7 @@ describe('Settings — set home by typing an address', () => {
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark')
   })
 
-  it('CITY "Use my location" pins home to the detected coordinates, not the city default', async () => {
+  it('the location button pins home to the detected coordinates, not the city default', async () => {
     const user = userEvent.setup()
     Object.defineProperty(navigator, 'geolocation', {
       value: {
@@ -71,7 +71,7 @@ describe('Settings — set home by typing an address', () => {
     })
     try {
       renderSettings()
-      await user.click(screen.getByRole('button', { name: /^use my location$/i }))
+      await user.click(screen.getByRole('button', { name: /use my current location/i }))
       // Detected coords are in NE Philadelphia → switch city AND set home there,
       // rather than resetting home to City Hall (the region default).
       expect(useStore.getState().region).toBe('philadelphia')

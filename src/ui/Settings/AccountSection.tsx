@@ -4,6 +4,7 @@ import {
   IconBrandGoogleFilled, IconLock,
 } from '@tabler/icons-react'
 import { authAvailable, googleEnabled } from '../../auth/supabase'
+import { isNativeApp } from '../../pwa/native'
 import { useAuth } from '../../auth/useAuth'
 
 /* Account row for Settings. Hidden entirely until auth is configured; the app
@@ -28,7 +29,9 @@ export default function AccountSection() {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [mode, setMode] = useState<'link' | 'password'>('link')
+  // Native defaults to password: an emailed link opens in Safari and signs
+  // into the WEB app, never the wrapper. Password is the path that works here.
+  const [mode, setMode] = useState<'link' | 'password'>(isNativeApp() ? 'password' : 'link')
   const [creating, setCreating] = useState(false)
 
   if (!authAvailable()) return null
@@ -130,7 +133,7 @@ export default function AccountSection() {
           </>
         ) : (
           <>
-            {googleEnabled() && (
+            {googleEnabled() && !isNativeApp() && (
               <button className="row" onClick={() => void signInWithGoogle()}>
                 <span className="rowleft" style={{ color: 'var(--terracotta)' }}>
                   <IconBrandGoogleFilled size={18} /> Continue with Google

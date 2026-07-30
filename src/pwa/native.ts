@@ -14,6 +14,11 @@
  *     missing-thumbnails bug on TestFlight build 3.
  */
 
+import { Capacitor } from '@capacitor/core'
+
+/** Are we inside the iOS wrapper right now? Live check for UI branches. */
+export const isNativeApp = (): boolean => Capacitor.isNativePlatform()
+
 export interface PlatformInfo {
   isNative: boolean
 }

@@ -92,8 +92,17 @@ jobs:
       - name: Build web assets
         # Same build number the IPA gets as CFBundleVersion, so what Settings
         # shows matches what TestFlight lists.
+        #
+        # The Supabase values are PUBLIC BY DESIGN — the same pair ships in the
+        # web bundle at shootvantage.com; row-level security is the guard, not
+        # key secrecy. Without them the native app builds with auth disabled
+        # entirely: no Account section, no sign-in, no photo uploads. That is
+        # exactly how TestFlight builds 1-15 shipped, unnoticed until a tester
+        # asked where the add-photo button was (2026-07-29).
         env:
           BUILD_NUMBER: ${{ steps.ver.outputs.build }}
+          VITE_SUPABASE_URL: https://gxxjxfwxufqqxcyrdibh.supabase.co
+          VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4eGp4Znd4dWZxcXhjeXJkaWJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMwMTAyMTAsImV4cCI6MjA5ODU4NjIxMH0.IYp9nnGwgAD0n8Tp-uHJCftso9gftENyOKljMUg7HHI
         run: npm run build
 
       - name: Sync web build into the native project
