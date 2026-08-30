@@ -15,8 +15,12 @@ export default defineConfig({
     hasTouch: true,
   },
   projects: [
-    // Screenshot + axe suite. Chromium is fine here: it's about layout and a11y.
+    // Screenshot suite. Chromium is fine here: it's about layout.
     { name: 'chromium', use: { browserName: 'chromium' }, testMatch: /visual\.spec\.ts/ },
+    // Accessibility gate. Its own project so CI can run it WITHOUT the
+    // screenshot loop — that loop needs no baseline and shouldn't gate a push,
+    // but a serious axe violation should.
+    { name: 'a11y', use: { browserName: 'chromium' }, testMatch: /a11y\.spec\.ts/ },
     // The iOS wrapper gate — WebKit is the closest engine to WKWebView we can
     // run without a Mac. Cheap enough to gate every push.
     { name: 'webkit', use: { browserName: 'webkit' }, testMatch: /webview\.spec\.ts/ },

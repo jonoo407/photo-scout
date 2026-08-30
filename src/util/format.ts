@@ -1,15 +1,14 @@
 import { fmtClock } from './tz'
 
-/** Time as "h:mm AM/PM". Pass the city's IANA `tz` to show it in that zone. */
+/** Time as "h:mm AM/PM". Pass the city's IANA `tz` to show it in that zone;
+ *  without one you get the device zone.
+ *
+ *  This used to hand-roll the no-`tz` case off `d.getHours()`. Coverage showed
+ *  that branch had never run — every call site passes a zone — and `fmtClock`
+ *  already falls back to the device zone for exactly the same result, so the
+ *  duplicate is gone rather than merely tested. */
 export function fmtTime(d: Date | null | undefined, tz?: string): string {
-  if (tz) return fmtClock(d, tz)
-  if (!d) return '—'
-  let h = d.getHours()
-  const m = d.getMinutes()
-  const ampm = h >= 12 ? 'PM' : 'AM'
-  h = h % 12
-  if (h === 0) h = 12
-  return `${h}:${m.toString().padStart(2, '0')} ${ampm}`
+  return fmtClock(d, tz)
 }
 
 export function fmtRange(a: Date, b: Date, tz?: string): string {
