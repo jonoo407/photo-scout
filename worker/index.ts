@@ -15,9 +15,7 @@ import { shouldAlert, alertMessage, type AlertPayload } from '../src/push/alert-
 import { generateVapidKeys, vapidAuthHeader, bytesToB64url, type VapidKeys } from '../src/push/vapid'
 import { listOgHtml } from '../src/spots/list-og'
 import { responseEmail } from '../src/push/response-email'
-import {
-  isApnsEndpoint, apnsDeviceToken, sendApnsWith, type ApnsConfig,
-} from '../src/push/apns'
+import { apnsDeviceToken, sendApnsWith, type ApnsConfig } from '../src/push/apns'
 import { verifySvixSignature } from '../src/push/svix'
 import { buildForward, receivedEmailId, type ReceivedEmail } from '../src/push/forward-mail'
 import type { Spot } from '../src/spots/types'

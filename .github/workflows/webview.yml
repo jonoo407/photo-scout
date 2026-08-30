@@ -6,6 +6,12 @@
 # (the `base: './'` class of bug), and JS that only breaks in WebKit. The
 # simulator workflow now only fires when the NATIVE surface changes.
 #
+# It also carries the two gates that used to exist but never ran: unit tests
+# now run WITH coverage thresholds, and the axe accessibility suite (Chromium,
+# ~20s) runs as a hard failure. Before that, the a11y tests lived in a
+# Playwright project CI never started, asserting softly — so no accessibility
+# regression could redden a build.
+#
 # Uses no secrets, so running on pull_request is safe even from forks.
 name: WebKit wrapper gate
 
@@ -37,8 +43,8 @@ jobs:
 
       - run: npm ci
 
-      - name: Unit tests
-        run: npm test
+      - name: Unit tests + coverage thresholds
+        run: npm run test:cov
 
       - name: Build web assets
         run: npm run build
@@ -54,15 +60,21 @@ jobs:
           fi
           echo "OK: all asset URLs in dist/index.html are relative"
 
-      - name: Install WebKit
-        run: npx playwright install --with-deps webkit
+      - name: Install WebKit + Chromium
+        run: npx playwright install --with-deps webkit chromium
 
       - name: WebKit wrapper gate
         run: npm run test:webview
 
+      # Accessibility gate. Chromium-only and ~20s, so it rides along here
+      # rather than earning its own workflow. Serious/critical axe violations
+      # fail the build; the screenshot project stays out of CI (no baselines).
+      - name: Accessibility gate (axe)
+        run: npm run test:a11y
+
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: webkit-failure
+          name: e2e-failure
           path: test-results/
           if-no-files-found: ignore

@@ -1,27 +1,42 @@
 # Test coverage — where we stand and what to fix next
 
-Measured 2026-08-30 on `main` @ b417d2a: **123 test files, 717 tests, all green**,
-plus 31 Playwright tests across 2 spec files. `npm run test:cov` with the v8 provider over `src/` and
-`worker/`:
+**Status:** the analysis below was written on 2026-08-30 against `main` @ b417d2a.
+Everything in it except §3 (row-level security) has since been acted on in the
+same branch. Current numbers, measured with `npm run test:cov`:
 
-| | covered |
-|---|---|
-| Lines / statements | **90.61 %** (8130 / 8972) |
-| Branches | **87.56 %** (2218 / 2533) |
-| Functions | **79.89 %** (449 / 562) |
+| | before | now |
+|---|---|---|
+| Lines / statements | 90.61 % | **97.18 %** |
+| Branches | 87.56 % | **89.84 %** |
+| Functions | 79.89 % | **85.14 %** |
+| Unit tests | 717 | **903** |
 
-That headline number is healthy, and the suite behind it is better than most: pure
-logic is tested hard (all seven `src/astro` modules ≥ 97 %, `src/craft` at 100 %,
-the spot data files mechanically validated), the codebase consistently exposes a
-`somethingWith(deps)` seam so effects can be driven without mocking the world, and
-the WebKit gate in CI is a genuinely good cheap proxy for the iOS wrapper.
+`worker/index.ts` went 0 % → 91.5 % (100 % of its functions) and is now
+typechecked; the sync engine, the weather parser, the device failure paths, the
+map lens and the votes API are all covered; the axe suite runs in CI as a hard
+gate; and coverage thresholds now fail the build on a regression. What is left
+is §3 — see **What remains** at the foot of this document.
 
-The gaps are not spread evenly across that missing 9 %. They cluster in three
-places, and all three are places where a silent regression is expensive:
-**the server, the sync engine, and the authorization layer.** Everything else in
-this document is smaller.
+The original analysis follows, because the reasoning is the useful part — and
+because the ranking is what a future round should be argued against.
 
 ---
+
+## The original analysis (2026-08-30)
+
+Measured on `main` @ b417d2a: **123 test files, 717 tests, all green**, plus 31
+Playwright tests across 2 spec files. 90.61 % lines, 87.56 % branches, 79.89 %
+functions over 8,972 statements.
+
+That headline number was healthy, and the suite behind it better than most: pure
+logic tested hard (all seven `src/astro` modules ≥ 97 %, `src/craft` at 100 %,
+the spot data mechanically validated), a consistent `somethingWith(deps)` seam so
+effects are drivable without mocking the world, and a WebKit gate that is a good
+cheap proxy for the iOS wrapper.
+
+The gaps were not spread evenly across that missing 9 %. They clustered in three
+places, all of them expensive to regress silently: **the server, the sync engine,
+and the authorization layer.**
 
 ## The ranked list
 
@@ -240,3 +255,42 @@ hard once it runs in CI.
 6. RLS suite (§3) as its own job. *Bigger lift; schedule it deliberately rather
    than squeezing it in.*
 7. Interaction tests per screen (§7) and the MapView extraction (§4), ongoing.
+
+---
+
+## What remains
+
+**§3, the RLS suite, is the one item not done.** It needs a live Postgres —
+either a Supabase branch database or a local stack — and neither is reachable
+from the environment this work was done in. Nothing about the analysis has
+changed: 14 policies and seven `security definer` functions are still verified
+only by the 17 assertions recorded as a comment in `supabase/schema.sql`, and it
+is still the one gap here whose failure mode is a data breach rather than a
+broken screen. It wants its own CI job, gated on `supabase/**`.
+
+Two smaller things were deliberately left alone:
+
+- **`src/main.tsx` and `src/ui/Explore/MapView.tsx` are excluded from the
+  coverage number**, with the reasons in `vite.config.ts`. The first is the
+  bootstrap; the second is a pure Leaflet binding whose decisions were extracted
+  into `Explore/map-model.ts` (100 % covered) and whose remaining `L.*` calls are
+  driven by the `map pin popup` test in `e2e/visual.spec.ts`. Neither is testable
+  in jsdom in a way that would mean anything.
+- **The real-wiring adapter shims** — `nativePushDeps()`, `capturePhoto()`, the
+  `getSupabase` wiring — stay in the number and stay untested. They are
+  three-line passthroughs to an SDK; a test would assert that a mock was called.
+  Their `*With(deps)` twins, which hold every branch worth checking, are covered.
+
+### What changed in the source, not just the tests
+
+Three production changes came out of this, all small:
+
+- `worker/index.ts` had an unused import that `noUnusedLocals` had never seen,
+  because the directory was outside the tsconfig `include`. Adding it to the
+  include caught this on the first run.
+- `src/util/format.ts`: `fmtTime`'s hand-rolled no-timezone branch was
+  unreachable — all 18 call sites pass a zone, and `fmtClock` already falls back
+  to the device zone identically. The duplicate is deleted rather than tested.
+- `src/ui/Explore/map-model.ts` is new: the map lens's geometry and styling
+  decisions, extracted from `MapView.tsx` so they can be tested without a
+  browser.

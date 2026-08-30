@@ -70,5 +70,39 @@ export default defineConfig({
     env: { TZ: 'America/New_York' },
     setupFiles: './src/test/setup.ts',
     include: ['tests/**/*.test.{ts,tsx}', 'src/**/*.test.{ts,tsx}'],
+    coverage: {
+      provider: 'v8',
+      // The Worker is application code and belongs in the number — it is
+      // half the server. `all` so an untested file counts as 0% instead of
+      // silently vanishing from the report.
+      include: ['src/**/*.{ts,tsx}', 'worker/**/*.ts'],
+      all: true,
+      exclude: [
+        // Real-wiring adapters: three-line passthroughs to a Capacitor/Supabase
+        // SDK whose only untestable part IS the SDK call. Testing them would
+        // assert that a mock was called. Their `*With(deps)` twins — which hold
+        // every branch worth checking — stay in the report.
+        'src/main.tsx',
+        'src/test/**',
+        '**/*.d.ts',
+        // A pure Leaflet binding — its decisions were extracted to
+        // Explore/map-model.ts (100%), and what is left is L.* calls that only
+        // a real layout engine can exercise. It is driven by the `map pin
+        // popup` test in e2e/visual.spec.ts, not by vitest, so counting it here
+        // would only ever report 0%.
+        'src/ui/Explore/MapView.tsx',
+      ],
+      reporter: ['text', 'html', 'json-summary'],
+      // Ratchet, don't aspire: these sit ~1-2 points under the numbers the
+      // suite actually hits (97.2 / 89.8 / 85.1 at the time of writing), so a
+      // regression fails CI while ordinary work doesn't. Raise them when the
+      // real number moves up — never lower them to make a red run green.
+      thresholds: {
+        lines: 96,
+        statements: 96,
+        branches: 88,
+        functions: 83,
+      },
+    },
   },
 })

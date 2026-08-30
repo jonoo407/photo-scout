@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { IconCar } from '@tabler/icons-react'
-import { CATEGORY_COLOR, CATEGORY_LABEL, type Spot } from '../../spots/types'
+import { CATEGORY_LABEL, type Spot } from '../../spots/types'
 import { useStore } from '../../state/store'
 import { useRegion } from '../../state/useRegion'
-import { sunPathLines } from '../../astro/sun-path'
+import { pinSpecs, sunLineSpecs, viewForPins, keepSelection, HOME_TOOLTIP } from './map-model'
 import { driveMinutes } from '../../spots/live'
 import { fmtDrive } from '../../util/format'
 import { SpotCard } from '../SpotCard'
@@ -39,21 +39,18 @@ export default function MapView({ spots }: { spots: Spot[] }) {
   }, [])
 
   // PhotoPills-style sun lines: where the sun rises and sets from a spot today.
+  // The geometry lives in map-model.ts so it can be tested without a browser.
   const drawSunLines = (lat: number, lng: number) => {
     const layer = sunLayerRef.current
     if (!layer) return
     layer.clearLayers()
-    const { sunrise, sunset } = sunPathLines(lat, lng, new Date())
-    const draw = (line: typeof sunrise, color: string, label: string) => {
-      if (!line) return
-      L.polyline([[lat, lng], [line.to.lat, line.to.lng]], {
-        color, weight: 3, opacity: 0.9, dashArray: '2 7', lineCap: 'round',
+    for (const line of sunLineSpecs(lat, lng, new Date())) {
+      L.polyline([line.from, line.to], {
+        color: line.color, weight: 3, opacity: 0.9, dashArray: '2 7', lineCap: 'round',
       })
         .addTo(layer)
-        .bindTooltip(`${label} · ${Math.round(line.bearing)}°`, { direction: 'top' })
+        .bindTooltip(line.label, { direction: 'top' })
     }
-    draw(sunrise, '#f2b43c', 'Sunrise')
-    draw(sunset, '#a8431d', 'Sunset')
   }
 
   // (Re)draw markers when the filtered set or home changes.
@@ -61,7 +58,6 @@ export default function MapView({ spots }: { spots: Spot[] }) {
     const map = mapRef.current, layer = layerRef.current
     if (!map || !layer) return
     layer.clearLayers()
-    const pts: L.LatLngExpression[] = [[home.lat, home.lng]]
 
     L.marker([home.lat, home.lng], {
       icon: L.divIcon({
@@ -69,29 +65,28 @@ export default function MapView({ spots }: { spots: Spot[] }) {
         html: '<div style="background:#2e2014;color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px;border:2px solid #fff">⌂</div>',
         iconSize: [22, 22], iconAnchor: [11, 11],
       }),
-    }).addTo(layer).bindTooltip('Home', { direction: 'top' })
+    }).addTo(layer).bindTooltip(HOME_TOOLTIP, { direction: 'top' })
 
-    for (const spot of spots) {
-      pts.push([spot.lat, spot.lng])
-      L.circleMarker([spot.lat, spot.lng], {
-        radius: 7, color: '#fff', weight: 1.5, fillColor: CATEGORY_COLOR[spot.category], fillOpacity: 1,
-      })
+    const specs = pinSpecs(spots)
+    specs.forEach((pin, i) => {
+      L.circleMarker([pin.lat, pin.lng], pin.style)
         .addTo(layer)
-        .bindTooltip(spot.name, { direction: 'top' })
+        .bindTooltip(pin.tooltip, { direction: 'top' })
         .on('click', (e) => {
           L.DomEvent.stopPropagation(e)
-          setSelected(spot)
-          drawSunLines(spot.lat, spot.lng)
+          setSelected(spots[i])
+          drawSunLines(pin.lat, pin.lng)
         })
-    }
+    })
 
-    if (pts.length > 1) map.fitBounds(L.latLngBounds(pts).pad(0.12))
-    else map.setView([home.lat, home.lng], 11) // empty set → center on home
+    const view = viewForPins(spots, home)
+    if (view.kind === 'bounds') map.fitBounds(L.latLngBounds(view.bounds).pad(view.pad))
+    else map.setView(view.center, view.zoom) // empty set → center on home
   }, [spots, home.lat, home.lng]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // A filter change can remove the selected spot — drop the card with it.
   useEffect(() => {
-    if (selected && !spots.some((s) => s.id === selected.id)) setSelected(null)
+    if (selected && !keepSelection(selected, spots)) setSelected(null)
   }, [spots, selected])
 
   return (
