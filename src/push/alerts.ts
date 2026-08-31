@@ -28,10 +28,24 @@ export async function alertsAreOn(): Promise<boolean> {
   return alertsEnabled()
 }
 
-export async function enableAlerts(spotIds: string[], userId: string | null): Promise<boolean> {
-  return nativePushAvailable()
-    ? enableNativePush(spotIds, userId)
-    : enableConditionAlerts(spotIds, userId)
+export interface EnableAlertsResult {
+  on: boolean
+  /** True only for a REAL permission denial — the one failure the user can fix
+      in Settings. Everything else (no token, unreachable server) must not be
+      blamed on permissions; build 16 did, and it sent the user to an iOS
+      Settings screen where everything was already allowed. */
+  blocked: boolean
+}
+
+export async function enableAlerts(spotIds: string[], userId: string | null): Promise<EnableAlertsResult> {
+  if (nativePushAvailable()) {
+    const outcome = await enableNativePush(spotIds, userId)
+    return { on: outcome === 'on', blocked: outcome === 'denied' }
+  }
+  const on = await enableConditionAlerts(spotIds, userId)
+  const blocked = !on &&
+    typeof Notification !== 'undefined' && Notification.permission === 'denied'
+  return { on, blocked }
 }
 
 export async function disableAlerts(): Promise<void> {

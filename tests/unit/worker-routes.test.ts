@@ -335,6 +335,48 @@ describe('/api/push/* proxy and asset fallthrough', () => {
   })
 })
 
+describe('CORS for the native wrapper', () => {
+  /* The wrapper's pages live on capacitor://localhost, so its /api/push calls
+     are cross-origin and WKWebView enforces CORS. Without these answers the
+     device token can never reach the server — TestFlight build 16's alerts
+     toggle failed exactly here (2026-08-31). */
+
+  it('answers the preflight for /api/push/*', async () => {
+    h = harness()
+    const res = await worker.fetch(new Request('https://shootvantage.com/api/push/subscribe', {
+      method: 'OPTIONS',
+      headers: {
+        origin: 'capacitor://localhost',
+        'access-control-request-method': 'POST',
+        'access-control-request-headers': 'content-type',
+      },
+    }), h.env)
+    expect(res.status).toBe(204)
+    expect(res.headers.get('access-control-allow-origin')).toBe('capacitor://localhost')
+    expect(res.headers.get('access-control-allow-methods')).toMatch(/POST/)
+    expect(res.headers.get('access-control-allow-headers')).toMatch(/content-type/i)
+    expect(h.assetRequests).toHaveLength(0)
+  })
+
+  it('marks /api/push/* responses readable from the wrapper origin', async () => {
+    h = harness()
+    const res = await worker.fetch(new Request('https://shootvantage.com/api/push/subscribe', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', origin: 'capacitor://localhost' },
+      body: JSON.stringify({ endpoint: 'apns://tok-1', spotIds: [], userId: null }),
+    }), h.env)
+    expect(res.status).toBe(200)
+    expect(res.headers.get('access-control-allow-origin')).toBe('capacitor://localhost')
+  })
+
+  it('leaves other routes un-CORSed', async () => {
+    h = harness()
+    const res = await worker.fetch(
+      new Request('https://shootvantage.com/api/feedback-hook', { method: 'OPTIONS' }), h.env)
+    expect(res.headers.get('access-control-allow-origin')).toBeNull()
+  })
+})
+
 describe('scheduled()', () => {
   it('runs the daily cron against the durable object', async () => {
     h = harness()

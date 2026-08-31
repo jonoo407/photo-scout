@@ -14,7 +14,7 @@ export default function AlertsSection() {
   const supported = alertsSupported()
   const [on, setOn] = useState<boolean | null>(null) // null = still checking
   const [busy, setBusy] = useState(false)
-  const [denied, setDenied] = useState(false)
+  const [fail, setFail] = useState<null | 'blocked' | 'network'>(null)
 
   useEffect(() => {
     if (!supported) { setOn(false); return }
@@ -26,15 +26,15 @@ export default function AlertsSection() {
   const toggle = async () => {
     if (busy || on == null) return
     setBusy(true)
-    setDenied(false)
+    setFail(null)
     try {
       if (on) {
         await disableAlerts()
         setOn(false)
       } else {
-        const ok = await enableAlerts(wishlist, user?.id ?? null)
-        setOn(ok)
-        if (!ok) setDenied(true)
+        const r = await enableAlerts(wishlist, user?.id ?? null)
+        setOn(r.on)
+        if (!r.on) setFail(r.blocked ? 'blocked' : 'network')
       }
     } finally {
       setBusy(false)
@@ -50,7 +50,8 @@ export default function AlertsSection() {
             ? `Pushes you when a Want-to-go spot's light lines up (score ${ALERT_SCORE}+)`
             : 'Pushes you when a saved spot lines up'}
         </span>
-        {denied && <span className="small" style={{ color: 'var(--skip-ink)' }}>Notifications are blocked — allow them for Vantage in your device or browser settings, then try again.</span>}
+        {fail === 'blocked' && <span className="small" style={{ color: 'var(--skip-ink)' }}>Notifications are blocked — allow them for Vantage in your device or browser settings, then try again.</span>}
+        {fail === 'network' && <span className="small" style={{ color: 'var(--skip-ink)' }}>Couldn&rsquo;t reach the alert server — check your connection and try again.</span>}
       </span>
       {supported ? (
         <button className={`chip ${on ? 'on' : ''}`} disabled={busy || on == null} onClick={() => void toggle()}>

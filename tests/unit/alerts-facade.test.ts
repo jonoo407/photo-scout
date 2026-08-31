@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 /* One switch, two delivery systems (J3 phase 4).
 
@@ -16,7 +16,7 @@ const web = vi.hoisted(() => ({
 }))
 const native = vi.hoisted(() => ({
   nativePushAvailable: vi.fn(() => false),
-  enableNativePush: vi.fn(async () => true),
+  enableNativePush: vi.fn(async () => 'on' as const),
   disableNativePush: vi.fn(async () => {}),
   syncNativeWatch: vi.fn(async () => {}),
   storedApnsToken: vi.fn(() => null as string | null),
@@ -82,5 +82,42 @@ describe('neither available', () => {
     web.pushSupported.mockReturnValue(false)
     native.nativePushAvailable.mockReturnValue(false)
     expect(alertsSupported()).toBe(false)
+  })
+})
+
+describe('enableAlerts reports WHY it failed', () => {
+  /* Build 16 showed "notifications are blocked" for a network failure while
+     iOS Settings said allowed — the single boolean couldn't tell a permission
+     denial from an unreachable server, so the UI guessed wrong. */
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('native: on', async () => {
+    native.nativePushAvailable.mockReturnValue(true)
+    native.enableNativePush.mockResolvedValue('on')
+    expect(await enableAlerts(['a'], null)).toEqual({ on: true, blocked: false })
+  })
+
+  it('native: a real permission denial is blocked', async () => {
+    native.nativePushAvailable.mockReturnValue(true)
+    native.enableNativePush.mockResolvedValue('denied' as never)
+    expect(await enableAlerts(['a'], null)).toEqual({ on: false, blocked: true })
+  })
+
+  it('native: a failed token post is NOT blocked', async () => {
+    native.nativePushAvailable.mockReturnValue(true)
+    native.enableNativePush.mockResolvedValue('post-failed' as never)
+    expect(await enableAlerts(['a'], null)).toEqual({ on: false, blocked: false })
+  })
+
+  it('web: blocked only when the browser says denied', async () => {
+    web.enableConditionAlerts.mockResolvedValue(false)
+    vi.stubGlobal('Notification', { permission: 'denied' })
+    expect(await enableAlerts(['a'], null)).toEqual({ on: false, blocked: true })
+  })
+
+  it('web: failure with permission granted is a server problem', async () => {
+    web.enableConditionAlerts.mockResolvedValue(false)
+    vi.stubGlobal('Notification', { permission: 'granted' })
+    expect(await enableAlerts(['a'], null)).toEqual({ on: false, blocked: false })
   })
 })

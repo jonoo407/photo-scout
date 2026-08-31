@@ -296,6 +296,9 @@ export class AlertsDO {
 
 const doStub = (env: Env) => env.ALERTS.get(env.ALERTS.idFromName('alerts'))
 
+/** The iOS wrapper's page origin — the only cross-origin caller /api/push has. */
+const WRAPPER_ORIGIN = 'capacitor://localhost'
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url)
@@ -468,8 +471,27 @@ export default {
     }
 
     if (url.pathname.startsWith('/api/push/')) {
+      // CORS, for exactly one caller: the iOS wrapper, whose pages live on
+      // capacitor://localhost and whose WKWebView enforces cross-origin rules.
+      // Without these answers a device token can never reach the server —
+      // TestFlight build 16's alerts toggle died here. Web callers are
+      // same-origin and never notice.
+      if (request.method === 'OPTIONS') {
+        return new Response(null, {
+          status: 204,
+          headers: {
+            'access-control-allow-origin': WRAPPER_ORIGIN,
+            'access-control-allow-methods': 'GET, POST, OPTIONS',
+            'access-control-allow-headers': 'content-type',
+            'access-control-max-age': '86400',
+          },
+        })
+      }
       const inner = url.pathname.slice('/api/push'.length) + url.search
-      return doStub(env).fetch(new Request(`https://do${inner}`, request))
+      const res = await doStub(env).fetch(new Request(`https://do${inner}`, request))
+      const out = new Response(res.body, res)
+      out.headers.set('access-control-allow-origin', WRAPPER_ORIGIN)
+      return out
     }
     return env.ASSETS.fetch(request)
   },

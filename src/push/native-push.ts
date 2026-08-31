@@ -15,6 +15,7 @@
 import { Capacitor } from '@capacitor/core'
 import { PushNotifications } from '@capacitor/push-notifications'
 import { apnsEndpointFor } from './apns'
+import { apiUrl } from './api-base'
 
 export interface NativePushDeps {
   isNative: boolean
@@ -22,28 +23,35 @@ export interface NativePushDeps {
   register: () => Promise<void>
   /** Subscribe to the registration callback; returns an unsubscribe function. */
   onToken: (cb: (token: string) => void) => () => void
+  /** Subscribe to the registration-ERROR callback; returns an unsubscribe
+      function. Without it a failed registration is silence until the timeout. */
+  onError: (cb: (message: string) => void) => () => void
   post: (path: string, body: unknown) => Promise<boolean>
 }
+
+/** What actually happened, so the UI can say the true thing. Build 16 showed
+    "notifications are blocked" for a dead network path because a boolean
+    couldn't distinguish the failure modes. */
+export type NativeEnableOutcome = 'on' | 'unsupported' | 'denied' | 'no-token' | 'post-failed'
 
 const TOKEN_TIMEOUT_MS = 10000
 
 /**
  * Turn native alerts on: ask iOS, register with Apple, post the token.
  *
- * @returns false when the user declines, when we're on the web, or when Apple
- *   never calls back — never throws, because a failed opt-in is not an error
- *   worth interrupting anyone over.
+ * Never throws — a failed opt-in is not an error worth interrupting anyone
+ * over — but the outcome names which step failed.
  */
 export async function enableNativePushWith(
   deps: NativePushDeps,
   spotIds: string[],
   userId: string | null,
   timeoutMs = TOKEN_TIMEOUT_MS,
-): Promise<boolean> {
-  if (!deps.isNative) return false
+): Promise<NativeEnableOutcome> {
+  if (!deps.isNative) return 'unsupported'
 
   const perm = await deps.requestPermissions().catch(() => ({ receive: 'denied' }))
-  if (perm.receive !== 'granted') return false
+  if (perm.receive !== 'granted') return 'denied'
 
   // The token arrives via a callback, not a return value, so bridge it to a
   // promise — and bound the wait. A silent registration failure must not leave
@@ -56,23 +64,27 @@ export async function enableNativePushWith(
     // before onToken has returned a handle. Referencing a `const` there is a
     // temporal-dead-zone crash — which is exactly how this was first written.
     let off: (() => void) | undefined
+    let offErr: (() => void) | undefined
     const done = (t: string | null) => {
       if (settled) return
       settled = true
       if (timer) clearTimeout(timer)
       off?.()
+      offErr?.()
       resolve(t)
     }
     off = deps.onToken(done)
-    if (settled) off?.() // fired synchronously — tidy the listener up now
+    offErr = deps.onError(() => done(null))
+    if (settled) { off?.(); offErr?.() } // fired synchronously — tidy the listeners up now
     timer = setTimeout(() => done(null), timeoutMs)
     void deps.register().catch(() => done(null))
   })
-  if (!token) return false
+  if (!token) return 'no-token'
 
-  return deps.post('/api/push/subscribe', {
+  const posted = await deps.post('/api/push/subscribe', {
     endpoint: apnsEndpointFor(token), spotIds, userId: userId ?? null,
   })
+  return posted ? 'on' : 'post-failed'
 }
 
 export async function disableNativePushWith(deps: NativePushDeps, token: string | null): Promise<void> {
@@ -113,8 +125,16 @@ export function nativePushDeps(): NativePushDeps {
       })
       return () => { void Promise.resolve(handle).then((h) => h.remove()).catch(() => {}) }
     },
+    onError: (cb) => {
+      const handle = PushNotifications.addListener('registrationError', (e: { error: string }) => {
+        cb(e.error)
+      })
+      return () => { void Promise.resolve(handle).then((h) => h.remove()).catch(() => {}) }
+    },
     post: async (path, body) => {
-      const res = await fetch(path, {
+      // apiUrl: inside the wrapper the origin is capacitor://localhost, so a
+      // relative /api fetch goes nowhere — the TestFlight build 16 alerts bug.
+      const res = await fetch(apiUrl(path), {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(body),

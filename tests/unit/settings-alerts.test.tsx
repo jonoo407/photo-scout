@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import AlertsSection from '../../src/ui/Settings/AlertsSection'
@@ -47,5 +47,28 @@ describe('Settings — conditions alerts', () => {
   it('explains what it watches', async () => {
     render(<AlertsSection />)
     expect(await screen.findByText(/want-to-go/i)).toBeInTheDocument()
+  })
+})
+
+describe('Settings — when turning alerts on fails', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('says blocked only when notifications are actually blocked', async () => {
+    mocks.enableConditionAlerts.mockResolvedValue(false)
+    vi.stubGlobal('Notification', { permission: 'denied' })
+    const user = userEvent.setup()
+    render(<AlertsSection />)
+    await user.click(await screen.findByRole('button', { name: /turn on/i }))
+    expect(await screen.findByText(/blocked/i)).toBeInTheDocument()
+  })
+
+  it('blames the connection, not permissions, when the server is unreachable', async () => {
+    mocks.enableConditionAlerts.mockResolvedValue(false)
+    vi.stubGlobal('Notification', { permission: 'granted' })
+    const user = userEvent.setup()
+    render(<AlertsSection />)
+    await user.click(await screen.findByRole('button', { name: /turn on/i }))
+    expect(await screen.findByText(/couldn.t reach/i)).toBeInTheDocument()
+    expect(screen.queryByText(/blocked/i)).not.toBeInTheDocument()
   })
 })
