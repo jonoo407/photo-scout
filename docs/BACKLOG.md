@@ -41,7 +41,7 @@ this is the TestFlight-phase stand-in.
 |-----|-----------------------------------------|-----|------------|------|
 | V2  | In-app feedback capture                 | 🤖  | —          | S    |
 | V3  | Pet-friendly data pass                  | 🤖  | —          | S    |
-| V4  | Auth-gate + guest accounts — DECISION   | 🤝  | J1 helps   | M    |
+| V4  | Auth-gate + guest accounts — DECISION   | 🤝  | —          | M    |
 | V5  | Referral mechanics                      | 🤖  | V4         | M    |
 | V6  | City ambassadors — product mechanics    | 🤖  | V5, J4     | M    |
 | V7  | Spot discussion threads                 | 🤖  | —          | L    |
@@ -57,9 +57,9 @@ this is the TestFlight-phase stand-in.
 | V17 | st-paul-ame photo (75/75 coverage)      | 🤖  | —          | XS   |
 | V19 | Offline: download a city (tiles + data) | 🤖  | —          | L    |
 | V20 | App Store screenshots (generated)       | 🤖  | —          | S    |
-| J1  | Google SSO — Google Console half only    | 🤝  | —          | S    |
+| V21 | Supabase advisor hardening + RLS suite  | 🤖  | —          | M    |
 | J2  | Allow push on a real device             | 🧑  | —          | XS   |
-| J3  | iOS App Store (phases 1–3 done; native+submit left) | 🤝 | — | L |
+| J3  | iOS App Store (engineering done; metadata + submit left) | 🤝 | — | L |
 | J4  | Ambassador business deals               | 🧑  | —          | —    |
 | J5  | Supabase billing / storage plan         | 🧑  | —          | —    |
 
@@ -68,13 +68,13 @@ this is the TestFlight-phase stand-in.
 **Ship-to-App-Store is the long pole**, so it leads. Everything else reaches
 users as a web deploy the moment it's merged; only the store has a review queue.
 
-1. **J3 phase 4 — native camera + APNs push.** The last *engineering* blocker.
-   Guideline 4.2 rejects thin web wrappers, and native plugins for
-   camera/location/push are what avoid that. V1 cleared the other review
-   blocker (guideline 1.2), so this completes the review-readiness set.
-2. **V20 — screenshots**, then the remaining store metadata.
-3. **V2 → V3** — product depth; both small, both unblocked.
-4. **Decide V4**, which unblocks the V5 → V6 growth chain.
+1. **V20 — screenshots**, then the remaining store metadata via a CI
+   `workflow_dispatch` job (the App Store Connect key already lives in Actions
+   secrets — no key handoff needed), then Jon presses submit. J3's engineering
+   is done: phase 4 (native camera + APNs push) shipped 2026-07-29, and the
+   wrapper's alerts registration was verified against production 2026-08-31.
+2. **V2 → V3** — product depth; both small, both unblocked.
+3. **Decide V4**, which unblocks the V5 → V6 growth chain.
 
 V10 and V17 are good gap-fillers any time. V11 is worth pulling forward if the
 report/block flows are going to keep changing.
@@ -121,7 +121,7 @@ visually distinct from the appointed ambassador (V6).
 ## Growth & gamification
 
 ### V4 — Auth-gate + guest accounts — DECISION FIRST (was B3, design 2e/4b) 🤝
-Require sign-in up front: login screen w/ Google SSO (needs J1) or instant
+Require sign-in up front: login screen w/ Google SSO (shipped 2026-07-29) or instant
 Supabase anonymous guest account (upgradeable later, data intact). ⚠️ This
 reverses the current local-first/no-account design and the onboarding flow —
 **Jon confirms the tradeoff before build**. Client `/l/` + `#/list` links must
@@ -243,6 +243,19 @@ Do it alongside V11 so the flows and the screenshots share one driver.
 
 Uploading them to App Store Connect needs an ASC API key (see J3).
 
+### V21 — Supabase advisor hardening + RLS test suite 🤖
+The 2026-08-31 security-advisor pass flagged: trigger-only `SECURITY DEFINER`
+functions (`feedback_notify`, `photo_report_notify`, `enforce_photo_quota`,
+`prune_departing_photos`, `notify_shortlist_response`, `ensure_photographer_ref`)
+executable by `anon`/`authenticated` over REST — revoke EXECUTE on them; and
+`photo_quota` has a mutable `search_path` — pin it. Nothing exploitable found
+(everything keys off `auth.uid()` or a shared secret), but it's cheap to close.
+Pair with the deferred §3 RLS suite from `docs/TEST_COVERAGE.md`: 14 policies +
+7 definer functions are verified only by comments in `supabase/schema.sql`.
+Needs a Supabase branch DB or local stack and its own CI job gated on
+`supabase/**`. This is the one coverage gap whose failure mode is a data
+breach rather than a broken screen.
+
 ### V13 — Scale-tier work (was B9) 🤖 · conditional on city #3
 Phased plan in `docs/SCALING.md`: spot-index for `useAllSpots`, Worker cron
 switching to ASSETS-fetched JSON, editorial throughput. Trigger: the B12
@@ -263,15 +276,10 @@ not the chore to perform.
 *(This list was audited on 2026-07-29 after Claude wrongly asked Jon to add a
 Cloudflare DNS record and two Worker secrets it had the token to do itself.)*
 
-- **J1 — Google SSO** (was A3): **only the Google Cloud Console half is Jon's.**
-  Create the OAuth client there, then hand Claude the **client ID + client
-  secret** — enabling the provider in Supabase is a Management API call Claude
-  can make (`SUPABASE_ACCESS_TOKEN` is present). No `gcloud` and no Google
-  credentials exist locally, which is the only reason the console step can't be
-  automated. App side already flag-gated (`VITE_AUTH_GOOGLE`). Prerequisite for
-  V4's quick-login path.
 - **J2 — Device notification tap** (was A4): Settings → Conditions alerts →
-  Turn on → Allow, on a real phone/desktop. Physical tap only.
+  Turn on → Allow, on a real phone/desktop. Physical tap only. First attempt
+  (2026-08-31, build 16) found and fixed the wrapper's dead token POST — see
+  HANDOFF; re-verify on build 17: the chip must land on "Turn off".
 - **J3 — iOS App Store** (was A1): **Phases 1–3 shipped 2026-07-28** — Capacitor 8
   shell, tiered free CI, and a signed-archive → TestFlight pipeline. Builds up
   to **11** are live and VALID on TestFlight (verified via the App Store Connect
