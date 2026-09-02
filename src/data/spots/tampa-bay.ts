@@ -453,7 +453,7 @@ export const SPOTS: Spot[] = [
     id: 'dali-museum', name: 'The Dalí Museum', category: 'architecture', city: 'St. Petersburg', region: 'tampa-bay',
     bestFor: ["'Enigma' geodesic glass", 'waterfront architecture'], bestLight: ['evening-golden', 'blue-hour'],
     lat: 27.7660, lng: -82.6314, address: 'The Dalí Museum, 1 Dali Blvd, St. Petersburg, FL 33701', facing: null, feeUSD: 0, isFree: true, feeNote: 'Exterior + grounds free; interior ticketed', driveMinutes: 38,
-    hours: days(open(iv(clk('10:00'), clk('18:00'))), { thu: open(iv(clk('10:00'), clk('20:00'))) }), phone: null,
+    hours: days(H24), phone: null,
     notes: "1 Dali Blvd; the wild 'Enigma' geodesic glass bubble + waterfront make a great free exterior subject at golden hour. Interior personal photography allowed on the first floor and gardens.",
     caveats: 'Strict no-drone zone.',
     craft: {
@@ -465,7 +465,7 @@ export const SPOTS: Spot[] = [
       ],
       compositionTips: ['Shoot the bubble against a clean sky', 'Use the geometry for symmetry'],
       gear: { lens: '16-35mm', tripod: true, settingsHint: 'f/8; balance interior glow vs sky at blue hour' },
-      accessTips: 'Exterior free anytime; interior photo OK on 1st floor + gardens. No drones.',
+      accessTips: 'Exterior free anytime. Museum 10 AM–6 PM (Thu to 8 PM); interior photo OK on 1st floor + gardens. No drones.',
     },
     media: [],
   },

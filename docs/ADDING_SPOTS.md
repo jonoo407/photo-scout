@@ -20,7 +20,7 @@ Every factual field is verified against sources — never from memory/vibes:
 |---|---|
 | `address` | Real street address (contains a comma); for trails use the trailhead/access point |
 | `lat`/`lng` | **Two independent sources** (official site, Wikipedia coords, OSM/Nominatim). Must fall inside the region bounds in `src/data/regions.ts`. For trails/parks: the *photo vantage*, not a centroid — flag approximations in `caveats` |
-| `hours` | Official site. Encode with the helpers (`days`, `open`, `iv`, `clk`, `sr`/`ss`, `H24`, `CLOSED`); seasonal/tour-only nuance goes in `caveats`/`feeNote` |
+| `hours` | When can you stand where the SHOT is taken — not the building's visiting hours. Facade/steeple/skyline from a public street → `days(H24)`; interior subject → the building's hours from the official site; ungated park → `iv(sr(-30), ss(30))`, never a `06:00` clock (summer sunrise beats it). Encode with the helpers (`days`, `open`, `iv`, `clk`, `sr`/`ss`, `H24`, `CLOSED`); the building's own hours, seasonal/tour-only nuance go in `accessTips`/`caveats`/`feeNote`. `hours-prime-window.test.ts` fails a spot that is closed at its own prime window all season unless it is listed as genuinely gated. |
 | `feeUSD`/`isFree` | Fee to reach the *photo vantage* (exterior free + ticketed interior ⇒ `feeUSD: 0` + `feeNote`). Test enforces `isFree === (feeUSD === 0)` |
 | `facing` | Compass bearing the photographer aims TOWARD the subject (0–359), or `null` if omnidirectional/interior. Drives sun-direction ranking + best-days "henge" scoring — get it right or leave it null |
 | `caveats` | Access rules, tripod/photo policy, crowds, safety (e.g. low-head dams), seasonal closures |
