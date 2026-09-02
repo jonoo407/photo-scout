@@ -286,18 +286,19 @@ Cloudflare DNS record and two Worker secrets it had the token to do itself.)*
   API 2026-07-29; app `6795605010`, bundle `com.shootvantage.app`). `git tag vX.Y.Z && git push --tags` now ships a
   build with no Mac and no manual step. Details + gotchas in HANDOFF.
   **Not** Codemagic as originally planned — GitHub's standard macOS runners are
-  free and unmetered on public repos. Remaining work:
-  - **Phase 4 — native surface.** Remaining: web-push VAPID → APNs
-    (`@capacitor/push-notifications`, an APNs auth key, and a Worker branch to
-    send APNs tokens vs web subscriptions) — measured absent in the wrapper,
-    see below; native **camera** capture (geolocation and the app icon/splash
-    are done). Capacitor's template still uses the pre-`UIScene` lifecycle — a
-    runtime warning now, a hard assert on some future iOS.
-  - **Measured in the wrapper (2026-07-28)**, by the capability probe the
-    simulator workflow now gates on:
-    `geolocation=ok share=yes clipboard=yes notification=no push=no`.
-    So push is the only web API confirmed missing. Re-read that line from CI
-    rather than assuming — it is printed on every native run.
+  free and unmetered on public repos. **Engineering is done** (phase 4 — native
+  camera + APNs push — shipped 2026-07-29; wrapper alerts registration fixed
+  and verified against production 2026-08-31, build 17). Remaining, in order:
+  - **Privacy-policy + support pages.** App Store Connect requires a Privacy
+    Policy URL and a Support URL. `shootvantage.com/privacy` and `/support`
+    return 200 today only because the SPA catch-all serves the app shell —
+    there is no policy. Claude writes both (static, in `public/`) — 🤖.
+  - **V20 screenshots** — 🤖.
+  - **Store metadata** (name, subtitle, description, keywords, category, age
+    rating, privacy nutrition labels) pushed via a `workflow_dispatch` job
+    using the App Store Connect key already in Actions secrets — 🤖.
+  - **Submit for review** — one button in App Store Connect; Jon presses it
+    because the account is his — 🧑.
   - **Service workers are NOT used on native** (resolved, previously unknown):
     `src/pwa/native.ts` skips registration and tears down any worker a prior
     build installed. Registering one there poisoned the photo cache and risked
