@@ -4,10 +4,12 @@ import { IconArrowLeft, IconSend, IconCheck } from '@tabler/icons-react'
 import { submitFeedback, type FeedbackKind } from '../../feedback/api'
 import { APP_VERSION_LABEL } from '../../app-version'
 
-/* Tester feedback for the TestFlight phase. Deliberately one screen, one box,
-   one button — anything longer and people don't bother. Build identity is
-   attached automatically rather than asked for. Replace with the fuller
-   feedback flow (backlog V2) once testing opens up. */
+/* Deliberately one screen, one box, one button — anything longer and people
+   don't bother. The build number is attached automatically rather than asked
+   for, which is what makes "it looks the same to me" answerable.
+
+   Worded for testers until 2026-09-12 ("Tester feedback", "goes straight to
+   Jon"). Real users are not testers and do not know who Jon is. */
 
 const KINDS: Array<{ id: FeedbackKind; label: string }> = [
   { id: 'bug', label: 'Something broke' },
@@ -37,7 +39,7 @@ export default function FeedbackScreen() {
   return (
     <div className="screen">
       <button className="back" onClick={() => nav('/you')}><IconArrowLeft size={18} /> You</button>
-      <h1>Tester feedback</h1>
+      <h1>Send feedback</h1>
 
       {state === 'sent' ? (
         <div className="card" style={{ padding: 18, textAlign: 'center' }}>
@@ -51,7 +53,7 @@ export default function FeedbackScreen() {
       ) : (
         <>
           <p className="small tertiary" style={{ margin: '0 2px 10px', lineHeight: 1.6 }}>
-            Anything at all — broken, confusing, missing, or good. Goes straight to Jon.
+            Anything at all — broken, confusing, missing, or good. It reaches the person who builds Vantage.
           </p>
 
           <div style={{ display: 'flex', gap: 6, marginBottom: 10, flexWrap: 'wrap' }}>

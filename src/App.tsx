@@ -66,6 +66,9 @@ export default function App() {
   const theme = useStore((s) => s.theme)
   useEffect(() => { applyTheme(theme) }, [theme])
   useEffect(() => { void initAuth() }, []) // no-op until auth env vars are set
+  // One per app open, and the ONLY thing that advances the feedback nudge's
+  // "has this person actually used it" gate (src/feedback/nudge.ts).
+  useEffect(() => { useStore.getState().noteSession() }, [])
   // Once per sign-in: check for client shortlist responses → You-tab dot.
   useEffect(() => {
     let prevId: string | null = null

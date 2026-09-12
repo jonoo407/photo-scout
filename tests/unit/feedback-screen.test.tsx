@@ -19,13 +19,13 @@ const renderAt = (entry: string) => render(
   </MemoryRouter>,
 )
 
-describe('Tester feedback', () => {
+describe('Feedback', () => {
   it('is reachable from a prominent button on You', async () => {
     const user = userEvent.setup()
     renderAt('/you')
-    const btn = screen.getByRole('button', { name: /tester feedback/i })
+    const btn = screen.getByRole('button', { name: /send feedback/i })
     await user.click(btn)
-    expect(await screen.findByRole('heading', { name: /tester feedback/i })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /send feedback/i })).toBeInTheDocument()
   })
 
   it('sends what was typed, with the chosen kind', async () => {

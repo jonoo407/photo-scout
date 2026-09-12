@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  IconArrowLeft, IconHome, IconNavigation, IconRuler2,
+  IconArrowLeft, IconHome, IconNavigation, IconRuler2, IconMessagePlus,
   IconCameraPlus, IconCurrentLocation, IconChevronRight, IconMapPin, IconMoonStars,
 } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
@@ -159,7 +159,14 @@ export default function SettingsScreen() {
       <p className="shdr">MORE</p>
       <div className="card list">
         <AlertsSection />
-        <div className="row last"><span className="rowleft tertiary"><IconCameraPlus size={18} /> Add your own photos</span><span className="pill go">on every spot page</span></div>
+        <div className="row"><span className="rowleft tertiary"><IconCameraPlus size={18} /> Add your own photos</span><span className="pill go">on every spot page</span></div>
+        {/* Also on You, deliberately. You is where someone lands with a fresh
+            complaint; Settings is where they go looking for it weeks later
+            once the button on You has stopped registering (backlog V2a). */}
+        <button className="row last" onClick={() => nav('/you/feedback')}>
+          <span className="rowleft"><IconMessagePlus size={18} /> Send feedback</span>
+          <span className="val"><IconChevronRight size={16} /></span>
+        </button>
       </div>
 
       <p className="small tertiary" style={{ margin: '14px 2px 0', lineHeight: 1.6 }}>

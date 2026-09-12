@@ -78,6 +78,12 @@ interface AppState {
   /** When this photographer agreed to the posting rules (ISO), or null. The
       pre-post filter guideline 1.2 asks for — no upload control until it's set. */
   communityRulesAcceptedAt: string | null
+  /** App opens on this device — gates the feedback nudge so it never reaches
+      someone who has not used the thing yet (backlog V2b). */
+  sessions: number
+  /** When feedback was last ASKED FOR. Set by dismissing AND by taking up the
+      offer, so saying yes is never punished with a sooner re-ask than no. */
+  feedbackPromptAt: string | null
 
   toggleWishlist: (id: string) => void
   toggleVisited: (id: string) => void
@@ -97,6 +103,8 @@ interface AppState {
   markListsSeen: () => void
   setNewClientResponse: (v: boolean) => void
   acceptCommunityRules: () => void
+  noteSession: () => void
+  snoozeFeedbackPrompt: () => void
 }
 
 const toggle = (list: string[], id: string) =>
@@ -133,6 +141,8 @@ export const useStore = create<AppState>()(
       units: 'imperial',
       mapsApp: 'apple',
       theme: 'auto',
+      sessions: 0,
+      feedbackPromptAt: null,
       introSeen: false,
       sunTableCollapsed: false,
       listsSeenAt: null,
@@ -181,6 +191,8 @@ export const useStore = create<AppState>()(
       markListsSeen: () => set({ listsSeenAt: new Date().toISOString(), newClientResponse: false }),
       setNewClientResponse: (newClientResponse) => set({ newClientResponse }),
       acceptCommunityRules: () => set({ communityRulesAcceptedAt: new Date().toISOString() }),
+      noteSession: () => set((s) => ({ sessions: s.sessions + 1 })),
+      snoozeFeedbackPrompt: () => set({ feedbackPromptAt: new Date().toISOString() }),
     }),
     {
       name: 'photo-scout',

@@ -18,6 +18,7 @@ import { sunsetScore, sunsetLabel } from '../../weather/sunset-score'
 import { fmtTime, fmtRange, fmtDrive, untilString } from '../../util/format'
 import { SpotCard } from '../SpotCard'
 import IntroCard from './IntroCard'
+import FeedbackCard from './FeedbackCard'
 
 const GRADE_COLOR = { great: 'var(--go-ink)', decent: 'var(--maybe-ink)', meh: 'var(--ink-2)' } as const
 
@@ -226,6 +227,12 @@ export default function TodayScreen() {
           </div>
         </section>
       )}
+
+      {/* Last thing on the screen, deliberately. Today's job is tonight's
+          light and where to stand; an ask for feedback does not get to sit in
+          front of that. Someone who scrolls this far is someone who uses the
+          app, which is exactly who the ask is for. */}
+      <FeedbackCard />
     </div>
   )
 }

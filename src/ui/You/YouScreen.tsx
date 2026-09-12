@@ -167,15 +167,15 @@ export default function YouScreen() {
         </button>
       )}
 
-      {/* TestFlight-phase feedback: deliberately loud, because testers only
-          report things when reporting is the easiest thing on the screen.
-          Swap for the fuller feedback flow (backlog V2) once testing opens. */}
+      {/* Deliberately loud: people report things only when reporting is the
+          easiest thing on the screen. Was "Tester feedback" through the
+          TestFlight phase; real users are not testers (backlog V2a). */}
       <button
         className="cta"
         style={{ width: '100%', marginTop: 16 }}
         onClick={() => nav('/you/feedback')}
       >
-        <IconMessagePlus size={18} /> Tester feedback
+        <IconMessagePlus size={18} /> Send feedback
       </button>
 
       <div className="card list" style={{ marginTop: 14 }}>
