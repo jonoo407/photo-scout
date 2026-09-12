@@ -475,3 +475,49 @@ alter table public.photographers enable row level security;
 -- them, unblocking one restores only that one, unknown ref and self-block are
 -- refused, the legacy photo-keyed call still works, signed-out sees an empty
 -- list rather than an error.
+
+-- ── Function EXECUTE lockdown (2026-09-12) ─────────────────────────────────
+-- Applied as migration `lock_down_public_function_execute`. Postgres grants
+-- EXECUTE to PUBLIC on CREATE FUNCTION, and anon/authenticated inherit it, so
+-- every function above was callable at /rest/v1/rpc/<name> by anyone — 18 of
+-- them without signing in (Supabase security advisor, 2026-08-31). Each one
+-- guards itself (auth.uid() or the shared secret), so nothing was exploitable,
+-- but trigger bodies and retired functions had no reason to be endpoints.
+--
+-- The intended level per function lives in `supabase/function-access.ts` and
+-- the migration SQL is GENERATED from it (revokeSql()), so the two cannot
+-- drift; tests/unit/db-function-access.test.ts scans src/ and worker/ for real
+-- .rpc() call sites and fails if the manifest stops matching them.
+--
+-- Reachable signed-out (5, all deliberate): get_shortlist, get_list_owner,
+--   get_owner_email, spot_community_photos, city_vote_totals.
+--   NOTE get_list_owner + get_owner_email are called by the WORKER, which
+--   holds only SUPABASE_PUBLISHABLE_KEY — its calls arrive as `anon`.
+--   Revoking them breaks the shortlist response email with no app-side symptom.
+-- Signed-in only (6): report_photo, rate_photo, submit_hunt_stop,
+--   block_photographer, unblock_photographer, blocked_photographers.
+-- Internal, no caller (10): the six trigger bodies (feedback_notify,
+--   photo_report_notify, enforce_photo_quota, prune_departing_photos,
+--   notify_shortlist_response, ensure_photographer_ref), the photo_quota
+--   helper, and the retired unblock_everyone / blocked_count /
+--   block_photo_owner.
+--
+-- Triggers still fire after the revoke: Postgres checks EXECUTE at CREATE
+-- TRIGGER time, not per row. Verified 2026-09-12 on a throwaway table in a
+-- rolled-back transaction (insert as `anon` with EXECUTE fully revoked — the
+-- BEFORE INSERT trigger still ran).
+--
+-- photo_quota also had a mutable search_path (the one remaining advisor
+-- finding of its kind); it is now pinned to `public`.
+--
+-- Verified live 2026-09-12 against the production REST API: unblock_everyone,
+-- blocked_count, photo_quota and report_photo return 401/403 "permission
+-- denied" to the anon key; spot_community_photos, city_vote_totals,
+-- get_shortlist, get_list_owner and get_owner_email still return 200; and a
+-- signed-in user still reaches all six authenticated RPCs (they answer with
+-- business-logic errors like "unknown photo", proving the body ran).
+--
+-- Still open and NOT code: leaked-password protection needs the Supabase Pro
+-- plan. The three `rls_enabled_no_policy` INFO findings (photo_ratings,
+-- photo_reports, photographers) are the intended design — those tables are
+-- reachable only through definer RPCs, never directly.
