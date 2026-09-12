@@ -57,6 +57,7 @@ const permits: Record<Access, { anon: boolean; authenticated: boolean }> = {
   anon: { anon: true, authenticated: true },
   authenticated: { anon: false, authenticated: true },
   internal: { anon: false, authenticated: false },
+  service: { anon: false, authenticated: false },
 }
 
 describe('database function access manifest', () => {
@@ -145,6 +146,26 @@ describe('generated lockdown SQL', () => {
     for (const [fn, access] of Object.entries(FUNCTION_ACCESS)) {
       if (access === 'anon') continue
       expect(sql).toMatch(new RegExp(`revoke all on function public\\.${fn}\\([^)]*\\) from public;`))
+    }
+  })
+
+  it('grants service-role functions to service_role and nobody else', () => {
+    // A backend job (the storage janitor) needs EXECUTE, but revoking PUBLIC
+    // takes it away from service_role too — so the grant has to be explicit,
+    // or the janitor fails with "permission denied" the first time it runs.
+    const serviceFns = Object.entries(FUNCTION_ACCESS).filter(([, a]) => a === 'service')
+    expect(serviceFns.length).toBeGreaterThan(0)
+    for (const [fn] of serviceFns) {
+      expect(sql).toMatch(new RegExp(`revoke all on function public\\.${fn}\\([^)]*\\) from public;`))
+      expect(sql).toMatch(new RegExp(`revoke all on function public\\.${fn}\\([^)]*\\) from anon, authenticated;`))
+      expect(sql).toMatch(new RegExp(`grant execute on function public\\.${fn}\\([^)]*\\) to service_role;`))
+    }
+  })
+
+  it('never grants a service-role function to authenticated', () => {
+    for (const [fn, access] of Object.entries(FUNCTION_ACCESS)) {
+      if (access !== 'service') continue
+      expect(sql).not.toMatch(new RegExp(`grant execute on function public\\.${fn}\\([^)]*\\) to authenticated;`))
     }
   })
 

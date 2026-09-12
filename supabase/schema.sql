@@ -521,3 +521,42 @@ alter table public.photographers enable row level security;
 -- plan. The three `rls_enabled_no_policy` INFO findings (photo_ratings,
 -- photo_reports, photographers) are the intended design — those tables are
 -- reachable only through definer RPCs, never directly.
+
+-- ── Storage janitor (V10, 2026-09-12) ──────────────────────────────────────
+-- Applied as migration `storage_janitor_object_listing` + Edge Function
+-- `storage-janitor` (supabase/functions/storage-janitor/).
+--
+-- The gap this closes was recorded above as "files of DELETED accounts below
+-- the bar remain until a service-key janitor exists". Every other cleanup
+-- path in this app runs client-side as the file's owner: uploads compensate
+-- on a failed row insert, and each user's own session sweeps orphans in their
+-- folder. None of them can reach a departed account's files, because the
+-- owner's token died with the account and Supabase blocks SQL deletes on
+-- storage.objects (Storage API only).
+--
+--   storage_objects_for_janitor(limit) — definer READ of the bucket listing,
+--     service_role only. A listing is a map of who uploaded what and where
+--     they were standing, so it is never reachable from a browser.
+--   Edge Function storage-janitor — service_role; lists objects, reads every
+--     `path` still in user_photos, deletes the difference over the Storage
+--     API. Auth is a shared secret in the JANITOR_SECRET function secret
+--     (Supabase Management API), on top of the platform's JWT check.
+--
+-- Safety, because the job is deleting photographs:
+--   · DRY RUN unless the body says {"apply": true},
+--   · a 24-hour grace period, so an upload whose row insert is still in
+--     flight is never swept,
+--   · presence of a ROW is the test, never ownership — account deletion keeps
+--     good photos with owner = null, and those rows still carry the path,
+--   · an object with no parseable created_at is kept, never assumed old,
+--   · max 200 deletions per run,
+--   · .emptyFolderPlaceholder markers are skipped.
+-- The selection logic is a pure module (functions/storage-janitor/select.ts)
+-- with no Deno imports, so tests/unit/storage-janitor.test.ts exercises the
+-- exact code that runs in production.
+--
+-- First real run 2026-09-12: scanned 1, orphans 1, deleted 1 — the orphan
+-- noted above as existing since 2026-07-16. Bucket now 0 files / 0 orphans.
+-- Guards verified against production before applying: graceHours=10000 spared
+-- the same 58-day-old file, maxDeletes=0 selected nothing, and a wrong or
+-- missing x-janitor-secret returned 403.

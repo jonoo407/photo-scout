@@ -22,9 +22,12 @@
  *                   revoking merely takes them off the unauthenticated surface.
  *   internal      — no caller outside the database. Trigger bodies, helpers,
  *                   and functions the client stopped using.
+ *   service       — backend jobs only (the storage janitor). Needs an EXPLICIT
+ *                   grant: revoking PUBLIC strips service_role's inherited
+ *                   EXECUTE too, so "revoke and walk away" breaks the job.
  */
 
-export type Access = 'anon' | 'authenticated' | 'internal'
+export type Access = 'anon' | 'authenticated' | 'internal' | 'service'
 
 export const FUNCTION_ACCESS: Record<string, Access> = {
   // ── Reachable signed-out ────────────────────────────────────────────────
@@ -69,6 +72,11 @@ export const FUNCTION_ACCESS: Record<string, Access> = {
   unblock_everyone: 'internal',
   blocked_count: 'internal',
   block_photo_owner: 'internal',
+
+  // ── Backend jobs only ───────────────────────────────────────────────────
+  // Reads storage.objects for the orphan-file janitor. Never reachable from
+  // a browser: the bucket listing is a map of who uploaded what, and where.
+  storage_objects_for_janitor: 'service',
 }
 
 /** Identity arguments, as `pg_get_function_identity_arguments` reports them.
@@ -96,6 +104,7 @@ export const FUNCTION_ARGS: Record<string, string> = {
   unblock_everyone: '',
   blocked_count: '',
   block_photo_owner: 'p_photo_id uuid',
+  storage_objects_for_janitor: 'p_limit integer',
 }
 
 /** Functions whose `search_path` the advisor flagged as mutable. A definer
@@ -125,6 +134,9 @@ export function revokeSql(): string {
     lines.push('', `revoke all on function ${sig} from public;`)
     if (access === 'internal') {
       lines.push(`revoke all on function ${sig} from anon, authenticated;`)
+    } else if (access === 'service') {
+      lines.push(`revoke all on function ${sig} from anon, authenticated;`)
+      lines.push(`grant execute on function ${sig} to service_role;`)
     } else {
       lines.push(`revoke all on function ${sig} from anon;`)
       lines.push(`grant execute on function ${sig} to authenticated;`)
