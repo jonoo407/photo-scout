@@ -75,8 +75,25 @@ describe('Explore — light buckets from Plan', () => {
     expect(screen.getByText('Bayshore Boulevard')).toBeInTheDocument()
   })
 
-  it('hides the pet-friendly chip while the region has no pet data (B16)', () => {
+  /* Until 2026-09-12 this asserted the chip was HIDDEN — correct at the time,
+     because the filter shipped with zero spots carrying data, so `hasPetData`
+     was false and no user ever saw it. Now that all 75 spots are verified the
+     chip renders, and the useful assertion is that it actually filters. */
+  it('shows the pet-friendly chip now that the region has verified pet data (B16)', () => {
     renderExplore()
-    expect(screen.queryByRole('button', { name: /pet-friendly/i })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /pet-friendly/i })).toBeInTheDocument()
+  })
+
+  it('keeps only pet-friendly spots when the chip is on', async () => {
+    const user = userEvent.setup()
+    renderExplore()
+    await user.click(screen.getByRole('button', { name: /pet-friendly/i }))
+    // Leashed dogs welcome on the 4.5-mile sidewalk.
+    expect(screen.getByText('Bayshore Boulevard')).toBeInTheDocument()
+    // A preserve, not a park: no pets at all.
+    expect(screen.queryByText('Weedon Island Preserve')).not.toBeInTheDocument()
+    // Tapping again restores the full list.
+    await user.click(screen.getByRole('button', { name: /pet-friendly/i }))
+    expect(screen.getByText('Weedon Island Preserve')).toBeInTheDocument()
   })
 })

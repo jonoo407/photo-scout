@@ -24,6 +24,7 @@ const pic = (src: string, caption: string, credit: string, license: string, sour
 const SPOTS: Spot[] = [
   {
     id: 'spring-garden-bridge', name: 'Spring Garden Street Bridge', category: 'skyline', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed on the public bridge sidewalk',
     bestFor: ['skyline over the Schuylkill', 'blue-hour reflections'], bestLight: ['sunset', 'blue-hour'],
     lat: 39.9627, lng: -75.1830, address: 'Spring Garden Street Bridge, Philadelphia, PA 19130', facing: 125, feeUSD: 0, isFree: true, driveMinutes: 8,
     hours: days(H24), phone: null,
@@ -41,6 +42,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'belmont-plateau', name: 'Belmont Plateau', category: 'skyline', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed, 6 ft, anywhere on the plateau',
     bestFor: ['distant skyline', 'long-lens cityscape'], bestLight: ['evening-golden', 'sunset'],
     lat: 39.9898, lng: -75.2125, address: '2000 Belmont Mansion Dr, Philadelphia, PA 19131', facing: 128, feeUSD: 0, isFree: true, driveMinutes: 20,
     hours: days(open(iv(clk('06:00'), clk('22:00')))), phone: null,
@@ -58,6 +60,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'race-street-pier', name: 'Race Street Pier', category: 'skyline', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed; dogs are welcome across the waterfront parks',
     bestFor: ['Ben Franklin Bridge', 'sunrise over the Delaware'], bestLight: ['sunrise', 'blue-hour'],
     lat: 39.9535, lng: -75.1395, address: 'N Christopher Columbus Blvd & Race St, Philadelphia, PA 19106', facing: 35, feeUSD: 0, isFree: true, driveMinutes: 10,
     hours: days(open(iv(clk('07:00'), clk('23:00')))), phone: null,
@@ -75,6 +78,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'boathouse-row', name: 'Boathouse Row', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed on Kelly Drive and the river path',
     bestFor: ['lit boathouses', 'blue-hour reflections'], bestLight: ['blue-hour', 'night-astro'],
     lat: 39.9695, lng: -75.1875, address: 'Martin Luther King Jr Dr, Philadelphia, PA 19130', facing: 70, feeUSD: 0, isFree: true, driveMinutes: 12,
     hours: days(H24), phone: null,
@@ -92,6 +96,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'bok-bar', name: 'Bok Bar (rooftop)', category: 'rooftop', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed; the rooftop is openly dog-friendly',
     bestFor: ['rooftop skyline', 'South Philly views'], bestLight: ['sunset', 'blue-hour'],
     lat: 39.9215, lng: -75.1595, address: 'Bok Bar, 800 Mifflin St, Philadelphia, PA 19148', facing: 350, feeUSD: 0, isFree: true,
     feeNote: 'No cover; buy a drink', driveMinutes: 12,
@@ -113,6 +118,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'philadelphia-city-hall', name: 'Philadelphia City Hall', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: false, petNote: 'service animals only in the building and on the tower tour',
     bestFor: ['William Penn tower', 'courtyard architecture'], bestLight: ['evening-golden', 'daytime', 'blue-hour'],
     lat: 39.9526, lng: -75.1635, address: '1400 John F. Kennedy Blvd, Philadelphia, PA 19107', facing: 135, feeUSD: 0, isFree: true, driveMinutes: 2,
     hours: days(H24), phone: null,
@@ -134,6 +140,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'independence-hall', name: 'Independence Hall', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed on the grounds, never inside the hall',
     bestFor: ['Georgian brick facade', 'the tower + steeple'], bestLight: ['morning-golden', 'evening-golden', 'daytime'],
     lat: 39.9489, lng: -75.1500, address: '520 Chestnut St, Philadelphia, PA 19106', facing: 0, feeUSD: 0, isFree: true, driveMinutes: 8,
     hours: days(H24), phone: null,
@@ -151,6 +158,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'eastern-state-penitentiary', name: 'Eastern State Penitentiary', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: false, petNote: 'service animals only; no pets or comfort animals',
     bestFor: ['gothic cellblock ruins', 'castellated facade'], bestLight: ['daytime', 'evening-golden'],
     lat: 39.9683, lng: -75.1726, address: '2027 Fairmount Ave, Philadelphia, PA 19130', facing: null, feeUSD: 21, isFree: false,
     feeNote: '$21 adult (less for seniors/youth/students); the facade is free from Fairmount Ave', driveMinutes: 10,
@@ -173,6 +181,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'elfreths-alley', name: "Elfreth's Alley", category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed on the public alley; the houses are private',
     bestFor: ['cobblestone street', 'colonial rowhouses'], bestLight: ['morning-golden', 'open-shade'],
     lat: 39.9527, lng: -75.1425, address: "Elfreth's Alley, Philadelphia, PA 19106", facing: 250, feeUSD: 0, isFree: true, driveMinutes: 10,
     hours: days(H24), phone: null,
@@ -194,6 +203,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: '30th-street-station', name: '30th Street Station', category: 'interiors', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: false, petNote: 'service animals only; pets must stay crated',
     bestFor: ['Art-Deco concourse', 'window light + symmetry'], bestLight: ['daytime'],
     lat: 39.9558, lng: -75.1819, address: '2955 Market St, Philadelphia, PA 19104', facing: null, feeUSD: 0, isFree: true, driveMinutes: 6,
     hours: days(H24), phone: null,
@@ -214,6 +224,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'reading-terminal-market', name: 'Reading Terminal Market', category: 'interiors', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: false, petNote: 'service animals only in the food hall',
     bestFor: ['market hall', 'neon + street life'], bestLight: ['daytime'],
     lat: 39.9534, lng: -75.1590, address: '1136 Arch St, Philadelphia, PA 19107', facing: null, feeUSD: 0, isFree: true, driveMinutes: 4,
     hours: days(open(iv(clk('08:00'), clk('18:00')))), phone: null,
@@ -235,6 +246,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'cathedral-basilica-ss-peter-paul', name: 'Cathedral Basilica of SS. Peter and Paul', category: 'interiors', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: false, petNote: 'service animals only; no other animals',
     bestFor: ['coffered dome', 'marble nave'], bestLight: ['daytime', 'morning-golden'],
     lat: 39.9575, lng: -75.1686, address: '1723 Race St, Philadelphia, PA 19103', facing: 90, feeUSD: 0, isFree: true, driveMinutes: 5,
     hours: days(open(iv(clk('07:00'), clk('17:00'))), { sat: open(iv(clk('09:00'), clk('18:30'))), sun: open(iv(clk('08:00'), clk('19:30'))) }), phone: null,
@@ -255,6 +267,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'shofuso-japanese-house', name: 'Shofuso Japanese House & Garden', category: 'gardens', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: false, petNote: 'service animals only, in booties inside the house',
     bestFor: ['Japanese house + koi pond', 'cherry blossoms / fall maples'], bestLight: ['morning-golden', 'open-shade', 'evening-golden'],
     lat: 39.9812, lng: -75.2128, address: 'Lansdowne & Horticultural Dr, West Fairmount Park, Philadelphia, PA 19131', facing: 315, feeUSD: 15, isFree: false,
     feeNote: '$15 adult; Philadelphia students/military free with ID', driveMinutes: 18,
@@ -277,6 +290,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'bartrams-garden', name: "Bartram's Garden", category: 'gardens', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed everywhere but the fenced historic core',
     bestFor: ['skyline across the Schuylkill', 'historic botanic garden'], bestLight: ['sunrise', 'evening-golden', 'daytime'],
     lat: 39.9335, lng: -75.2083, address: '5400 Lindbergh Blvd, Philadelphia, PA 19143', facing: 57, feeUSD: 0, isFree: true, driveMinutes: 18,
     hours: days(open(iv(sr(), ss()))), phone: null,
@@ -298,6 +312,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'morris-arboretum', name: 'Morris Arboretum & Gardens', category: 'gardens', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: false, petNote: 'service animals only; no pets on the grounds',
     bestFor: ['canopy walk', 'swan pond + blooms'], bestLight: ['evening-golden', 'open-shade', 'morning-golden'],
     lat: 40.0897, lng: -75.2242, address: '100 E Northwestern Ave, Philadelphia, PA 19118', facing: null, feeUSD: 22, isFree: false,
     feeNote: '$22 adult / $20 online', driveMinutes: 30,
@@ -320,6 +335,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'wissahickon-forbidden-drive', name: 'Wissahickon Valley (Forbidden Drive)', category: 'nature', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed, 6 ft, the whole length of the drive',
     bestFor: ['creek + gorge trail', 'fall foliage'], bestLight: ['morning-golden', 'open-shade', 'sunrise'],
     lat: 40.0539, lng: -75.2178, address: '7 Valley Green Rd, Philadelphia, PA 19128', facing: null, feeUSD: 0, isFree: true, driveMinutes: 25,
     hours: days(open(iv(sr(-30), ss(30)))), phone: null,
@@ -341,6 +357,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'philadelphia-museum-of-art', name: 'Philadelphia Museum of Art (Rocky Steps)', category: 'skyline', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed on the steps and grounds, not inside',
     bestFor: ['Parkway skyline view', 'the museum + Rocky Steps'], bestLight: ['sunrise', 'blue-hour', 'evening-golden'],
     lat: 39.9656, lng: -75.1810, address: '2600 Benjamin Franklin Parkway, Philadelphia, PA 19130', facing: 138, feeUSD: 0, isFree: true, feeNote: 'Steps + terrace free; museum interior ~$25',
     hours: days(H24), phone: null,
@@ -362,6 +379,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'schuylkill-banks-boardwalk', name: 'Schuylkill Banks Boardwalk', category: 'skyline', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed on the boardwalk and the trail',
     bestFor: ['skyline over the river', 'on-the-water boardwalk'], bestLight: ['sunset', 'blue-hour'],
     lat: 39.9470, lng: -75.1810, address: 'Schuylkill Banks Boardwalk, Locust St at the Schuylkill River, Philadelphia, PA 19103', facing: 50, feeUSD: 0, isFree: true,
     hours: days(open(iv(sr(), ss()))), phone: null,
@@ -379,6 +397,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'penns-landing', name: "Penn's Landing (Delaware Waterfront)", category: 'skyline', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed across the waterfront',
     bestFor: ['Ben Franklin Bridge', 'Delaware River blue hour'], bestLight: ['blue-hour', 'sunset', 'night-astro'],
     lat: 39.9463, lng: -75.1408, address: "Penn's Landing, 101 S Christopher Columbus Blvd, Philadelphia, PA 19106", facing: 15, feeUSD: 0, isFree: true,
     hours: days(open(iv(clk('06:00'), clk('23:00')))), phone: null,
@@ -396,6 +415,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'fairmount-water-works', name: 'Fairmount Water Works', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed on the terraces and the river path',
     bestFor: ['Greek-Revival riverfront', 'dam + Art Museum above'], bestLight: ['evening-golden', 'blue-hour', 'daytime'],
     lat: 39.9656, lng: -75.1808, address: '640 Waterworks Dr, Philadelphia, PA 19130', facing: 200, feeUSD: 0, isFree: true,
     hours: days(open(iv(sr(), ss()))), phone: null,
@@ -416,6 +436,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'swann-memorial-fountain', name: 'Swann Memorial Fountain (Logan Square)', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed on Logan Square; keep out of the fountain',
     bestFor: ['fountain sculpture', 'Parkway + Cathedral backdrop'], bestLight: ['blue-hour', 'evening-golden', 'daytime'],
     lat: 39.9579, lng: -75.1708, address: 'Logan Circle, Benjamin Franklin Parkway at 19th St, Philadelphia, PA 19103', facing: null, feeUSD: 0, isFree: true,
     hours: days(H24), phone: null,
@@ -433,6 +454,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'rodin-museum-philadelphia', name: 'Rodin Museum', category: 'gardens', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed in the garden only, never inside',
     bestFor: ['formal garden + facade', 'The Thinker / Gates of Hell'], bestLight: ['morning-golden', 'daytime', 'open-shade'],
     lat: 39.9620, lng: -75.1740, address: '2151 Benjamin Franklin Parkway, Philadelphia, PA 19130', facing: 45, feeUSD: 0, isFree: true, feeNote: 'Garden + outdoor sculpture free; interior suggested ~$15',
     hours: days(open(iv(sr(), ss()))), phone: null,
@@ -453,6 +475,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'memorial-hall-philadelphia', name: 'Memorial Hall (Fairmount Park)', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed on the Fairmount Park grounds',
     bestFor: ['1876 Beaux-Arts facade', 'glass-and-iron dome'], bestLight: ['daytime', 'evening-golden'],
     lat: 39.9792, lng: -75.2097, address: '4231 Avenue of the Republic, Philadelphia, PA 19131', facing: 0, feeUSD: 0, isFree: true, feeNote: 'Exterior free; Please Touch Museum interior ~$22',
     hours: days(H24), phone: null,
@@ -470,6 +493,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'christ-church-philadelphia', name: 'Christ Church (Old City)', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: false, petNote: 'service animals only inside the church',
     bestFor: ['Georgian steeple', 'colonial brick facade'], bestLight: ['morning-golden', 'evening-golden', 'daytime'],
     lat: 39.9508, lng: -75.1439, address: '20 N American St, Philadelphia, PA 19106', facing: 90, feeUSD: 0, isFree: true, feeNote: 'Exterior free; interior suggested ~$3 donation',
     hours: days(H24), phone: null,
@@ -487,6 +511,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'head-house-square', name: 'Head House Square (Society Hill)', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed under the shambles',
     bestFor: ['colonial market shambles', 'cobblestone streetscape'], bestLight: ['morning-golden', 'open-shade'],
     lat: 39.9431, lng: -75.1453, address: 'S 2nd St between Pine & Lombard Sts, Philadelphia, PA 19147', facing: 0, feeUSD: 0, isFree: true,
     hours: days(H24), phone: null,
@@ -504,6 +529,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'fisher-fine-arts-library', name: 'Fisher Fine Arts Library (Penn)', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: false, petNote: 'service animals only; it is a working Penn library',
     bestFor: ['Furness Venetian Gothic', 'red-sandstone facade at night'], bestLight: ['blue-hour', 'night-astro', 'daytime'],
     lat: 39.9514, lng: -75.1925, address: '220 S 34th St, Philadelphia, PA 19104', facing: 90, feeUSD: 0, isFree: true,
     hours: days(H24), phone: null,
@@ -524,6 +550,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'franklin-institute', name: 'The Franklin Institute', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: false, petNote: 'service animals only, as at every Parkway museum',
     bestFor: ['Beaux-Arts building', 'the Franklin Memorial rotunda'], bestLight: ['daytime', 'evening-golden'],
     lat: 39.9581, lng: -75.1732, address: '222 N 20th St, Philadelphia, PA 19103', facing: null, feeUSD: 0, isFree: true, feeNote: 'Rotunda free; full museum interior ~$29',
     hours: days(H24), phone: null,
@@ -545,6 +572,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'penn-museum', name: 'Penn Museum (Harrison Rotunda)', category: 'interiors', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: false, petNote: 'service animals only in the galleries',
     bestFor: ['the domed rotunda', 'ancient galleries + sphinx'], bestLight: ['daytime'],
     lat: 39.9490, lng: -75.1911, address: '3260 South St, Philadelphia, PA 19104', facing: null, feeUSD: 18, isFree: false, feeNote: '$18 adult; free for PennCard, members, kids under 6',
     hours: days(open(iv(clk('10:00'), clk('17:00'))), { mon: CLOSED }), phone: null,
@@ -565,6 +593,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'rittenhouse-square', name: 'Rittenhouse Square', category: 'nature', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed, 6 ft; stay off the planting beds',
     bestFor: ['tree-lined city park', 'canopy + classical detail'], bestLight: ['morning-golden', 'open-shade', 'evening-golden'],
     lat: 39.9495, lng: -75.1719, address: 'W Rittenhouse Square, Philadelphia, PA 19103', facing: null, feeUSD: 0, isFree: true,
     hours: days(open(iv(sr(-30), clk('22:00')))), phone: null,
@@ -582,6 +611,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'washington-square', name: 'Washington Square', category: 'nature', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed, 6 ft, on the park grounds',
     bestFor: ['historic tree-lined square', 'fall color + memorial'], bestLight: ['morning-golden', 'open-shade', 'evening-golden'],
     lat: 39.9469, lng: -75.1526, address: '210 W Washington Square, Philadelphia, PA 19106', facing: null, feeUSD: 0, isFree: true,
     hours: days(H24), phone: null,
@@ -599,6 +629,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'manayunk', name: 'Manayunk (Main Street & Canal)', category: 'nature', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed on the Main Street sidewalks',
     bestFor: ['hillside rowhouse streetscape', 'canal towpath + bridge trail'], bestLight: ['evening-golden', 'daytime'],
     lat: 40.0264, lng: -75.2236, address: 'Main Street, Manayunk, Philadelphia, PA 19127', facing: null, feeUSD: 0, isFree: true,
     hours: days(open(iv(sr(), ss()))), phone: null,
@@ -619,6 +650,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'fdr-park', name: 'FDR Park', category: 'nature', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed; Playful Pup Park is the off-leash area',
     bestFor: ['lake + gazebo', 'distant skyline reflection'], bestLight: ['sunrise', 'morning-golden', 'open-shade'],
     lat: 39.9020, lng: -75.1840, address: '1500 Pattison Ave, Philadelphia, PA 19145', facing: 15, feeUSD: 0, isFree: true,
     hours: days(open(iv(sr(-30), ss(30)))), phone: null,
@@ -639,6 +671,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'laurel-hill-cemetery', name: 'Laurel Hill Cemetery', category: 'nature', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed inside the gates; waste bags at the gatehouse',
     bestFor: ['Victorian statuary', 'terraced river overlook'], bestLight: ['morning-golden', 'open-shade'],
     lat: 40.0039, lng: -75.1875, address: '3822 Ridge Ave, Philadelphia, PA 19132', facing: null, feeUSD: 0, isFree: true,
     hours: days(open(iv(clk('08:00'), clk('16:30'))), { sat: open(iv(clk('09:30'), clk('16:30'))), sun: open(iv(clk('09:30'), clk('16:30'))) }), phone: null,
@@ -659,6 +692,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'manayunk-bridge-trail', name: 'Manayunk Bridge Trail', category: 'skyline', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed the length of the trail',
     bestFor: ['elevated river view', 'rowhouse hillside'], bestLight: ['evening-golden', 'sunrise', 'blue-hour'],
     lat: 40.0253, lng: -75.2265, address: 'Manayunk Bridge Trail, High St & Dupont St, Philadelphia, PA 19127', facing: 35, feeUSD: 0, isFree: true,
     hours: days(H24), phone: null,
@@ -679,6 +713,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'manayunk-canal-locks', name: 'Manayunk Canal & Locks', category: 'nature', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed on the towpath',
     bestFor: ['canal reflections', 'mill-town industrial heritage'], bestLight: ['morning-golden', 'open-shade', 'evening-golden'],
     lat: 40.0232, lng: -75.2201, address: '7 Lock St, Philadelphia, PA 19127', facing: 300, feeUSD: 0, isFree: true,
     hours: days(open(iv(sr(), ss()))), phone: null,
@@ -699,6 +734,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'flat-rock-dam', name: 'Flat Rock Dam', category: 'nature', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed on the trail; keep well clear of the dam',
     bestFor: ['spilling dam curtain', 'river wildlife'], bestLight: ['morning-golden', 'open-shade'],
     lat: 40.0392, lng: -75.2461, address: 'Schuylkill River Trail at Nixon St & Shawmont Ave, Philadelphia, PA 19128', facing: 305, feeUSD: 0, isFree: true,
     hours: days(open(iv(sr(), ss()))), phone: null,
@@ -716,6 +752,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'love-park', name: 'LOVE Park (JFK Plaza)', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed on the plaza',
     bestFor: ['the LOVE sculpture', 'fountain + City Hall stack'], bestLight: ['sunrise', 'blue-hour', 'daytime'],
     lat: 39.9542, lng: -75.1657, address: '1501 John F. Kennedy Blvd, Philadelphia, PA 19102', facing: 130, feeUSD: 0, isFree: true,
     hours: days(H24), phone: null,
@@ -736,6 +773,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'rail-park', name: 'The Rail Park', category: 'nature', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed; keep out of the planting beds',
     bestFor: ['elevated viaduct park', 'skyline from the deck'], bestLight: ['evening-golden', 'blue-hour'],
     lat: 39.9598, lng: -75.1597, address: 'The Rail Park, 1300 Noble St, Philadelphia, PA 19123', facing: 200, feeUSD: 0, isFree: true,
     hours: days(open(iv(clk('07:00'), clk('22:00')))), phone: null,
@@ -753,6 +791,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'smith-memorial-arch', name: 'Smith Memorial Arch', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed on the Fairmount Park grounds',
     bestFor: ['Beaux-Arts twin towers', 'on-axis symmetry'], bestLight: ['morning-golden', 'evening-golden'],
     lat: 39.9776, lng: -75.2066, address: 'Avenue of the Republic at Lansdowne Dr, West Fairmount Park, Philadelphia, PA 19131', facing: 295, feeUSD: 0, isFree: true,
     hours: days(H24), phone: null,
@@ -770,6 +809,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'philadelphia-magic-gardens', name: "Philadelphia's Magic Gardens", category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed indoors and out, and genuinely welcome',
     bestFor: ['mosaic art labyrinth', 'color + texture detail'], bestLight: ['daytime', 'open-shade'],
     lat: 39.9428, lng: -75.1594, address: '1020 South St, Philadelphia, PA 19147', facing: 180, feeUSD: 15, isFree: false, feeNote: '$15 adult; timed tickets — book ahead on weekends',
     hours: days(open(iv(clk('11:00'), clk('18:00'))), { tue: CLOSED }), phone: null,
@@ -790,6 +830,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'italian-market', name: 'Italian Market (9th Street)', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed on the 9th Street sidewalks',
     bestFor: ['street-market photography', 'awnings + hand-lettered signs'], bestLight: ['morning-golden', 'open-shade'],
     lat: 39.9390, lng: -75.1578, address: '919 S 9th St, Philadelphia, PA 19147', facing: 180, feeUSD: 0, isFree: true,
     hours: days(H24), phone: null,
@@ -810,6 +851,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'chinatown-friendship-gate', name: 'Chinatown Friendship Gate', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed on the sidewalk',
     bestFor: ['the 40-ft gate', 'neon street scenes'], bestLight: ['blue-hour', 'daytime', 'night-astro'],
     lat: 39.9537, lng: -75.1563, address: 'N 10th St & Arch St, Philadelphia, PA 19107', facing: 0, feeUSD: 0, isFree: true,
     hours: days(H24), phone: null,
@@ -830,6 +872,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'spruce-street-harbor-park', name: 'Spruce Street Harbor Park', category: 'nature', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed; even the swan boats take dogs',
     bestFor: ['LED tree canopy', 'hammocks + waterfront'], bestLight: ['blue-hour', 'evening-golden'],
     lat: 39.9445, lng: -75.1415, address: '301 S Christopher Columbus Blvd, Philadelphia, PA 19106', facing: 90, feeUSD: 0, isFree: true,
     hours: days(open(iv(clk('11:00'), clk('22:00'))), { fri: open(iv(clk('11:00'), clk('23:00'))), sat: open(iv(clk('11:00'), clk('23:00'))) }), phone: null,
@@ -847,6 +890,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'masonic-temple', name: 'Masonic Temple', category: 'architecture', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: false, petNote: 'service animals only on the tour',
     bestFor: ['Norman granite facade', 'Egyptian Hall (tour)'], bestLight: ['morning-golden', 'daytime'],
     lat: 39.9536, lng: -75.1629, address: '1 N Broad St, Philadelphia, PA 19107', facing: 90, feeUSD: 0, isFree: true, feeNote: 'Exterior free; interior by $15 guided tour (Wed–Sat)',
     hours: days(H24), phone: null,
@@ -867,6 +911,7 @@ const SPOTS: Spot[] = [
   },
   {
     id: 'cherry-street-pier', name: 'Cherry Street Pier', category: 'interiors', city: 'Philadelphia', region: 'philadelphia',
+    petFriendly: true, petNote: 'leashed on the pier and its garden patio',
     bestFor: ['truss-shed interior', 'garden-end bridge view'], bestLight: ['evening-golden', 'daytime', 'blue-hour'],
     lat: 39.9525, lng: -75.1391, address: '121 N Christopher Columbus Blvd, Philadelphia, PA 19106', facing: 45, feeUSD: 0, isFree: true,
     hours: days(open(iv(clk('12:00'), clk('21:00'))), { fri: open(iv(clk('12:00'), clk('23:00'))), sat: open(iv(clk('11:00'), clk('23:00'))), sun: open(iv(clk('11:00'), clk('21:00'))) }), phone: null,

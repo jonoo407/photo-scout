@@ -71,6 +71,10 @@ export interface Spot {
       own rules — absent means unknown, and the Explore chip stays hidden
       until a region has real data. */
   petFriendly?: boolean
+  /** The actual rule, in a few words — "leashed, not on the beach" is a very
+      different answer from a flat yes, and it is what someone standing at the
+      gate needs. Chip text: no trailing period, <= 80 chars. */
+  petNote?: string
   city: string
   region: RegionId
   bestFor: string[]

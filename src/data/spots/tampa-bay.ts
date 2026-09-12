@@ -20,6 +20,7 @@ function days(fallback: DaySchedule, overrides: Partial<Record<Weekday, DaySched
 export const SPOTS: Spot[] = [
   {
     id: 'bayshore-boulevard', name: 'Bayshore Boulevard', category: 'skyline', city: 'Tampa', region: 'tampa-bay',
+    petFriendly: true, petNote: 'leashed on the sidewalk, per the city leash rule',
     bestFor: ['skyline across water', 'portraits', 'balustrade leading line'], bestLight: ['sunrise', 'blue-hour'],
     lat: 27.9165, lng: -82.4827, address: 'Bayshore Blvd at Bay-to-Bay Blvd, Tampa, FL 33629', facing: 36, feeUSD: 0, isFree: true,
     feeNote: 'Free street parking at the Bay-to-Bay corner', driveMinutes: 6,
@@ -41,6 +42,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'ballast-point-park', name: 'Ballast Point Park', category: 'skyline', city: 'Tampa', region: 'tampa-bay',
+    petFriendly: true, petNote: 'leashed; Tampa city park rules apply',
     bestFor: ['skyline', 'sunrise over the bay'], bestLight: ['sunrise', 'blue-hour'],
     lat: 27.8893, lng: -82.4818, address: '5300 Interbay Blvd, Tampa, FL 33611', facing: 20, feeUSD: 0, isFree: true, driveMinutes: 7,
     hours: days(open(iv(clk('06:00'), clk('20:00')))), phone: null,
@@ -59,6 +61,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'davis-islands-beach', name: 'Davis Islands Beach & Yacht Basin', category: 'skyline', city: 'Tampa', region: 'tampa-bay',
+    petFriendly: true, petNote: 'leashed; fenced off-leash dog beach next door',
     bestFor: ['skyline backdrop', 'sunset'], bestLight: ['sunset', 'evening-golden'],
     lat: 27.9112, lng: -82.4530, address: '864 Severn Ave, Tampa, FL 33606', facing: 350, feeUSD: 0, isFree: true, driveMinutes: 12,
     hours: days(open(iv(sr(), ss()))), phone: null,
@@ -75,6 +78,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'curtis-hixon-waterfront-park', name: 'Curtis Hixon Waterfront Park', category: 'skyline', city: 'Tampa', region: 'tampa-bay',
+    petFriendly: true, petNote: 'leashed on the lawn; two fenced dog parks below',
     bestFor: ['skyline', 'UT minarets', 'blue hour', 'fountains'], bestLight: ['evening-golden', 'sunset', 'blue-hour'],
     lat: 27.9487, lng: -82.4625, address: '600 N Ashley Dr, Tampa, FL 33602', facing: 270, feeUSD: 0, isFree: true, driveMinutes: 14,
     hours: days(open(iv(clk('07:00'), clk('22:00')))), phone: null,
@@ -99,6 +103,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'tampa-riverwalk', name: 'Tampa Riverwalk', category: 'skyline', city: 'Tampa', region: 'tampa-bay',
+    petFriendly: true, petNote: 'leashed the whole 2.6 miles',
     bestFor: ['skyline reflections', 'blue hour'], bestLight: ['blue-hour', 'sunset', 'night-astro'],
     lat: 27.9468, lng: -82.4618, address: 'Tampa Riverwalk, Tampa, FL 33602', facing: 270, feeUSD: 0, isFree: true, driveMinutes: 14,
     hours: days(H24), phone: null,
@@ -116,6 +121,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'plant-park-ut-minarets', name: 'Plant Park / UT Minarets', category: 'architecture', city: 'Tampa', region: 'tampa-bay',
+    petFriendly: true, petNote: 'leashed on the riverfront paths; UT buildings off-limits',
     bestFor: ['minarets up close', 'exterior architecture'], bestLight: ['morning-golden', 'evening-golden'],
     lat: 27.9459, lng: -82.4646, address: 'Plant Park, 401 W Kennedy Blvd, Tampa, FL 33606', facing: null, feeUSD: 0, isFree: true, driveMinutes: 13,
     hours: days(open(iv(sr(), ss()))), phone: null,
@@ -133,6 +139,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'henry-b-plant-museum', name: 'Henry B. Plant Museum', category: 'architecture', city: 'Tampa', region: 'tampa-bay',
+    petFriendly: false, petNote: 'service animals only; no pets or comfort animals',
     bestFor: ['Moorish/Gilded-Age interior', 'exterior minarets'], bestLight: ['daytime', 'evening-golden'],
     lat: 27.9463, lng: -82.4641, address: '401 W Kennedy Blvd, Tampa, FL 33606', facing: null, feeUSD: 12, isFree: false,
     feeNote: '$12 adult; exterior + Plant Park free; free Thomas Garage parking ~5-min walk', driveMinutes: 13,
@@ -153,6 +160,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'sacred-heart-catholic-church', name: 'Sacred Heart Catholic Church', category: 'interiors', city: 'Tampa', region: 'tampa-bay',
+    petFriendly: false, petNote: 'service animals only inside',
     bestFor: ['ornate interior', 'stained glass', 'marble columns'], bestLight: ['morning-golden', 'daytime'],
     lat: 27.9494, lng: -82.4572, address: '509 N Florida Ave, Tampa, FL 33602', facing: null, feeUSD: 0, isFree: true, driveMinutes: 14,
     hours: days(open(iv(clk('07:00'), clk('15:00'))), { sat: CLOSED, sun: CLOSED }), phone: '813-229-1595',
@@ -181,6 +189,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'tampa-theatre', name: 'Tampa Theatre', category: 'architecture', city: 'Tampa', region: 'tampa-bay',
+    petFriendly: false, petNote: 'service animals only inside',
     bestFor: ['atmospheric movie palace', 'marquee at night'], bestLight: ['night-astro', 'blue-hour'],
     lat: 27.9504, lng: -82.4589, address: '711 N Franklin St, Tampa, FL 33602', facing: null, feeUSD: 0, isFree: true,
     feeNote: 'Marquee from the sidewalk is free; interior is tour-ticket or movie/event-ticket only', driveMinutes: 14,
@@ -199,6 +208,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'ybor-city', name: 'Ybor City Historic District', category: 'architecture', city: 'Tampa', region: 'tampa-bay',
+    petFriendly: true, petNote: 'leashed on the 7th Avenue sidewalks',
     bestFor: ['historic brick architecture', 'empty streets', 'social-club facades'], bestLight: ['morning-golden', 'open-shade'],
     lat: 27.9606, lng: -82.4376, address: 'E 7th Ave at 16th St, Ybor City, Tampa, FL 33605', facing: null, feeUSD: 0, isFree: true, driveMinutes: 16,
     hours: days(H24), phone: null,
@@ -218,6 +228,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'mbird-armature-works', name: 'M.Bird (Armature Works rooftop)', category: 'rooftop', city: 'Tampa', region: 'tampa-bay',
+    petFriendly: false, petNote: 'service animals only upstairs; the patio below takes dogs',
     bestFor: ['rooftop skyline', 'river views'], bestLight: ['sunset', 'blue-hour'],
     lat: 27.9612, lng: -82.4640, address: 'Armature Works, 1910 N Ola Ave, Tampa, FL 33602', facing: 162, feeUSD: 0, isFree: true,
     feeNote: 'Free entry (buy a drink); 21+ after 6pm Thu–Sat', driveMinutes: 15,
@@ -240,6 +251,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'beacon-jw-marriott', name: 'Beacon (JW Marriott, 27th floor)', category: 'rooftop', city: 'Tampa', region: 'tampa-bay',
+    petFriendly: false, petNote: 'service animals only; the JW Marriott takes no pets',
     bestFor: ['highest rooftop skyline', '270° bay views'], bestLight: ['sunset', 'blue-hour'],
     lat: 27.9407, lng: -82.4545, address: 'JW Marriott Tampa Water Street, 510 Water St, Tampa, FL 33602', facing: 315, feeUSD: 0, isFree: true,
     feeNote: 'Free entry; dress code enforced', driveMinutes: 15,
@@ -258,6 +270,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'azure-tampa-edition', name: 'Azure at The Tampa EDITION', category: 'rooftop', city: 'Tampa', region: 'tampa-bay',
+    petFriendly: false, petNote: 'service animals only; hotel guests may bring a small dog',
     bestFor: ['rooftop skyline', 'poolside city views'], bestLight: ['sunset', 'blue-hour'],
     lat: 27.9437, lng: -82.4511, address: 'The Tampa EDITION, 500 Channelside Dr, Tampa, FL 33602', facing: 315, feeUSD: 0, isFree: true, feeNote: 'Open to non-hotel guests; reservations recommended near sunset', driveMinutes: 15,
     hours: days(open(iv(clk('11:00'), clk('23:00'))), { fri: open(iv(clk('11:00'), clk('26:00'))), sat: open(iv(clk('11:00'), clk('26:00'))) }), phone: '813-771-8022',
@@ -274,6 +287,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'edge-epicurean', name: 'EDGE Rooftop (Epicurean Hotel)', category: 'rooftop', city: 'Tampa', region: 'tampa-bay',
+    petFriendly: false, petNote: 'service animals only; the Epicurean takes no pets',
     bestFor: ['smaller SoHo rooftop skyline'], bestLight: ['sunset', 'blue-hour'],
     lat: 27.9382, lng: -82.4838, address: 'Epicurean Hotel, 1207 S Howard Ave, Tampa, FL 33606', facing: null, feeUSD: 0, isFree: true, feeNote: 'Free entry; buy a drink', driveMinutes: 10,
     hours: days({ open: 'call-ahead', note: "Hours vary seasonally; Yelp lists Tue–Thu 5pm–12a, Fri–Sat 5pm–1a, closed Sun–Mon. Call to confirm." }), phone: '813-999-8700',
@@ -291,6 +305,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'lettuce-lake-park', name: 'Lettuce Lake Park', category: 'nature', city: 'Tampa', region: 'tampa-bay',
+    petFriendly: true, petNote: 'leashed on the trails, but never on the boardwalk or tower',
     bestFor: ['cypress swamp', 'wildlife', 'boardwalk'], bestLight: ['morning-golden', 'sunrise'],
     lat: 28.0699, lng: -82.3701, address: '6920 E Fletcher Ave, Tampa, FL 33637', facing: null, feeUSD: 2, isFree: false, feeNote: '$2/car', driveMinutes: 25,
     hours: days(open(iv(clk('08:00'), clk('18:00')))), phone: null,
@@ -313,6 +328,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'usf-botanical-gardens', name: 'USF Botanical Gardens', category: 'gardens', city: 'Tampa', region: 'tampa-bay',
+    petFriendly: true, petNote: 'leashed and well-behaved, anywhere in the gardens',
     bestFor: ['gardens', 'portraits'], bestLight: ['evening-golden', 'morning-golden'],
     lat: 28.0610, lng: -82.4255, address: '12210 USF Pine Dr, Tampa, FL 33612', facing: null, feeUSD: 5, isFree: false, feeNote: '$5 general; free with USF ID; free Tuesdays', driveMinutes: 22,
     hours: days(open(iv(clk('09:00'), clk('16:00'))), { mon: CLOSED }), phone: '813-974-2329',
@@ -331,6 +347,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'sunken-gardens', name: 'Sunken Gardens', category: 'gardens', city: 'St. Petersburg', region: 'tampa-bay',
+    petFriendly: false, petNote: 'service animals only; no pets or comfort animals',
     bestFor: ['lush gardens', 'flamingos', 'portraits'], bestLight: ['open-shade', 'daytime'],
     lat: 27.7900, lng: -82.6383, address: '1825 4th St N, St. Petersburg, FL 33704', facing: null, feeUSD: 18, isFree: false, feeNote: '$18 adult; free parking', driveMinutes: 35,
     hours: days(open(iv(clk('10:00'), clk('16:30'))), { sun: open(iv(clk('12:00'), clk('16:30'))) }), phone: null,
@@ -351,6 +368,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'fort-de-soto-park', name: 'Fort De Soto Park', category: 'beach', city: 'Tierra Verde', region: 'tampa-bay',
+    petFriendly: true, petNote: 'leashed; off-leash Paw Playground dog beach on site',
     darkSky: true, // darkest accessible sky in the bay area — the local astro spot
     bestFor: ['beaches', 'Skyway views', 'North Beach sunset'], bestLight: ['sunset', 'sunrise', 'night-astro'],
     lat: 27.6396, lng: -82.7253, address: '3500 Pinellas Bayway S, Tierra Verde, FL 33715', facing: 270, feeUSD: 6, isFree: false, feeNote: '$6/car (since 2025) + Pinellas Bayway toll', driveMinutes: 50,
@@ -374,6 +392,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'honeymoon-island-sp', name: 'Honeymoon Island State Park', category: 'beach', city: 'Dunedin', region: 'tampa-bay',
+    petFriendly: true, petNote: 'leashed on the trails and the south-end pet beach only',
     bestFor: ['driftwood / dead-tree area', 'Gulf sunset', 'long exposures'], bestLight: ['sunset', 'evening-golden'],
     lat: 28.0745, lng: -82.8340, address: '1 Causeway Blvd, Dunedin, FL 34698', facing: 270, feeUSD: 8, isFree: false, feeNote: '$8/car, $4 single-occupant', driveMinutes: 45,
     hours: days(open(iv(clk('08:00'), ss()))), phone: null, tideStationId: '8726724',
@@ -395,6 +414,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'sunshine-skyway-fishing-piers', name: 'Sunshine Skyway Fishing Piers (South)', category: 'nature', city: 'Palmetto', region: 'tampa-bay',
+    petFriendly: false, petNote: 'no pets on the piers; service animals only',
     bestFor: ['bridge', 'fishing', 'water'], bestLight: ['sunrise', 'sunset'],
     lat: 27.6210, lng: -82.6562, address: 'South Skyway Fishing Pier, 7901 US-19, Palmetto, FL 34221', facing: null, feeUSD: 8, isFree: false, feeNote: '$4/car + $4/person + Skyway toll', driveMinutes: 45,
     hours: days(H24), phone: null,
@@ -412,6 +432,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'st-pete-pier', name: 'St. Pete Pier', category: 'skyline', city: 'St. Petersburg', region: 'tampa-bay',
+    petFriendly: true, petNote: 'leashed; not on Spa Beach or the splash pad',
     bestFor: ['skyline', 'modern design', 'Bending Arc sculpture'], bestLight: ['sunrise', 'sunset', 'blue-hour'],
     lat: 27.7707, lng: -82.6198, address: 'St. Pete Pier, 800 2nd Ave NE, St. Petersburg, FL 33701', facing: 100, feeUSD: 0, isFree: true, feeNote: 'Free to walk; paid parking ~$2.50/hr', driveMinutes: 38,
     hours: days(open(iv(sr(-30), clk('23:00')))), phone: null,
@@ -434,6 +455,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'vinoy-park', name: 'Vinoy Park & North Straub Park', category: 'skyline', city: 'St. Petersburg', region: 'tampa-bay',
+    petFriendly: true, petNote: 'leashed; fenced dog areas in the park',
     bestFor: ['waterfront', 'palms', 'sunrise over the bay'], bestLight: ['sunrise', 'blue-hour'],
     lat: 27.7793, lng: -82.6268, address: 'Vinoy Park, 701 Bayshore Dr NE, St. Petersburg, FL 33701', facing: 90, feeUSD: 0, isFree: true, driveMinutes: 38,
     hours: days(open(iv(sr(-30), clk('23:00')))), phone: null,
@@ -451,6 +473,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'dali-museum', name: 'The Dalí Museum', category: 'architecture', city: 'St. Petersburg', region: 'tampa-bay',
+    petFriendly: false, petNote: 'service animals only; no comfort animals',
     bestFor: ["'Enigma' geodesic glass", 'waterfront architecture'], bestLight: ['evening-golden', 'blue-hour'],
     lat: 27.7660, lng: -82.6314, address: 'The Dalí Museum, 1 Dali Blvd, St. Petersburg, FL 33701', facing: null, feeUSD: 0, isFree: true, feeNote: 'Exterior + grounds free; interior ticketed', driveMinutes: 38,
     hours: days(H24), phone: null,
@@ -471,6 +494,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'weedon-island-preserve', name: 'Weedon Island Preserve', category: 'nature', city: 'St. Petersburg', region: 'tampa-bay',
+    petFriendly: false, petNote: 'no pets at all, since it is a preserve not a park',
     bestFor: ['boardwalks', 'observation tower', 'birds'], bestLight: ['sunrise', 'morning-golden'],
     lat: 27.8476, lng: -82.6012, address: '1800 Weedon Dr NE, St. Petersburg, FL 33702', facing: null, feeUSD: 0, isFree: true, driveMinutes: 30,
     hours: days(open(iv(clk('07:00'), ss(-15)))), phone: null,
@@ -492,6 +516,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'cathedral-st-peter-episcopal', name: 'Cathedral Church of St. Peter', category: 'interiors', city: 'St. Petersburg', region: 'tampa-bay',
+    petFriendly: false, petNote: 'service animals only inside',
     bestFor: ['blonde-brick exterior', 'scissor-truss ceiling', 'stained glass'], bestLight: ['daytime'],
     lat: 27.7733, lng: -82.6389, address: '140 4th St N, St. Petersburg, FL 33701', facing: null, feeUSD: 0, isFree: true, driveMinutes: 36,
     hours: days({ open: 'call-ahead', note: 'Office Mon–Thu 9am–4pm. Best chance to see the interior is around service times or by calling the office.' }), phone: '727-822-4173',
@@ -513,6 +538,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'cathedral-st-jude-apostle', name: 'Cathedral of St. Jude the Apostle', category: 'interiors', city: 'St. Petersburg', region: 'tampa-bay',
+    petFriendly: false, petNote: 'service animals only inside',
     bestFor: ['cathedral interior'], bestLight: ['daytime'],
     lat: 27.7778, lng: -82.7137, address: '5815 5th Ave N, St. Petersburg, FL 33710', facing: null, feeUSD: 0, isFree: true, driveMinutes: 42,
     hours: days({ open: 'call-ahead', note: 'Interior most reliably accessible around Mass/adoration times. Thu adoration 11:30am–6:30pm is a long reliable window.' }), phone: '727-347-9702',
@@ -534,6 +560,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'st-paul-ame', name: 'St. Paul AME Church (historic — exterior only)', category: 'architecture', city: 'Tampa', region: 'tampa-bay',
+    petFriendly: true, petNote: 'leashed on the public sidewalk; the shot is exterior anyway',
     bestFor: ['red-brick Gothic Revival exterior'], bestLight: ['morning-golden', 'evening-golden'],
     lat: 27.9536, lng: -82.4584, address: '506 E Harrison St, Tampa, FL 33602', facing: null, feeUSD: 0, isFree: true, driveMinutes: 14,
     hours: days(H24), phone: null,
@@ -551,6 +578,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'tampa-murals', name: 'Tampa Murals (Heights / Florida Ave)', category: 'nature', city: 'Tampa', region: 'tampa-bay',
+    petFriendly: true, petNote: 'leashed on the sidewalks',
     bestFor: ['street art', 'lettering murals', 'walkable mural tour'], bestLight: ['morning-golden', 'open-shade'],
     lat: 27.9560, lng: -82.4596, address: '1102 N Florida Ave, Tampa, FL 33602', facing: null, feeUSD: 0, isFree: true, driveMinutes: 14,
     hours: days(H24), phone: null,
@@ -568,6 +596,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'stpete-shine-murals', name: 'St. Petersburg Murals (SHINE district)', category: 'nature', city: 'St. Petersburg', region: 'tampa-bay',
+    petFriendly: true, petNote: 'leashed on the sidewalks, 6 ft or shorter',
     bestFor: ['street art', 'walkable mural districts'], bestLight: ['morning-golden', 'open-shade'],
     lat: 27.7663, lng: -82.6629, address: 'ArtsXchange, 515 22nd St S, St. Petersburg, FL 33712', facing: null, feeUSD: 0, isFree: true, driveMinutes: 36,
     hours: days(H24), phone: null,
@@ -585,6 +614,7 @@ export const SPOTS: Spot[] = [
   },
   {
     id: 'fred-howard-park', name: 'Fred Howard Park', category: 'beach', city: 'Tarpon Springs', region: 'tampa-bay',
+    petFriendly: true, petNote: 'leashed in the park and on the causeway, never on the beach',
     bestFor: ['causeway beach', 'Gulf sunset', 'kites + wind'], bestLight: ['sunset', 'evening-golden'],
     lat: 28.1531, lng: -82.8010, address: '1700 Sunset Dr, Tarpon Springs, FL 34689', facing: 270, feeUSD: 0, isFree: true, driveMinutes: 55,
     hours: days(open(iv(clk('07:00'), ss()))), phone: null, tideStationId: '8726724',

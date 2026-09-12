@@ -5,6 +5,7 @@ import {
   IconCamera, IconAperture, IconDeviceCctv, IconParking, IconBath, IconUsers,
   IconSquare, IconSquareCheck, IconStar, IconCircleCheck, IconNavigation,
   IconExternalLink, IconPhone, IconCalendarEvent, IconMapPin, IconShare2, IconCheck,
+  IconPaw, IconPawOff,
 } from '@tabler/icons-react'
 import SpotHero from './SpotHero'
 import CommunityShots from './CommunityShots'
@@ -130,6 +131,13 @@ export default function SpotDetailScreen() {
         <span className={`fact ${openGood ? 'good' : 'warn'}`}><IconClock size={15} /> {openLabel}</span>
         <span className="fact"><IconCar size={15} /> {fmtDrive(drive)} · {fmtDistance(miles, units)}</span>
         {spot.facing != null && <span className="fact"><IconCompass size={15} /> {compass(spot.facing)}</span>}
+        {/* The rule, not the bit: "leashed, never on the beach" and a flat yes
+            filter identically but plan very differently. */}
+        {spot.petNote && (
+          <span className={`fact ${spot.petFriendly ? 'good' : ''}`}>
+            {spot.petFriendly ? <IconPaw size={15} /> : <IconPawOff size={15} />} {spot.petNote}
+          </span>
+        )}
       </div>
 
       <div style={{ marginTop: 12 }}>
