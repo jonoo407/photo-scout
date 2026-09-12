@@ -16,7 +16,8 @@
 
 ## Tester feedback → this file
 
-Testers send from **You → Tester feedback** (`/you/feedback`). Each report lands
+Reports come from **You → Send feedback** and **Settings → Send feedback**
+(`/you/feedback`), plus the once-a-month Today card (V2, shipped 2026-09-12). Each report lands
 in Supabase `feedback` (insert-only RLS) **and** is emailed to Jon by the
 `feedback_notify` trigger → `/api/feedback-hook`. The row is the durable copy;
 email is just so nobody has to remember to look.
@@ -32,22 +33,18 @@ update feedback set status = 'triaged' where id in (...);
 
 Every report carries the **build number** it came from (`app_version`), so
 "it looks the same to me" is answerable. Statuses: `new → triaged → shipped |
-wontfix`. This replaces nothing — V2 is still the real in-app feedback feature;
-this is the TestFlight-phase stand-in.
+wontfix`.
 
 ## Index — every open item at a glance
 
 | ID  | Item                                    | Who | Depends on | Size |
 |-----|-----------------------------------------|-----|------------|------|
-| V2  | In-app feedback capture                 | 🤖  | —          | S    |
-| V3  | Pet-friendly data pass                  | 🤖  | —          | S    |
 | V4  | Auth-gate + guest accounts — DECISION   | 🤝  | —          | M    |
 | V5  | Referral mechanics                      | 🤖  | V4         | M    |
 | V6  | City ambassadors — product mechanics    | 🤖  | V5, J4     | M    |
 | V7  | Spot discussion threads                 | 🤖  | —          | L    |
 | V8  | Photo critiques                         | 🤖  | —          | L    |
 | V9  | City statuses / titles                  | 🤖  | V8         | M    |
-| V10 | Storage janitor (deleted-account files) | 🤖  | —          | S    |
 | V11 | Playwright e2e flows + axe a11y         | 🤖  | —          | M    |
 | V12 | Hunt geo anti-spoof hardening           | 🤖  | —          | M    |
 | V13 | Scale-tier work (SCALING.md)            | 🤖  | city #3    | L    |
@@ -57,7 +54,7 @@ this is the TestFlight-phase stand-in.
 | V17 | st-paul-ame photo (75/75 coverage)      | 🤖  | —          | XS   |
 | V19 | Offline: download a city (tiles + data) | 🤖  | —          | L    |
 | V20 | App Store screenshots (generated)       | 🤖  | —          | S    |
-| V21 | Supabase advisor hardening + RLS suite  | 🤖  | —          | M    |
+| V22 | RLS policy test suite                   | 🤖  | branch DB  | M    |
 | J2  | Allow push on a real device             | 🧑  | —          | XS   |
 | J3  | iOS App Store (engineering done; metadata + submit left) | 🤝 | — | L |
 | J4  | Ambassador business deals               | 🧑  | —          | —    |
@@ -65,18 +62,18 @@ this is the TestFlight-phase stand-in.
 
 ### Priority order
 
-**Ship-to-App-Store is the long pole**, so it leads. Everything else reaches
-users as a web deploy the moment it's merged; only the store has a review queue.
+**App Store submission is paused** (Jon, 2026-09-12) — not abandoned, just not
+now. J3 and V20 stay filed with everything they need; see J3 for the exact
+state of the listing. Everything else reaches users as a web deploy the moment
+it merges.
 
-1. **V20 — screenshots**, then the remaining store metadata via a CI
-   `workflow_dispatch` job (the App Store Connect key already lives in Actions
-   secrets — no key handoff needed), then Jon presses submit. J3's engineering
-   is done: phase 4 (native camera + APNs push) shipped 2026-07-29, and the
-   wrapper's alerts registration was verified against production 2026-08-31.
-2. **V2 → V3** — product depth; both small, both unblocked.
-3. **Decide V4**, which unblocks the V5 → V6 growth chain.
+1. **Decide V4**, which is the only thing blocking the V5 → V6 growth chain
+   and has been waiting longest.
+2. **V15 — golden-hour reminders**, the last small unblocked feature.
+3. **V7 / V8** when there is appetite for a big one; V8 also needs the
+   pricing call.
 
-V10 and V17 are good gap-fillers any time. V11 is worth pulling forward if the
+V17 and V22 are good gap-fillers any time. V11 is worth pulling forward if the
 report/block flows are going to keep changing.
 
 ---
@@ -142,32 +139,6 @@ so rev-share can be computed; admin mapping data-driven like REGIONS.
 
 ## Product & data
 
-### V2 — In-app feedback capture (was #14/B1) 🤖
-**Re-scoped 2026-07-29 — most of this already shipped** with the TestFlight
-tester-feedback button (2026-07-28). Done: the insert-only `feedback` table
-with `spot_suggestions`-style RLS and no public reads; the form itself
-(`/you/feedback`, kind + message + optional email, build number captured
-automatically); the email leg via `feedback_notify` → `/api/feedback-hook`;
-and the SQL review loop, documented at the top of this file.
-
-Actually remaining, and it is small:
-- **(a) Placement.** The entry point sits on **You**, framed as a
-  TestFlight-phase thing. Decide whether it becomes a permanent Settings row,
-  stays on You, or both — then reword it for real users rather than testers.
-- **(b) The nudge.** Not built. One dismissible Today card, max once per 30
-  days per device (`feedbackPromptAt` in the persisted store), never a modal,
-  never during onboarding, only after 3+ sessions; submit AND dismiss both
-  reset the clock.
-
-Size is now **XS–S**, not S.
-
-### V3 — Pet-friendly data pass (was B16) 🤖
-The feature is one dataset from shipping: `petFriendly` field, Explore filter
-chip, and UI all exist and are tested, but zero spots have data (chip hides
-behind `hasPetData`). Verify all ~75 spots per the two-source rule
-(`docs/ADDING_SPOTS.md`): true/false + short note ("leashed only, not on the
-beach"), shown as a fact chip on detail.
-
 ### V19 — Offline: download a city 🤖
 "You should be able to download a location, like San Francisco" (Jon,
 2026-07-28) — the field case is standing at a spot with one bar, or none.
@@ -204,22 +175,36 @@ first — may be a mode of the existing cron, not a new system.
 OSM building-height ray-march for when light actually clears the skyline —
 the v1.1 signature feature. Big; deserves a dedicated session.
 
-### V17 — st-paul-ame photo (was B2) 🤖
-The one spot without a license-clean photo (Commons re-verified 2026-07-06:
-PDFs/audio only). Exhaust real sources first (Commons variants, Openverse,
-Flickr CC); only then consider a clearly-labeled AI placeholder. Fallback
-today is the Your-shots strip. Keep `fix-media-hashes` + `verify-media-urls`
-green after any photo-data touch.
+### V17 — st-paul-ame photo (was B2) 🤖 · BLOCKED on a decision, not on effort
+The one spot of 75 without a license-clean photo. Sources re-exhausted
+2026-09-12, and the answer is that no freely-licensed photograph of THIS
+church appears to exist:
+- **Wikimedia Commons** — 4 keyword searches + 3 category sweeps
+  (Churches in Tampa / Tampa, Florida / AME churches in Florida). Commons has
+  ~30 Florida AME churches and not this one; the St. Paul AMEs it does have
+  are Apalachicola, Chaires and Midway. Tampa hits are PDFs and one Clinton
+  speech recording, as found in 2026-07.
+- **Flickr, CC-filtered** — zero results. The one Flickr photo of the church
+  that exists (`/photos/25229906@N00/14808805537`) is **All Rights Reserved**.
+- **Openverse** — API returned 504 on five attempts across the session.
+- **UNF George Lansing Taylor collection** — has a good photo; rights
+  statement is `rightsstatements.org/vocab/InC` (In Copyright).
 
-## Platform & quality
+Note the media tests pin `sourceUrl` to wikimedia.org or flickr.com, so any
+other institutional source (Florida Memory, Burgert Brothers via THPL, Tampa
+Bay History Center) needs that allowlist widened as part of the same change.
 
-### V10 — Storage janitor for deleted-account files 🤖
-Account deletion keeps ≥3-ratings-avg≥4.0 photos (anonymized) but the
-below-bar FILES linger in the bucket (DB rows cascade; storage.objects can't
-be SQL-deleted — Storage API only, and the owner's token is gone). Ship a
-service-role Edge Function janitor (deployable via Supabase MCP; the service
-key never has to leave the platform).
-
+The app degrades correctly today — verified 2026-09-12 at 390px: the hero
+shows the "Add your own photo from this spot" invitation, no broken image, no
+console errors. So this costs nothing until someone decides between:
+  **(a)** ask Robby Virus (Flickr) or UNF for a licence — an email Jon sends
+  or approves; **(b)** photograph it — Jon is in Tampa and it is an exterior
+  on a public sidewalk, 0.4 mi from home; **(c)** widen the source allowlist
+  to a public-domain institutional archive and use a historic image, clearly
+  dated; **(d)** leave the Your-shots invitation, which is honest and already
+  works. An AI-generated image of a real, named, historic Black church is
+  **not** on this list without an explicit decision — it would be a fabricated
+  depiction of a landmark, and "clearly labelled" does not fix that.
 ### V11 — Playwright e2e flows + axe a11y (was B4) 🤖
 `e2e/visual.spec.ts` (screens) exists; no flow suite yet. Add core-flow e2e +
 axe checks at iPhone viewport. **Worth pulling forward**: V1's report / block /
@@ -243,18 +228,16 @@ Do it alongside V11 so the flows and the screenshots share one driver.
 
 Uploading them to App Store Connect needs an ASC API key (see J3).
 
-### V21 — Supabase advisor hardening + RLS test suite 🤖
-The 2026-08-31 security-advisor pass flagged: trigger-only `SECURITY DEFINER`
-functions (`feedback_notify`, `photo_report_notify`, `enforce_photo_quota`,
-`prune_departing_photos`, `notify_shortlist_response`, `ensure_photographer_ref`)
-executable by `anon`/`authenticated` over REST — revoke EXECUTE on them; and
-`photo_quota` has a mutable `search_path` — pin it. Nothing exploitable found
-(everything keys off `auth.uid()` or a shared secret), but it's cheap to close.
-Pair with the deferred §3 RLS suite from `docs/TEST_COVERAGE.md`: 14 policies +
-7 definer functions are verified only by comments in `supabase/schema.sql`.
-Needs a Supabase branch DB or local stack and its own CI job gated on
-`supabase/**`. This is the one coverage gap whose failure mode is a data
-breach rather than a broken screen.
+### V22 — RLS policy test suite 🤖 · needs a branch DB
+The deferred §3 of `docs/TEST_COVERAGE.md`: 14 policies + 7 definer functions
+are verified only by comments in `supabase/schema.sql`. Needs a Supabase
+branch DB or local stack and its own CI job gated on `supabase/**`.
+
+Split out of V21 when the advisor half shipped (2026-09-12). This is the
+remaining coverage gap whose failure mode is a data breach rather than a
+broken screen. The `as_level` parameter on the Supabase MCP read/write tools
+can exercise a policy as `anon` or `authenticated` without a branch, which is
+worth trying before standing up a whole stack.
 
 ### V13 — Scale-tier work (was B9) 🤖 · conditional on city #3
 Phased plan in `docs/SCALING.md`: spot-index for `useAllSpots`, Worker cron
@@ -307,17 +290,26 @@ Cloudflare DNS record and two Worker secrets it had the token to do itself.)*
     wrappers. Using native plugins rather than web APIs for camera/location/push
     is what makes the difference at review. Account deletion (also required)
     already ships.
-  - **Store metadata — mostly NOT Jon's, corrected 2026-07-29.** App Store
-    Connect credentials live only in GitHub Actions secrets
-    (`APP_STORE_CONNECT_ISSUER_ID` / `_KEY_ID` / `_PRIVATE_KEY`), which are
-    write-only from outside CI — that is the *only* thing blocking Claude here.
-    **The unblock is one action: put an ASC API key (.p8 + issuer/key id) where
-    Claude can read it.** With that, Claude can fill Test Information, set
-    privacy nutrition labels (location, photos, user content) and upload
-    screenshots via the App Store Connect API. Screenshots themselves need no
-    key at all — see **V20**, they are generated with Playwright.
-    Genuinely Jon's regardless: pressing **submit** on the review, and any
-    judgement call about what the listing should say.
+  - **Store metadata is NOT blocked — that claim was wrong, corrected
+    2026-09-11.** This entry used to say the App Store Connect key existed
+    only in GitHub Actions secrets and that the unblock was Jon handing one
+    over. It is readable locally at `~/.appstoreconnect/` (config.json with
+    issuer/key/team/app ids, the .p8 beside it, plus a pre-made App Store
+    review demo account), and it was used against the live API on 2026-09-11.
+    No key handoff is needed and no CI `workflow_dispatch` job is needed.
+    **Verified state of the 1.0 listing** (PREPARE_FOR_SUBMISSION): description,
+    keywords, promotional text, subtitle, support URL, marketing URL and
+    privacy-policy URL are all null; primary category null; every age-rating
+    field null; zero screenshot sets; no App Store review detail; and build 17
+    is VALID on TestFlight but **not attached to the version**. Also: the
+    Privacy Policy and Support URLs Apple requires do not exist —
+    shootvantage.com/privacy and /support return the SPA shell (byte-identical
+    to /), so a reviewer clicking them lands on the app. Note `wrangler.jsonc`
+    uses `not_found_handling: single-page-application`, so a file at
+    `public/privacy.html` serves at `/privacy.html`; clean URLs need
+    `public/privacy/index.html` or an explicit Worker route.
+    Genuinely Jon's: pressing **submit**, and the judgement calls about what
+    the listing should say.
 - **J4 — Ambassador business side** (was A6): recruit one pro/influencer per
   city; agree rev-share terms (percentage, payout, contract). Mechanics = V6.
 - **J5 — Supabase billing / storage** (was A5 + storage note): free plan has a
