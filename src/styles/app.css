@@ -286,3 +286,32 @@ textarea.fbfield { resize: vertical; min-height: 120px; }
    A button that reads as a link — the app has no other <a>-styled control. */
 .linky { appearance: none; border: 0; background: none; padding: 0; cursor: pointer; font: inherit; font-size: 12px; color: var(--terracotta); text-decoration: underline; }
 .linky:disabled { color: var(--ink-3); cursor: default; text-decoration: none; }
+
+/* ---- Sign-in gate (2026-09-14): LoginScreen, NewPasswordScreen, splash ---- */
+.login { min-height: 100%; display: flex; flex-direction: column; background: var(--bg); }
+.login.splash { align-items: center; justify-content: center; min-height: 100vh; }
+.login-hero { position: relative; height: 34vh; min-height: 210px; max-height: 330px; overflow: hidden; background: var(--surface-2); }
+.login-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* Darken the top for the wordmark, dissolve the bottom into the page. */
+.login-hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(46, 32, 20, 0.28), rgba(46, 32, 20, 0) 38%, var(--bg) 100%); }
+.login-brand { position: absolute; z-index: 1; top: calc(var(--safe-top) + 14px); left: 20px; margin: 0; font-family: var(--font-serif); font-size: 15px; font-weight: 500; letter-spacing: 0.24em; color: #fff3e6; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4); }
+.login-brand.ink { position: static; color: var(--terracotta); text-shadow: none; margin-bottom: 14px; }
+.login-body { padding: 4px 20px calc(var(--safe-bottom) + 28px); display: flex; flex-direction: column; gap: 12px; }
+.login-body h1 { font-size: 30px; line-height: 1.12; margin: 0; }
+.login-sub { margin: 0 0 2px; font-size: 14px; color: var(--ink-2); }
+.login-solo { padding-top: calc(var(--safe-top) + 48px); }
+.cta.google { background: var(--surface); color: var(--ink); border: 0.5px solid var(--line-strong); }
+.login-or { display: flex; align-items: center; gap: 10px; }
+.login-or > span:first-child, .login-or > span:last-child { flex: 1; height: 0.5px; background: var(--line-strong); }
+.login-form { display: flex; flex-direction: column; gap: 8px; }
+/* 16px, not smaller: iOS Safari zooms the page on focus below that. */
+.login-form .field { width: 100%; font: inherit; font-size: 16px; padding: 12px 13px; border-radius: var(--radius-sm); border: 0.5px solid var(--line-strong); background: var(--surface); color: var(--ink); }
+.login-form .field::placeholder { color: var(--ink-3); }
+.login-error { margin: 0; font-size: 13px; color: var(--skip-ink); }
+.login-note { display: flex; gap: 8px; align-items: flex-start; padding: 12px; border-radius: var(--radius-sm); background: var(--surface-2); font-size: 14px; line-height: 1.5; }
+.login-note.warn { background: var(--skip-bg); color: var(--skip-ink); }
+.login-note .linky { font-size: 14px; }
+.login-links { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+.login-links .linky { font-size: 13px; }
+.login-keeps { margin-top: 6px; }
+.login-keeps .row { padding: 8px 12px; }

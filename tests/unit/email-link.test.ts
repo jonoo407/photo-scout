@@ -14,7 +14,10 @@ describe('parseEmailLink', () => {
     expect(parseEmailLink('')).toBeNull()
     expect(parseEmailLink('?code=xyz')).toBeNull()
     expect(parseEmailLink('?token_hash=abc')).toBeNull()
-    expect(parseEmailLink('?token_hash=abc&type=recovery')).toBeNull()
+    expect(parseEmailLink('?token_hash=abc&type=signup')).toBeNull()
+  })
+  it('accepts a password-reset link (type=recovery) — added with the sign-in gate, 2026-09-14', () => {
+    expect(parseEmailLink('?token_hash=abc&type=recovery')).toEqual({ tokenHash: 'abc', type: 'recovery' })
   })
 })
 
@@ -50,6 +53,14 @@ describe('consumeEmailLink', () => {
     expect(searchAtVerify).toBe('')
     expect(window.location.search).toBe('')
     expect(window.location.hash).toBe('#/')
+  })
+
+  it('verifies a reset link as a recovery and says so, so the app can ask for the new password', async () => {
+    window.history.replaceState(null, '', '/?token_hash=tok-r&type=recovery#/')
+    verifyOtp.mockResolvedValue({ data: { session: {} }, error: null })
+    const result = await consumeEmailLink(async () => client)
+    expect(verifyOtp).toHaveBeenCalledWith({ token_hash: 'tok-r', type: 'recovery' })
+    expect(result).toBe('recovery')
   })
 
   it('reports a friendly error when the link is used up or expired', async () => {

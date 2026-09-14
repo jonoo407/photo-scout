@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { IconChevronRight, IconUser, IconMessagePlus } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
 import { useAuth } from '../../auth/useAuth'
-import { authAvailable } from '../../auth/supabase'
 import { pointsTotal, type PointEvent } from '../../craft/points'
 import { fetchMyPointEvents } from '../../craft/points-api'
 import { tierProgress } from '../../craft/tiers'
@@ -81,18 +80,6 @@ export default function YouScreen() {
         </div>
         <div style={{ minWidth: 0 }}>
           <h2 style={{ fontSize: 20 }}>{user ? user.email?.split('@')[0] ?? 'You' : 'You'}</h2>
-          {!user && authAvailable() && (
-            <p className="small muted" style={{ margin: '3px 0 0' }}>
-              Browsing as a guest —{' '}
-              <button
-                onClick={() => nav('/settings')}
-                style={{ appearance: 'none', border: 0, background: 'none', padding: 0, cursor: 'pointer', font: 'inherit', color: 'var(--terracotta)', textDecoration: 'underline' }}
-              >
-                sign in
-              </button>{' '}
-              to sync and keep your points
-            </p>
-          )}
         </div>
       </div>
 

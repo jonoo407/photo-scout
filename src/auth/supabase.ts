@@ -2,11 +2,13 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 
 /* Supabase client — env-gated and lazy.
 
-   The app is fully usable signed out; auth exists only to sync saved spots
-   across devices. Until VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY are set
-   (Cloudflare Pages env vars in prod, .env.local in dev) authAvailable() is
-   false, the Account UI never renders, and @supabase/supabase-js is never
-   even downloaded (dynamic import keeps it out of the main bundle).
+   Since 2026-09-14 the app requires sign-in (AuthGate around Layout); the
+   client list page is the one account-free surface. Until VITE_SUPABASE_URL /
+   VITE_SUPABASE_ANON_KEY are set (Cloudflare Workers BUILD vars in prod,
+   .env.development.local in dev, nothing in vitest) authAvailable() is false,
+   the gate passes everyone through, the Account UI never renders, and
+   @supabase/supabase-js is never even downloaded (dynamic import keeps it out
+   of the main bundle).
 
    The anon key is a publishable client key by design — data is protected by
    Postgres row-level security (see supabase/schema.sql), not key secrecy. */

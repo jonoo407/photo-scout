@@ -3,6 +3,7 @@ import { authAvailable, getSupabase } from './supabase'
 import { startSync, stopSync, pullAndMerge } from './sync'
 import { consumeEmailLink } from './email-link'
 import { passwordProblem } from './password-rules'
+import { rememberSignedIn } from './seen'
 
 export interface AuthUser {
   id: string
@@ -11,20 +12,29 @@ export interface AuthUser {
 
 interface AuthState {
   user: AuthUser | null
-  /** idle = not configured or not started; ready = listening; sent = magic link emailed */
+  /** idle = not configured or session not yet restored; ready = listening;
+      sending = a request is in flight; sent = a reset email went out. */
   status: 'idle' | 'ready' | 'sending' | 'sent' | 'error'
   errorMsg: string | null
-  /** A sign-in link from an email failed (expired/used) — shown on Today. */
+  /** A link from an email failed (expired/used) — shown wherever the person is. */
   linkError: string | null
-  signInWithEmail: (email: string) => Promise<void>
+  /** A password-reset link brought us here: ask for the new password before
+      anything else. */
+  recovery: boolean
   signInWithGoogle: () => Promise<void>
-  /* Password auth (2026-07-29). Magic links remain the default and the
-     recommended path; passwords exist because a link cannot be handed to
-     someone — an App Store reviewer, most concretely — and because some email
-     clients mangle or pre-consume links. */
+  /* Email + password (2026-07-29; the main road in since the sign-in gate,
+     2026-09-14). Google is one tap; otherwise an email and a password is the
+     whole form. There is no magic link any more — a link in an inbox is
+     neither "type it in" nor "go". */
   signUpWithPassword: (email: string, password: string) => Promise<void>
   signInWithPassword: (email: string, password: string) => Promise<void>
   sendPasswordReset: (email: string) => Promise<void>
+  /** After a reset link: set the new password, then leave recovery mode. */
+  updatePassword: (password: string) => Promise<void>
+  /** Leave recovery mode without setting a password (signed in here anyway). */
+  endRecovery: () => void
+  /** Back from a sent/error state to a usable form. */
+  clearStatus: () => void
   signOut: () => Promise<void>
   dismissLinkError: () => void
 }
@@ -40,6 +50,14 @@ function messageOf(e: unknown, fallback: string): string {
   return typeof m === 'string' && m ? m : fallback
 }
 
+/** signUp's "this email already has an account" reply. With email
+    confirmation off (it is — "type it in and go"), Supabase says so plainly
+    rather than returning a decoy user. */
+function isExistingAccount(e: unknown): boolean {
+  const code = (e as { code?: unknown } | null)?.code
+  return code === 'user_already_exists' || /already registered/i.test(messageOf(e, ''))
+}
+
 /* Session auth state (not persisted by us — supabase-js keeps its own session
    in localStorage and restores it on load). */
 export const useAuth = create<AuthState>((set) => ({
@@ -47,24 +65,10 @@ export const useAuth = create<AuthState>((set) => ({
   status: 'idle',
   errorMsg: null,
   linkError: null,
+  recovery: false,
   dismissLinkError: () => set({ linkError: null }),
-
-  signInWithEmail: async (email: string) => {
-    set({ status: 'sending', errorMsg: null })
-    try {
-      const supabase = await getSupabase()
-      // Redirect back to the app root; PKCE lands as ?code= which supabase-js
-      // exchanges automatically (detectSessionInUrl).
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: { emailRedirectTo: window.location.origin + window.location.pathname },
-      })
-      if (error) throw error
-      set({ status: 'sent' })
-    } catch (e) {
-      set({ status: 'error', errorMsg: messageOf(e, 'Could not send the link') })
-    }
-  },
+  clearStatus: () => set({ status: 'ready', errorMsg: null }),
+  endRecovery: () => set({ recovery: false, status: 'ready', errorMsg: null }),
 
   signInWithGoogle: async () => {
     set({ errorMsg: null })
@@ -74,7 +78,7 @@ export const useAuth = create<AuthState>((set) => ({
       // detectSessionInUrl exchanges automatically.
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: window.location.origin + window.location.pathname },
+        options: { redirectTo: redirectHere() },
       })
       if (error) throw error
     } catch (e) {
@@ -93,10 +97,22 @@ export const useAuth = create<AuthState>((set) => ({
       const { data, error } = await supabase.auth.signUp({
         email, password, options: { emailRedirectTo: redirectHere() },
       })
-      if (error) throw error
+      if (error) {
+        if (!isExistingAccount(error)) throw error
+        // The screen defaults to "create" on any device that has never signed
+        // in — which is also every returning person's new phone. An existing
+        // account is not a mistake to report; it is a sign-in to attempt.
+        const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+        if (!signInError) { set({ status: 'ready' }); return }
+        set({
+          status: 'error',
+          errorMsg: 'That email already has an account, and this isn’t its password. Try again, or tap Forgot password.',
+        })
+        return
+      }
       // With confirmations on, signUp returns no session — the user must click
-      // the emailed link. With them off, they are already in and
-      // onAuthStateChange takes over.
+      // the emailed link. With them off (the live setting), they are already
+      // in and onAuthStateChange takes over.
       set({ status: data?.session ? 'ready' : 'sent' })
     } catch (e) {
       set({ status: 'error', errorMsg: messageOf(e, 'Could not create the account') })
@@ -130,6 +146,8 @@ export const useAuth = create<AuthState>((set) => ({
     set({ status: 'sending', errorMsg: null })
     try {
       const supabase = await getSupabase()
+      // The email template links back with a token_hash (see email-link.ts),
+      // so redirectTo only matters for the legacy ConfirmationURL path.
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: redirectHere(),
       })
@@ -137,6 +155,20 @@ export const useAuth = create<AuthState>((set) => ({
       set({ status: 'sent' })
     } catch (e) {
       set({ status: 'error', errorMsg: messageOf(e, 'Could not send the reset email') })
+    }
+  },
+
+  updatePassword: async (password: string) => {
+    const problem = passwordProblem(password)
+    if (problem) { set({ status: 'error', errorMsg: problem }); return }
+    set({ status: 'sending', errorMsg: null })
+    try {
+      const supabase = await getSupabase()
+      const { error } = await supabase.auth.updateUser({ password })
+      if (error) throw error
+      set({ status: 'ready', recovery: false })
+    } catch (e) {
+      set({ status: 'error', errorMsg: messageOf(e, 'Could not save the password') })
     }
   },
 
@@ -153,13 +185,20 @@ export async function initAuth(): Promise<void> {
   if (!authAvailable()) return
   const supabase = await getSupabase()
 
-  supabase.auth.onAuthStateChange((_event, session) => {
+  supabase.auth.onAuthStateChange((event, session) => {
     const u = session?.user
     if (u) {
-      useAuth.setState({ user: { id: u.id, email: u.email ?? null }, status: 'ready' })
+      useAuth.setState({
+        user: { id: u.id, email: u.email ?? null },
+        status: 'ready',
+        // supabase-js raises this itself when a legacy ConfirmationURL-style
+        // reset lands via detectSessionInUrl.
+        ...(event === 'PASSWORD_RECOVERY' ? { recovery: true } : {}),
+      })
+      rememberSignedIn()
       void pullAndMerge(u.id).then(() => startSync(u.id))
     } else {
-      useAuth.setState({ user: null, status: 'ready' })
+      useAuth.setState({ user: null, status: 'ready', recovery: false })
       stopSync()
     }
     // Tidy the one-time ?code= from an OAuth redirect off the URL.
@@ -169,9 +208,12 @@ export async function initAuth(): Promise<void> {
   })
 
   // Email links land here with ?token_hash= (see email-link.ts) — verify it
-  // in THIS browser, whatever browser that is. Failures surface on Today.
+  // in THIS browser, whatever browser that is. Failures surface on the
+  // sign-in screen (signed out) or Today (signed in).
   const result = await consumeEmailLink(() => Promise.resolve(supabase))
-  if (result !== 'none' && result !== 'signed-in') {
+  if (result === 'recovery') {
+    useAuth.setState({ recovery: true })
+  } else if (result !== 'none' && result !== 'signed-in') {
     useAuth.setState({ linkError: result.error })
   }
 }

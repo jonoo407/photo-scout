@@ -36,6 +36,7 @@ vi.mock('../../src/auth/supabase', () => ({
 }))
 
 import { useAuth, initAuth } from '../../src/auth/useAuth'
+import { hasSignedInBefore } from '../../src/auth/seen'
 
 const USER = { id: '11111111-2222-4333-8444-555555555555', email: 'jon@example.test' }
 
@@ -45,7 +46,8 @@ beforeEach(() => {
   vi.clearAllMocks()
   mocks.authAvailableValue = true
   mocks.register = (cb) => { fire = cb }
-  useAuth.setState({ user: null, status: 'idle', errorMsg: null, linkError: null })
+  useAuth.setState({ user: null, status: 'idle', errorMsg: null, linkError: null, recovery: false })
+  localStorage.clear()
   window.history.replaceState(null, '', '/')
 })
 afterEach(() => { vi.unstubAllGlobals() })
@@ -71,6 +73,28 @@ describe('initAuth', () => {
     await vi.waitFor(() => expect(startSync).toHaveBeenCalledWith(USER.id))
     expect(pullAndMerge.mock.invocationCallOrder[0])
       .toBeLessThan(startSync.mock.invocationCallOrder[0])
+  })
+
+  it('remembers that this device has signed in, so the gate defaults to "sign in" next time', async () => {
+    expect(hasSignedInBefore()).toBe(false)
+    await initAuth()
+    fire('SIGNED_IN', { user: USER })
+    expect(hasSignedInBefore()).toBe(true)
+  })
+
+  it('a password-reset link opens the new-password screen', async () => {
+    window.history.replaceState(null, '', '/?token_hash=reset-1&type=recovery')
+    await initAuth()
+    expect(mocks.verifyOtp).toHaveBeenCalledWith({ token_hash: 'reset-1', type: 'recovery' })
+    expect(useAuth.getState().recovery).toBe(true)
+    expect(useAuth.getState().linkError).toBeNull()
+  })
+
+  it('so does a PASSWORD_RECOVERY event from supabase-js itself', async () => {
+    await initAuth()
+    fire('PASSWORD_RECOVERY', { user: USER })
+    expect(useAuth.getState().recovery).toBe(true)
+    expect(useAuth.getState().user).toEqual({ id: USER.id, email: USER.email })
   })
 
   it('tolerates a user row with no email', async () => {

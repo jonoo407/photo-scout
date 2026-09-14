@@ -39,8 +39,7 @@ wontfix`.
 
 | ID  | Item                                    | Who | Depends on | Size |
 |-----|-----------------------------------------|-----|------------|------|
-| V4  | Auth-gate + guest accounts — DECISION   | 🤝  | —          | M    |
-| V5  | Referral mechanics                      | 🤖  | V4         | M    |
+| V5  | Referral mechanics                      | 🤖  | —          | M    |
 | V6  | City ambassadors — product mechanics    | 🤖  | V5, J4     | M    |
 | V7  | Spot discussion threads                 | 🤖  | —          | L    |
 | V8  | Photo critiques                         | 🤖  | —          | L    |
@@ -67,8 +66,9 @@ now. J3 and V20 stay filed with everything they need; see J3 for the exact
 state of the listing. Everything else reaches users as a web deploy the moment
 it merges.
 
-1. **Decide V4**, which is the only thing blocking the V5 → V6 growth chain
-   and has been waiting longest.
+1. **V5 — referral mechanics**, unblocked now that sign-in is required
+   (V4 shipped 2026-09-14): attribution at account creation finally has an
+   account to attach to, and it opens the V6 ambassador chain.
 2. **V15 — golden-hour reminders**, the last small unblocked feature.
 3. **V7 / V8** when there is appetite for a big one; V8 also needs the
    pricing call.
@@ -117,14 +117,7 @@ visually distinct from the appointed ambassador (V6).
 
 ## Growth & gamification
 
-### V4 — Auth-gate + guest accounts — DECISION FIRST (was B3, design 2e/4b) 🤝
-Require sign-in up front: login screen w/ Google SSO (shipped 2026-07-29) or instant
-Supabase anonymous guest account (upgradeable later, data intact). ⚠️ This
-reverses the current local-first/no-account design and the onboarding flow —
-**Jon confirms the tradeoff before build**. Client `/l/` + `#/list` links must
-stay account-free. Design sheets 4b exist in `design-handoff/ia-redesign/`.
-
-### V5 — Referral mechanics (was B11, design 4a) 🤖 · needs V4
+### V5 — Referral mechanics (was B11, design 4a) 🤖
 Referral links, attribution recorded at account creation (`referrals` table),
 server-minted award (+200 `referral` constant already in points.ts — biggest
 single award). Also: invite-conversion awards for the B12 city-vote share
