@@ -4,6 +4,7 @@ import { startSync, stopSync, pullAndMerge } from './sync'
 import { consumeEmailLink } from './email-link'
 import { passwordProblem } from './password-rules'
 import { rememberSignedIn } from './seen'
+import { rememberReturn, restoreReturn } from './return-to'
 
 export interface AuthUser {
   id: string
@@ -18,15 +19,14 @@ interface AuthState {
   errorMsg: string | null
   /** A link from an email failed (expired/used) — shown wherever the person is. */
   linkError: string | null
-  /** A neutral one-off message for the sign-in screen (e.g. "account deleted"). */
+  /** A neutral one-off message, shown on Today (e.g. "account deleted"). */
   notice: string | null
   /** A password-reset link brought us here: ask for the new password before
       anything else. */
   recovery: boolean
   signInWithGoogle: () => Promise<void>
-  /* Email + password (2026-07-29; the main road in since the sign-in gate,
-     2026-09-14). Google is one tap; otherwise an email and a password is the
-     whole form. There is no magic link any more — a link in an inbox is
+  /* Email + password (2026-07-29). Google is one tap; otherwise an email and
+     a password is the whole form. There is no magic link any more — a link in an inbox is
      neither "type it in" nor "go". */
   signUpWithPassword: (email: string, password: string) => Promise<void>
   signInWithPassword: (email: string, password: string) => Promise<void>
@@ -79,6 +79,7 @@ export const useAuth = create<AuthState>((set) => ({
     set({ errorMsg: null })
     try {
       const supabase = await getSupabase()
+      rememberReturn(window.location.hash)
       // Full-page redirect to Google, then back here as ?code= (PKCE) which
       // detectSessionInUrl exchanges automatically.
       const { error } = await supabase.auth.signInWithOAuth({
@@ -202,6 +203,7 @@ export async function initAuth(): Promise<void> {
         ...(event === 'PASSWORD_RECOVERY' ? { recovery: true } : {}),
       })
       rememberSignedIn()
+      restoreReturn()
       void pullAndMerge(u.id).then(() => startSync(u.id))
     } else {
       useAuth.setState({ user: null, status: 'ready', recovery: false })
@@ -214,8 +216,8 @@ export async function initAuth(): Promise<void> {
   })
 
   // Email links land here with ?token_hash= (see email-link.ts) — verify it
-  // in THIS browser, whatever browser that is. Failures surface on the
-  // sign-in screen (signed out) or Today (signed in).
+  // in THIS browser, whatever browser that is. Failures surface on Today
+  // (where email links land) and on the sign-in page.
   const result = await consumeEmailLink(() => Promise.resolve(supabase))
   if (result === 'recovery') {
     useAuth.setState({ recovery: true })

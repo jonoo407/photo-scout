@@ -4,7 +4,7 @@ import {
   IconArrowBadgeRight, IconSunset2, IconMoon, IconCloud, IconChevronRight,
   IconBellRinging, IconCar, IconPointFilled, IconArrowRight, IconStack2, IconSettings,
   IconMoon2, IconSunrise, IconSunHigh, IconSun, IconSunset, IconMoonStars, IconStars,
-  IconChevronDown, IconChevronUp,
+  IconChevronDown, IconChevronUp, IconCircleCheck,
 } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
 import { useAuth } from '../../auth/useAuth'
@@ -64,6 +64,8 @@ export default function TodayScreen() {
   const toggleSunTable = useStore((s) => s.toggleSunTable)
   const linkError = useAuth((s) => s.linkError)
   const dismissLinkError = useAuth((s) => s.dismissLinkError)
+  const notice = useAuth((s) => s.notice)
+  const dismissNotice = useAuth((s) => s.dismissNotice)
   const moon = moonInfo(now, home.lat, home.lng)
   const sun = computeSunTimes(now, home.lat, home.lng)
 
@@ -112,6 +114,22 @@ export default function TodayScreen() {
           <button
             aria-label="Dismiss"
             onClick={dismissLinkError}
+            style={{ border: 0, background: 'none', cursor: 'pointer', color: 'inherit', padding: 4 }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* One-off confirmations (account deleted). Deletion lands here, so
+          this is where the person is when it happens. */}
+      {notice && (
+        <div className="alert" role="status" style={{ background: 'var(--go-bg)', color: 'var(--go-ink)' }}>
+          <IconCircleCheck size={20} style={{ flex: 'none' }} />
+          <p className="as" style={{ flex: 1, margin: 0 }}>{notice}</p>
+          <button
+            aria-label="Dismiss"
+            onClick={dismissNotice}
             style={{ border: 0, background: 'none', cursor: 'pointer', color: 'inherit', padding: 4 }}
           >
             ✕

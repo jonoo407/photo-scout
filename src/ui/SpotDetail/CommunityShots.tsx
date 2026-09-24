@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
 import { IconStar, IconStarFilled, IconFlag } from '@tabler/icons-react'
 import { useAuth } from '../../auth/useAuth'
-import { authAvailable } from '../../auth/supabase'
+import { requireSignIn } from '../../auth/sign-in-prompt'
 import {
   fetchSpotCommunityPhotos, ratePhoto, type CommunityPhoto,
 } from '../../spots/community-photos-api'
@@ -18,27 +17,31 @@ import ReportShotSheet, { type SheetOutcome } from './ReportShotSheet'
    threshold — having flagged something as offensive and then going on looking
    at it is not a reasonable thing to ask of anyone. */
 export default function CommunityShots({ spotId }: { spotId: string }) {
-  const nav = useNavigate()
   const user = useAuth((s) => s.user)
   const [photos, setPhotos] = useState<CommunityPhoto[]>([])
-  const [nudge, setNudge] = useState<null | 'rate' | 'report'>(null)
   const [error, setError] = useState<string | null>(null)
   const [reporting, setReporting] = useState<CommunityPhoto | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
 
-  const load = () => fetchSpotCommunityPhotos(spotId).then(setPhotos)
+  /* Ratings the server confirmed while this page was open. A list fetched
+     before one landed is stale for that shot — the refetch at sign-in races
+     the rating replayed by that same sign-in — so these win over it. */
+  const rated = useRef(new Map<string, Pick<CommunityPhoto, 'myRating' | 'ratingsCount' | 'avgRating'>>())
+  const withRated = (ps: CommunityPhoto[]) => ps.map((p) => ({ ...p, ...rated.current.get(p.id) }))
 
+  const load = () => fetchSpotCommunityPhotos(spotId).then((p) => setPhotos(withRated(p)))
+
+  useEffect(() => { rated.current.clear() }, [spotId])
   useEffect(() => {
     let alive = true
-    void fetchSpotCommunityPhotos(spotId).then((p) => { if (alive) setPhotos(p) })
+    void fetchSpotCommunityPhotos(spotId).then((p) => { if (alive) setPhotos(withRated(p)) })
     return () => { alive = false }
-  }, [spotId, user?.id])
+  }, [spotId, user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const openReport = (photo: CommunityPhoto) => {
-    if (!user) { setNudge('report'); return }
+  const openReport = (photo: CommunityPhoto) => requireSignIn('report', () => {
     setNotice(null)
     setReporting(photo)
-  }
+  })
 
   const finishReport = (id: string, outcome: SheetOutcome) => {
     setReporting(null)
@@ -55,20 +58,23 @@ export default function CommunityShots({ spotId }: { spotId: string }) {
 
   if (photos.length === 0 && !notice) return null
 
-  const rate = async (photo: CommunityPhoto, rating: number) => {
+  const rate = (photo: CommunityPhoto, rating: number) => {
     if (photo.isMine) return
-    if (!user) { setNudge('rate'); return }
+    requireSignIn('rate', () => void submitRating(photo, rating))
+  }
+
+  const submitRating = async (photo: CommunityPhoto, rating: number) => {
     setError(null)
-    const prev = photos
+    const prev = photo.myRating
     setPhotos((ps) => ps.map((p) => (p.id === photo.id ? { ...p, myRating: rating } : p)))
     const res = await ratePhoto(photo.id, rating)
     if (!res.ok) {
-      setPhotos(prev)
+      setPhotos((ps) => ps.map((p) => (p.id === photo.id ? { ...p, myRating: prev } : p)))
       setError(res.message)
       return
     }
-    setPhotos((ps) => ps.map((p) =>
-      p.id === photo.id ? { ...p, ratingsCount: res.count, avgRating: res.avg } : p))
+    rated.current.set(photo.id, { myRating: rating, ratingsCount: res.count, avgRating: res.avg })
+    setPhotos(withRated)
   }
 
   return (
@@ -94,7 +100,7 @@ export default function CommunityShots({ spotId }: { spotId: string }) {
                   key={star}
                   aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
                   disabled={p.isMine}
-                  onClick={() => void rate(p, star)}
+                  onClick={() => rate(p, star)}
                 >
                   {(p.myRating ?? 0) >= star
                     ? <IconStarFilled size={15} color="var(--amber)" />
@@ -115,17 +121,6 @@ export default function CommunityShots({ spotId }: { spotId: string }) {
       </div>
       {notice && (
         <p className="small" style={{ color: 'var(--go-ink)', margin: '6px 2px 0' }}>{notice}</p>
-      )}
-      {nudge && authAvailable() && (
-        <p className="small muted" style={{ margin: '6px 2px 0' }}>
-          Sign in to {nudge} shots —{' '}
-          <button
-            onClick={() => nav('/settings')}
-            style={{ appearance: 'none', border: 0, background: 'none', padding: 0, cursor: 'pointer', font: 'inherit', color: 'var(--terracotta)', textDecoration: 'underline' }}
-          >
-            Settings → Account
-          </button>
-        </p>
       )}
       {error && <p className="small" style={{ color: 'var(--skip-ink)', margin: '6px 2px 0' }}>{error}</p>}
       {reporting && (

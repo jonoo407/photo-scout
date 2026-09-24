@@ -7,6 +7,7 @@ import { useRegion } from '../../state/useRegion'
 import { CANDIDATE_CITIES } from '../../community/cities'
 import { fetchVoteTotals, fetchMyVote, castVote } from '../../community/votes-api'
 import { shareLink } from '../../util/share'
+import { requireSignIn } from '../../auth/sign-in-prompt'
 
 const SCOREBOARD_URL = 'https://shootvantage.com/#/community'
 
@@ -94,9 +95,7 @@ export default function CommunityScreen() {
 
         {authAvailable() && (
           <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {!user ? (
-              <button className="cta" onClick={() => nav('/settings')}>Sign in to vote</button>
-            ) : choosing ? (
+            {choosing ? (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {CANDIDATE_CITIES.map((c) => (
                   <button key={c.id} className={`chip ${myVote === c.id ? 'on' : ''}`} onClick={() => void choose(c.id)}>
@@ -106,7 +105,7 @@ export default function CommunityScreen() {
                 <button className="chip" onClick={() => setChoosing(false)}>Cancel</button>
               </div>
             ) : (
-              <button className="cta" onClick={() => setChoosing(true)}>
+              <button className="cta" onClick={() => requireSignIn('vote', () => setChoosing(true))}>
                 {myVote ? 'Change vote' : 'Cast your vote'}
               </button>
             )}

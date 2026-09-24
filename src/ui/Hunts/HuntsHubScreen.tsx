@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { IconChevronLeft, IconChevronRight, IconCircleCheck, IconCamera } from '@tabler/icons-react'
 import { useAuth } from '../../auth/useAuth'
-import { authAvailable } from '../../auth/supabase'
+import { requireSignIn } from '../../auth/sign-in-prompt'
 import { useRegion } from '../../state/useRegion'
 import { fetchHunts, fetchMyHuntState, joinHunt, type MyHuntState } from '../../hunts/hunts-api'
 import { huntStatus, isOpen, maxPoints, type Hunt } from '../../hunts/hunts'
@@ -17,7 +17,6 @@ export default function HuntsHubScreen() {
   const region = useRegion()
   const [hunts, setHunts] = useState<Hunt[] | null>(null)
   const [mine, setMine] = useState<MyHuntState>({ joins: [], progress: [] })
-  const [nudge, setNudge] = useState(false)
   const now = useMemo(() => new Date(), [])
 
   useEffect(() => {
@@ -43,11 +42,9 @@ export default function HuntsHubScreen() {
   const joinable = rows.filter((r) => !r.joined && !r.status.finished && r.open)
   const completed = rows.filter((r) => r.status.finished)
 
-  const join = async (hunt: Hunt) => {
-    if (!user) { setNudge(true); return }
-    const ok = await joinHunt(hunt.id)
-    if (ok) nav(`/hunts/${hunt.id}`)
-  }
+  const join = (hunt: Hunt) => requireSignIn('hunt', () => {
+    void joinHunt(hunt.id).then((ok) => { if (ok) nav(`/hunts/${hunt.id}`) })
+  }, `Join ${hunt.title}`)
 
   return (
     <div className="screen">
@@ -57,13 +54,6 @@ export default function HuntsHubScreen() {
       <p className="small muted" style={{ margin: '4px 2px 14px', lineHeight: 1.5 }}>
         Shoot every stop to finish a hunt — +{(hunts?.[0]?.stopPts ?? 25)} per stop, +{(hunts?.[0]?.finishPts ?? 100)} when you finish. Shots are verified at the spot.
       </p>
-
-      {nudge && authAvailable() && (
-        <div className="card" style={{ padding: 12, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span className="small" style={{ flex: 1 }}>Accounts are free — sign in to join hunts and keep your points.</span>
-          <button className="chip act" style={{ flex: 'none' }} onClick={() => nav('/settings')}>Sign in</button>
-        </div>
-      )}
 
       {hunts !== null && hunts.length === 0 && (
         <div className="empty">
@@ -108,7 +98,7 @@ export default function HuntsHubScreen() {
                   </span>
                   <span className="small" style={{ color: 'var(--terracotta)' }}>See the stops <IconChevronRight size={12} style={{ verticalAlign: '-2px' }} /></span>
                 </button>
-                <button className="chip act" style={{ flex: 'none' }} onClick={() => void join(hunt)}>Join</button>
+                <button className="chip act" style={{ flex: 'none' }} onClick={() => join(hunt)}>Join</button>
               </div>
             ))}
           </div>

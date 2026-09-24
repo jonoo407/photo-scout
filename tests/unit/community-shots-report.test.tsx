@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, within, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import type { CommunityPhoto } from '../../src/spots/community-photos-api'
@@ -34,6 +34,7 @@ vi.mock('../../src/auth/supabase', () => ({
 
 import CommunityShots from '../../src/ui/SpotDetail/CommunityShots'
 import { useAuth } from '../../src/auth/useAuth'
+import { useSignInPrompt, dismissSignIn } from '../../src/auth/sign-in-prompt'
 
 const shot = (over: Partial<CommunityPhoto>): CommunityPhoto => ({
   id: 'p1', url: 'https://cdn.example/a.jpg', ownerInitials: 'SR', ownerRef: 'ref-sr',
@@ -124,14 +125,18 @@ describe('reporting a community shot', () => {
     expect(await screen.findByText(/sign in to report a shot/i)).toBeInTheDocument()
   })
 
-  it('nudges guests to sign in rather than opening the picker', async () => {
+  it('asks a guest to sign in first, then opens the picker once they have', async () => {
     const user = userEvent.setup()
+    dismissSignIn()
     useAuth.setState({ user: null, status: 'ready', errorMsg: null, linkError: null })
     photos = [shot({ id: 'p1' })]
     renderShots()
     await user.click(await screen.findByRole('button', { name: /report this shot/i }))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    expect(screen.getByText(/sign in to report/i)).toBeInTheDocument()
+    expect(useSignInPrompt.getState().reason).toBe('report')
+
+    act(() => useAuth.setState({ user: { id: 'u1', email: 'jon@example.com' } }))
+    expect(await screen.findByRole('dialog')).toBeInTheDocument()
   })
 })
 

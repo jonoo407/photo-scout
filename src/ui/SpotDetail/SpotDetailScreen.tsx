@@ -27,6 +27,7 @@ import {
 } from '../../spots/live'
 import { fmtTime, fmtRange, fmtDistance, fmtDrive } from '../../util/format'
 import { shareLink } from '../../util/share'
+import { requireSignIn } from '../../auth/sign-in-prompt'
 import { getRegion } from '../../data/regions'
 
 const dirKind: Record<string, string> = { silhouette: 'go', front: 'go', side: 'info', back: 'maybe' }
@@ -68,6 +69,15 @@ export default function SpotDetailScreen() {
   const miles = milesFromHome(spot, refHome)
   const wanted = wishlist.includes(spot.id)
   const been = visited.includes(spot.id)
+  // Saving asks for an account; un-saving never does. The replayed action
+  // adds rather than toggles, so it can't undo a save the account merge
+  // already brought in.
+  const want = () => requireSignIn('save', () => {
+    if (!useStore.getState().wishlist.includes(spot.id)) toggleWishlist(spot.id)
+  }, spot.name)
+  const markBeen = () => requireSignIn('save', () => {
+    if (!useStore.getState().visited.includes(spot.id)) toggleVisited(spot.id)
+  }, spot.name)
   const doneShots = checklist[spot.id] ?? []
   const c = spot.craft
 
@@ -222,10 +232,10 @@ export default function SpotDetailScreen() {
         <IconNavigation size={18} /> Directions to spot
       </a>
       <div className="actions">
-        <button className={`actbtn ${wanted ? 'on-want' : ''}`} onClick={() => toggleWishlist(spot.id)}>
+        <button className={`actbtn ${wanted ? 'on-want' : ''}`} onClick={() => (wanted ? toggleWishlist(spot.id) : want())}>
           <IconStar size={16} /> {wanted ? 'On your list' : 'Want to go'}
         </button>
-        <button className={`actbtn ${been ? 'on-been' : ''}`} onClick={() => toggleVisited(spot.id)}>
+        <button className={`actbtn ${been ? 'on-been' : ''}`} onClick={() => (been ? toggleVisited(spot.id) : markBeen())}>
           <IconCircleCheck size={16} /> {been ? 'Visited' : 'Been there'}
         </button>
       </div>
