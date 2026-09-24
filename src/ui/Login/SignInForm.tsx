@@ -4,6 +4,7 @@ import { googleEnabled } from '../../auth/supabase'
 import { isNativeApp } from '../../pwa/native'
 import { useAuth } from '../../auth/useAuth'
 import { hasSignedInBefore } from '../../auth/seen'
+import { sitePageUrl } from '../../legal/links'
 
 /* The sign-in controls, shared by the full sign-in page (design 2e) and the
    contextual sheet (4b). "Make it as easy as possible": Google is one tap;
@@ -103,6 +104,12 @@ export default function SignInForm() {
           </button>
         )}
       </div>
+      <p className="login-legal">
+        By continuing you agree to the{' '}
+        <a href={sitePageUrl('terms')} target="_blank" rel="noreferrer">Terms of Use</a> and{' '}
+        <a href={sitePageUrl('privacy')} target="_blank" rel="noreferrer">Privacy Policy</a>.
+        {' '}Trouble signing in? <a href={sitePageUrl('support')} target="_blank" rel="noreferrer">Get help</a>.
+      </p>
     </>
   )
 }

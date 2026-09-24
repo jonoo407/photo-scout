@@ -34,7 +34,9 @@ vi.mock('../../src/auth/supabase', () => ({
   }),
 }))
 
+import sharp from 'sharp'
 import { uploadSpotPhoto, listMyPhotos, deleteSpotPhoto } from '../../src/spots/photos-api'
+import { taggedPhoto, ifd0Tags, latin1, OWNER, TAG_ORIENTATION } from '../helpers/photos'
 
 beforeEach(() => {
   uploaded.length = 0
@@ -46,11 +48,25 @@ beforeEach(() => {
 
 describe('photos-api', () => {
   it('uploads under the owner path and records the metadata row', async () => {
-    const file = new File(['x'], 'shot.jpg', { type: 'image/jpeg' })
+    const file = new File([await taggedPhoto('jpeg')], 'shot.jpg', { type: 'image/jpeg' })
     await uploadSpotPhoto('bayshore-boulevard', file)
     expect(uploaded[0].path).toMatch(/^user-1\/bayshore-boulevard\/\d+-shot\.jpg$/)
     expect(inserted[0]).toMatchObject({ owner: 'user-1', spot_id: 'bayshore-boulevard' })
     expect(inserted[0].path).toBe(uploaded[0].path)
+  })
+
+  it('never sends the public bucket a photo with its location or owner attached', async () => {
+    const file = new File([await taggedPhoto('jpeg')], 'shot.jpg', { type: 'image/jpeg' })
+    await uploadSpotPhoto('bayshore-boulevard', file)
+    const sent = new Uint8Array(await uploaded[0].file.arrayBuffer())
+    expect(ifd0Tags((await sharp(sent).metadata()).exif!)).toEqual([TAG_ORIENTATION])
+    expect(latin1(sent)).not.toContain(OWNER)
+  })
+
+  it('refuses a photo it cannot clean, before anything is stored', async () => {
+    await expect(uploadSpotPhoto('x', new File(['not an image'], 'a.heic'))).rejects.toThrow(/location/)
+    expect(uploaded).toHaveLength(0)
+    expect(inserted).toHaveLength(0)
   })
 
   it('refuses signed-out uploads', async () => {

@@ -30,6 +30,7 @@ vi.mock('../../src/auth/supabase', () => ({
 }))
 
 import { listAllMyPhotos, uploadSpotPhoto, sweepMyOrphanPhotos } from '../../src/spots/photos-api'
+import { taggedPhoto } from '../helpers/photos'
 
 describe('listAllMyPhotos', () => {
   it('maps rows to photos with spot ids and public urls', async () => {
@@ -56,7 +57,7 @@ describe('listAllMyPhotos', () => {
 describe('uploadSpotPhoto', () => {
   it('returns the storage path so hunts can reference the proof shot', async () => {
     insertError = null
-    const path = await uploadSpotPhoto('bayshore-boulevard', new File(['x'], 'shot.jpg', { type: 'image/jpeg' }))
+    const path = await uploadSpotPhoto('bayshore-boulevard', new File([await taggedPhoto('jpeg')], 'shot.jpg', { type: 'image/jpeg' }))
     expect(path).toMatch(/^u-1\/bayshore-boulevard\/\d+-shot\.jpg$/)
     expect(inserted[0]).toMatchObject({ owner: 'u-1', spot_id: 'bayshore-boulevard', path })
   })
@@ -64,7 +65,7 @@ describe('uploadSpotPhoto', () => {
   it('removes the uploaded file when the tracking row fails — no orphans', async () => {
     insertError = { message: 'photo limit reached: 2 shots per spot at your craft level — earn points to raise it' }
     remove.mockClear()
-    await expect(uploadSpotPhoto('bayshore-boulevard', new File(['x'], 'shot.jpg', { type: 'image/jpeg' })))
+    await expect(uploadSpotPhoto('bayshore-boulevard', new File([await taggedPhoto('jpeg')], 'shot.jpg', { type: 'image/jpeg' })))
       .rejects.toThrow(/photo limit reached/)
     expect(remove).toHaveBeenCalledTimes(1)
     expect((remove.mock.calls[0][0] as string[])[0]).toMatch(/^u-1\/bayshore-boulevard\//)

@@ -36,16 +36,16 @@ beforeEach(() => {
 describe('on the web', () => {
   it('reports supported and uses the browser path', async () => {
     expect(alertsSupported()).toBe(true)
-    await enableAlerts(['a'], 'u1')
-    expect(web.enableConditionAlerts).toHaveBeenCalledWith(['a'], 'u1')
+    await enableAlerts(['a'])
+    expect(web.enableConditionAlerts).toHaveBeenCalledWith(['a'])
     expect(native.enableNativePush).not.toHaveBeenCalled()
   })
 
   it('turns off and syncs through the browser path', async () => {
     await disableAlerts()
-    await syncWatch(['a'], null)
+    await syncWatch(['a'])
     expect(web.disableConditionAlerts).toHaveBeenCalled()
-    expect(web.syncWatchedSpots).toHaveBeenCalledWith(['a'], null)
+    expect(web.syncWatchedSpots).toHaveBeenCalledWith(['a'])
   })
 })
 
@@ -60,12 +60,12 @@ describe('inside the native wrapper', () => {
   })
 
   it('routes enable, disable and sync to Apple', async () => {
-    await enableAlerts(['a'], 'u1')
+    await enableAlerts(['a'])
     await disableAlerts()
-    await syncWatch(['b'], 'u1')
-    expect(native.enableNativePush).toHaveBeenCalledWith(['a'], 'u1')
+    await syncWatch(['b'])
+    expect(native.enableNativePush).toHaveBeenCalledWith(['a'])
     expect(native.disableNativePush).toHaveBeenCalled()
-    expect(native.syncNativeWatch).toHaveBeenCalledWith(['b'], 'u1')
+    expect(native.syncNativeWatch).toHaveBeenCalledWith(['b'])
     expect(web.enableConditionAlerts).not.toHaveBeenCalled()
   })
 
@@ -94,30 +94,40 @@ describe('enableAlerts reports WHY it failed', () => {
   it('native: on', async () => {
     native.nativePushAvailable.mockReturnValue(true)
     native.enableNativePush.mockResolvedValue('on')
-    expect(await enableAlerts(['a'], null)).toEqual({ on: true, blocked: false })
+    expect(await enableAlerts(['a'])).toEqual({ on: true, failure: null })
   })
 
   it('native: a real permission denial is blocked', async () => {
     native.nativePushAvailable.mockReturnValue(true)
     native.enableNativePush.mockResolvedValue('denied' as never)
-    expect(await enableAlerts(['a'], null)).toEqual({ on: false, blocked: true })
+    expect(await enableAlerts(['a'])).toEqual({ on: false, failure: 'blocked' })
   })
 
-  it('native: a failed token post is NOT blocked', async () => {
+  it('native: a failed token post is a server problem, NOT blocked', async () => {
     native.nativePushAvailable.mockReturnValue(true)
     native.enableNativePush.mockResolvedValue('post-failed' as never)
-    expect(await enableAlerts(['a'], null)).toEqual({ on: false, blocked: false })
+    expect(await enableAlerts(['a'])).toEqual({ on: false, failure: 'network' })
+  })
+
+  it('native: no token from Apple is a registration problem, not the server', async () => {
+    // The missing-AppDelegate-forwarding bug surfaced as "couldn't reach the
+    // alert server" — true of nothing that had happened.
+    native.nativePushAvailable.mockReturnValue(true)
+    native.enableNativePush.mockResolvedValue('no-token' as never)
+    expect(await enableAlerts(['a'])).toEqual({ on: false, failure: 'registration' })
+    native.enableNativePush.mockResolvedValue('register-failed' as never)
+    expect(await enableAlerts(['a'])).toEqual({ on: false, failure: 'registration' })
   })
 
   it('web: blocked only when the browser says denied', async () => {
     web.enableConditionAlerts.mockResolvedValue(false)
     vi.stubGlobal('Notification', { permission: 'denied' })
-    expect(await enableAlerts(['a'], null)).toEqual({ on: false, blocked: true })
+    expect(await enableAlerts(['a'])).toEqual({ on: false, failure: 'blocked' })
   })
 
   it('web: failure with permission granted is a server problem', async () => {
     web.enableConditionAlerts.mockResolvedValue(false)
     vi.stubGlobal('Notification', { permission: 'granted' })
-    expect(await enableAlerts(['a'], null)).toEqual({ on: false, blocked: false })
+    expect(await enableAlerts(['a'])).toEqual({ on: false, failure: 'network' })
   })
 })

@@ -16,6 +16,10 @@
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
+    // Pinned (it is the default) because /privacy, /terms and /support
+    // depend on it: /privacy serves privacy.html, and /privacy.html 307s to
+    // /privacy. Those URLs are registered in App Store Connect.
+    "html_handling": "auto-trailing-slash",
     "not_found_handling": "single-page-application"
   },
   "durable_objects": {

@@ -1,8 +1,12 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { IconUserCircle, IconCloudCheck, IconLogout, IconLogin, IconChevronRight } from '@tabler/icons-react'
+import {
+  IconUserCircle, IconCloudCheck, IconLogout, IconTrash, IconLogin, IconChevronRight,
+} from '@tabler/icons-react'
 import { authAvailable } from '../../auth/supabase'
 import { useAuth } from '../../auth/useAuth'
 import { signInPath, useIsGuest } from '../../auth/sign-in-prompt'
+import DeleteAccountSheet from './DeleteAccountSheet'
 
 /* Account row for Settings: "who you are, and how to leave" when signed in;
    the way in (the full sign-in page) for a guest. Hidden entirely until auth
@@ -11,6 +15,7 @@ export default function AccountSection() {
   const user = useAuth((s) => s.user)
   const signOut = useAuth((s) => s.signOut)
   const guest = useIsGuest()
+  const [deleting, setDeleting] = useState(false)
 
   if (guest) return <GuestAccount />
 
@@ -27,10 +32,14 @@ export default function AccountSection() {
         <p className="small tertiary" style={{ margin: '0 2px 8px' }}>
           Saved spots, shot checklists and settings are synced across your devices.
         </p>
-        <button className="row last" onClick={() => void signOut()}>
+        <button className="row" onClick={() => void signOut()}>
           <span className="rowleft" style={{ color: 'var(--terracotta)' }}><IconLogout size={18} /> Sign out</span>
         </button>
+        <button className="row last" onClick={() => setDeleting(true)}>
+          <span className="rowleft" style={{ color: 'var(--skip-ink)' }}><IconTrash size={18} /> Delete account</span>
+        </button>
       </div>
+      {deleting && <DeleteAccountSheet onClose={() => setDeleting(false)} />}
     </>
   )
 }

@@ -176,7 +176,7 @@ describe('Settings — conditions alerts', () => {
     signIn()
     expect(mocks.enableConditionAlerts).not.toHaveBeenCalled()
     await u.click(screen.getByRole('button', { name: /turn on/i }))
-    expect(mocks.enableConditionAlerts).toHaveBeenCalledWith(['honeymoon-island-sp'], 'u1')
+    expect(mocks.enableConditionAlerts).toHaveBeenCalledWith(['honeymoon-island-sp'])
   })
 })
 
