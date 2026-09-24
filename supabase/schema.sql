@@ -560,3 +560,42 @@ alter table public.photographers enable row level security;
 -- Guards verified against production before applying: graceHours=10000 spared
 -- the same 58-day-old file, maxDeletes=0 selected nothing, and a wrong or
 -- missing x-janitor-secret returned 403.
+
+-- ── In-app account deletion (App Store 5.1.1(v), 2026-09-24) ───────────────
+-- No migration: Edge Function `delete-account` (supabase/functions/
+-- delete-account/) + Worker route POST /api/account/delete.
+--
+-- Settings → Delete account (typed DELETE) → the Worker verifies the session
+-- against /auth/v1/user, forgets the user's push devices in the AlertsDO, then
+-- calls the Edge Function with the SAME user token. The function re-verifies
+-- it with getUser() and, as service_role:
+--   1. lists every file under spot-photos/<uid>/ (the listing, not the rows,
+--      is the source of truth — it also finds orphans, and survives a retry),
+--   2. deletes the user's user_photos rows — ALL of them. prune_departing_
+--      photos keeps well-rated shots anonymized, which is right for a lapsed
+--      account and wrong for someone who asked for deletion. The trigger
+--      still governs deletes made any other way (dashboard, SQL),
+--   3. deletes their feedback and spot_suggestions (both `on delete set
+--      null`; feedback can carry a contact email),
+--   4. removes the files over the Storage API,
+--   5. deletes the auth user; FK cascades take vantage_state (saved spots,
+--      plans, notes, prefs), shortlists + responses, city_votes,
+--      blocked_users, photographers — and, per their migrations (bodies not
+--      in this file, so confirm with the query below), hunt_joins,
+--      hunt_progress, point_events and photo_ratings. photo_reports they
+--      filed survive with reporter = null.
+-- The auth user goes LAST, so any earlier failure leaves an account the
+-- person can sign back into and retry from.
+--
+-- Step 5 fails ("Database error deleting user") if any FK into auth.users is
+-- NO ACTION/RESTRICT and the user has rows there. Check before deploying —
+-- every row should read c (cascade) or n (set null):
+--   select conrelid::regclass as tbl, conname, confdeltype
+--   from pg_constraint
+--   where contype = 'f' and confrelid = 'auth.users'::regclass
+--   order by 1;
+--
+-- Deploy: supabase functions deploy delete-account  (JWT verification on;
+-- SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY are injected by the platform —
+-- no secret to set). Until it is deployed the Worker answers 502 and the
+-- app shows "nothing was lost, try again".

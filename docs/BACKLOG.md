@@ -281,8 +281,11 @@ Cloudflare DNS record and two Worker secrets it had the token to do itself.)*
     serving a previous build's assets across a binary update.
   - **Guideline 4.2 (minimum functionality)**: Apple rejects thin website
     wrappers. Using native plugins rather than web APIs for camera/location/push
-    is what makes the difference at review. Account deletion (also required)
-    already ships.
+    is what makes the difference at review. Account deletion (also required,
+    5.1.1(v)) ships as of 2026-09-24: Settings → Account → Delete account,
+    typed confirmation, Worker route `/api/account/delete` + Edge Function
+    `delete-account` (see the section at the end of `supabase/schema.sql`).
+    Needs the function deployed before the next TestFlight build.
   - **Store metadata is NOT blocked — that claim was wrong, corrected
     2026-09-11.** This entry used to say the App Store Connect key existed
     only in GitHub Actions secrets and that the unblock was Jon handing one
