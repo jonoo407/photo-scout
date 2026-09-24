@@ -18,6 +18,13 @@ describe('wrangler.jsonc deploy config', () => {
     expect(config.compatibility_date).toMatch(/^\d{4}-\d{2}-\d{2}$/)
   })
 
+  it('serves /privacy, /terms and /support from their .html files', () => {
+    // auto-trailing-slash maps /privacy → privacy.html; "none" would hand
+    // those URLs to the SPA fallback, i.e. the sign-in screen.
+    expect(config.assets.html_handling).toBe('auto-trailing-slash')
+    expect(config.assets.not_found_handling).toBe('single-page-application')
+  })
+
   it('attaches BOTH shootvantage.com and www as custom domains', () => {
     const domains = (config.routes ?? []).filter((r: { custom_domain?: boolean }) => r.custom_domain).map((r: { pattern: string }) => r.pattern)
     expect(domains).toContain('shootvantage.com')

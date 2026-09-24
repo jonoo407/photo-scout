@@ -320,3 +320,5 @@ textarea.fbfield { resize: vertical; min-height: 120px; }
 .login-links .linky { font-size: 13px; }
 .login-keeps { margin-top: 6px; }
 .login-keeps .row { padding: 8px 12px; }
+.login-legal { margin: 4px 2px 0; font-size: 12px; line-height: 1.6; color: var(--ink-2); }
+.login-legal a { color: var(--terracotta); }

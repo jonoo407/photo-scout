@@ -80,4 +80,10 @@ describe('published contact information', () => {
     expect(screen.getByText(/two independent reports/i)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /send feedback|contact/i })).toBeInTheDocument()
   })
+
+  it('points at the full terms and the public support page', () => {
+    wrap(<GuidelinesScreen />)
+    expect(screen.getByRole('link', { name: /terms of use/i })).toHaveAttribute('href', '/terms')
+    expect(screen.getByRole('link', { name: /help & support/i })).toHaveAttribute('href', '/support')
+  })
 })

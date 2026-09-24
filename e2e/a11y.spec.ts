@@ -20,6 +20,11 @@ const ROUTES: Array<[string, string]> = [
   ['community', '/#/community'],
   ['spot', '/#/spot/curtis-hixon-waterfront-park'],
   ['settings', '/#/settings'],
+  // Standalone pages. The static server has no clean-URL mapping, so the
+  // file names stand in for Cloudflare's /privacy → privacy.html.
+  ['privacy page', '/privacy.html'],
+  ['terms page', '/terms.html'],
+  ['support page', '/support.html'],
 ]
 
 for (const [name, path] of ROUTES) {
