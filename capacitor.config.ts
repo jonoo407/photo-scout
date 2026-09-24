@@ -15,6 +15,14 @@ const config: CapacitorConfig = {
     // scrolling matches the app rather than flashing white.
     backgroundColor: '#faf1e2',
   },
+  plugins: {
+    PushNotifications: {
+      // With no presentationOptions iOS shows nothing for an alert that
+      // arrives while Vantage is open — the push is delivered and silently
+      // dropped.
+      presentationOptions: ['banner', 'list', 'sound'],
+    },
+  },
 }
 
 export default config
