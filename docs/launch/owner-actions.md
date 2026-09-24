@@ -1,5 +1,7 @@
 # Owner actions: shipping the six launch PRs
 
+> **Status (2026-09-24, evening): steps 1–7 are done.** A Claude Code agent did the backend prep, merged all six PRs itself and verified production; see [HANDOFF.md](./HANDOFF.md) for the results. **Standing rule from the owner: agents do all merges.** Never hand the owner a list of PRs to merge. What's left for the owner is step 8 (iPhone check) and step 9 (App Store Connect). The rest of this doc is kept as the record of how the rollout was planned.
+
 > **Launch-handoff note (2026-09-24):** this doc was written for the Cursor Cloud Agents workflow (steps 1–5 assume an agent with Cursor-managed secrets access). If you're working with Claude Code from the repo only, the mechanism in step 3 (Cursor's Secrets dashboard) and the "reply in chat" trigger in step 5 don't apply directly — but the underlying steps (get a Supabase token and a Cloudflare token, apply the migration, deploy the function, set the Worker secret) are the same regardless of which agent runs them. See [HANDOFF.md](./HANDOFF.md) for how this maps onto a repo-only handoff, and use section "Fallback: doing it yourself without giving agents tokens" below if you'd rather the owner do the backend prep by hand.
 
 Last checked: 2026-09-24. Everything marked **(unverified)** is something I could not check from here; the rest was checked against the repo, GitHub, or the provider's current docs.
@@ -17,13 +19,14 @@ Last checked: 2026-09-24. Everything marked **(unverified)** is something I coul
 | | Agents today | Agents after step 3 (tokens added) |
 |---|---|---|
 | Push branches, fix conflicts, update PR text, change PR base, mark PRs "Ready for review" | Yes | Yes |
-| **Merge PRs**, change repo settings | **No** (the GitHub access is read-only for these) | **No** |
-| Push a `v*` tag to start a TestFlight build | Yes (the tag triggers `ios-release.yml`; not yet exercised by me) | Yes |
+| **Merge PRs** | **Yes, and they should: the owner wants agents to do every merge.** (Cursor's agents had read-only merge access; Claude Code's GitHub tools merged all six on 2026-09-24.) | Yes |
+| Change repo settings | No | No |
+| Push a `v*` tag to start a TestFlight build | Cursor: yes. Claude Code cloud: **no**, the git proxy refuses tag pushes, so run `ios-release.yml` by manual dispatch with `package.json`'s version bumped instead | Same |
 | Apply the Supabase migration, deploy the `delete-account` function, run SQL checks | No (no Supabase credentials in the agent environment) | Yes |
 | Set or confirm the Worker secret `SUPABASE_HOOK_SECRET`, roll back a bad deploy | No (no Cloudflare credentials) | Yes |
 | Test on a real iPhone, fill App Store Connect fields | No | No |
 
-So the minimum for you is: **one-time token setup (steps 1–4), six merge clicks (step 6), the iPhone check (step 8), and App Store Connect fields (step 9).** Agents do everything else.
+So the minimum for you is: **one-time token setup (steps 1–4), the iPhone check (step 8), and App Store Connect fields (step 9).** Agents do everything else, merges included.
 
 ---
 
@@ -97,11 +100,13 @@ Reply in chat: **"Secrets added — do the backend prep."** A fresh agent then d
 7. **Marks all six PRs "Ready for review"** so they can be merged.
 8. **Reports "backend ready".** Don't merge anything until you see this.
 
-## Step 6. Merge the six PRs, in this order
+## Step 6. Agents merge the six PRs, in this order (done 2026-09-24)
+
+**This is the agent's job, not the owner's.** The owner always wants agents to do merges. It was done on 2026-09-24: all six merged in order, each deploy confirmed before the next. The click-by-click steps below are kept only as a manual fallback, for example if an agent's GitHub access can't merge.
 
 Order: **#6 → #5 → #7 → #4 → #3 → #8.** Each merge deploys to shootvantage.com automatically.
 
-For each PR, in turn:
+Manual fallback, for each PR in turn:
 
 1. Open it:
    1. [#6 Worker security](https://github.com/jonoo407/photo-scout/pull/6)
@@ -121,7 +126,7 @@ For each PR, in turn:
 
 If something looks wrong at any point, stop merging and tell an agent. With the Cloudflare token it can roll the Worker back (`wrangler rollback`); without it, open the merged PR, click **Revert**, and merge the revert PR.
 
-When all six are merged, reply **"All six merged."**
+An agent that merges goes straight on to step 7; no reply from the owner is needed.
 
 ## Step 7. Agents verify production (no action from you)
 

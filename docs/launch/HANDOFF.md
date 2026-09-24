@@ -1,73 +1,88 @@
 # Vantage (photo-scout) launch handoff
 
 **For:** whichever agent picks this up next (this handoff was written to be self-contained for an agent working from this repository only, with no access to any external notes store).
-**As of:** 2026-09-24. **Repo:** `jonoo407/photo-scout`. **Live at:** shootvantage.com.
+**As of:** 2026-09-24 (evening update). **Repo:** `jonoo407/photo-scout`. **Live at:** shootvantage.com.
+
+## Standing rule: agents do all merges
+
+**The owner always wants the agent to do the merges.** Don't hand the owner a list of PRs to click through, and don't stop at "ready for review" waiting for them. When a PR is green and its deploy prerequisites are done, merge it yourself (merge commit unless the repo's history says otherwise), wait for the Cloudflare deploy, verify production, then move on. The same rule is in [`/CLAUDE.md`](../../CLAUDE.md) so every Claude Code session picks it up.
+
+The owner is still needed only for things an agent physically can't do: providing credentials, testing on a real iPhone, and typing into App Store Connect.
 
 ## One-paragraph status
 
-Six PRs are open, stacked on top of each other, CI-green, and ready to merge. Together they close the App Store blockers (account deletion, privacy/terms/support pages, the iOS push bug) and the two biggest growth blockers (the Cloudflare Worker security holes, and the hard sign-in wall in front of all content). **Nothing has been merged yet.** The remaining work is: the owner gives an agent two API tokens (or does a short manual SQL/CLI checklist), an agent applies a database migration and deploys an Edge Function, the owner clicks through six GitHub merges, an agent verifies production and tags a TestFlight build, and the owner does one real-iPhone check plus a few App Store Connect fields. Every one of those owner steps is spelled out in detail in [`owner-actions.md`](./owner-actions.md).
+**All six launch PRs are merged and live on shootvantage.com**, and every production check in [`owner-actions.md`](./owner-actions.md) step 7 passed except the browser-level GPS check, which is covered by unit tests instead (details below). The backend prep (region check, webhook secret, migration, cascade check, `delete-account` function) was done first. What's left: start the TestFlight build (a PR bumping `package.json` to 0.1.7 is the route, see "TestFlight" below), then the owner's real-iPhone check and App Store Connect fields.
 
-## What's done: the six PRs
+## What shipped (merged 2026-09-24, in this order, merge commits)
 
-All six are open, in draft, mergeable, and CI-green (the `webkit` gate and the Cloudflare `Workers Builds: vantage` check both pass on every one, checked 2026-09-24). They are stacked branch-on-branch in this order, and must be **merged in this order with merge commits** (not squash, not rebase — squashing the first PR would make every later one conflict):
+| Pos | PR | What it does | Merge commit |
+|---|---|---|---|
+| 1 | [#6 Worker security](https://github.com/jonoo407/photo-scout/pull/6) | `/api/push/*` allowlist, JWT-verified `/subscribe`, `SUPABASE_HOOK_SECRET` on DB webhooks, rate limits | `9bd501d` |
+| 2 | [#5 Account deletion](https://github.com/jonoo407/photo-scout/pull/5) | Settings → Account → Delete account, server-side purge via the `delete-account` Edge Function | `f584d43` |
+| 3 | [#7 EXIF/GPS stripping + `/l/` fix](https://github.com/jonoo407/photo-scout/pull/7) | Scrubs metadata from every upload; service worker no longer hijacks `/l/<uuid>` | `7b4e75e` |
+| 4 | [#4 Privacy, terms, support](https://github.com/jonoo407/photo-scout/pull/4) | Standalone `/privacy`, `/terms`, `/support`, `robots.txt`, `sitemap.xml` | `76970ad` |
+| 5 | [#3 iOS push fix](https://github.com/jonoo407/photo-scout/pull/3) | APNs callbacks forwarded to the push plugin; clearer failures; foreground alerts show | `a9e4173` |
+| 6 | [#8 Guest browsing](https://github.com/jonoo407/photo-scout/pull/8) | Sign-in wall removed; sign-in asked for only at save/alert/upload/rate/vote/hunt-join/shortlist-create | `07b3247` |
 
-**#6 → #5 → #7 → #4 → #3 → #8**
+Each PR's own description has the full technical detail.
 
-| Pos | PR | Branch (base) | What it does | Tests on the stacked branch | Deploy prerequisite |
-|---|---|---|---|---|---|
-| 1 | [#6 Worker security](https://github.com/jonoo407/photo-scout/pull/6) | `cursor/worker-security-hardening-619f` (base: `main`) | Allowlists `/api/push/*` to only the public routes; verifies the Supabase JWT on `/subscribe` instead of trusting a client-supplied `userId`; adds a shared-secret header (`SUPABASE_HOOK_SECRET`) the three DB webhooks must send; adds rate limits and device caps | 1,066 tests pass, `tsc` clean, CI green | **Apply the Supabase migration `supabase/migrations/20260924000000_webhook_shared_secret.sql` before merging.** Confirm the Worker secret `SUPABASE_HOOK_SECRET` equals `internal.config.worker_hook_secret` in Supabase (same secret `get_owner_email()` already uses) |
-| 2 | [#5 Account deletion](https://github.com/jonoo407/photo-scout/pull/5) | `cursor/account-deletion-2cac` (base: #6's branch) | Settings → Account → Delete account (type DELETE to confirm) → server deletes the Supabase auth user, storage files and every `user_photos` row (including well-rated community photos), removes push subscriptions, then wipes local state | 1,113 tests pass, `npm run build` clean | **Deploy the `delete-account` Edge Function** (`supabase functions deploy delete-account`, JWT verification on). Check the FK cascade rule on every table referencing `auth.users` (query is at the end of `supabase/schema.sql`) — every one must be `c` or `n`. Test on a throwaway account after deploying |
-| 3 | [#7 EXIF/GPS stripping + `/l/` link fix](https://github.com/jonoo407/photo-scout/pull/7) | `cursor/strip-exif-sw-list-links-b7d0` (base: #5's branch) | Strips EXIF/GPS/owner-name metadata from every photo upload (previously only large uploads went through the canvas re-encode that happened to strip it); stops the installed PWA's service worker from hijacking `/l/<uuid>` client-list links with the cached app shell | 1,148 tests pass, `npm run build` clean, built `sw.js` denylist confirmed | None beyond the code deploy. **Behaviour change accepted:** HEIC photos uploaded from Chrome/Firefox/Edge are now refused (with a clear message) rather than uploaded raw with their GPS, because those browsers can't decode HEIC to scrub it. Safari and the iOS wrapper are unaffected |
-| 4 | [#4 Privacy, terms, support pages](https://github.com/jonoo407/photo-scout/pull/4) | `cursor/legal-support-pages-a5e8` (base: #7's branch) | Standalone `/privacy`, `/terms`, `/support` pages (no sign-in gate, no app shell), `robots.txt`, `sitemap.xml`, linked from the sign-in screen and Settings. Legal details are filled: Jon Flaherty, 3812 W Leona St, Tampa, FL 33629; Florida law / Hillsborough County venue; `support@shootvantage.com` | 1,181 tests pass, `npm run build` clean, all 11 a11y + 8 WebKit checks pass | **Confirm the Supabase hosting region.** The privacy page says "AWS US East (Northern Virginia)" — inferred from the DB host's IP resolving into `us-east-1`, not read from Supabase. One call to `GET /v1/projects/gxxjxfwxufqqxcyrdibh` (Management API) confirms it; if it's wrong, fix the sentence in `public/privacy.html` before merging |
-| 5 | [#3 iOS push fix](https://github.com/jonoo407/photo-scout/pull/3) | `cursor/ios-push-token-forwarding-3e52` (base: #4's branch) | `AppDelegate.swift` was never forwarding the two APNs callbacks `@capacitor/push-notifications` needs, so turning on alerts always failed after a 10 s wait on a real device. Adds the forwarding, clearer failure messages, a presentation-options fix so foreground alerts show | 1,195 tests pass, `tsc`/`npm run build` clean, iOS simulator gate passed | **Tag a new TestFlight build after this merges**, then a real-iPhone check (5 steps, spelled out in `owner-actions.md` step 8) |
-| 6 | [#8 Guest browsing](https://github.com/jonoo407/photo-scout/pull/8) | `cursor/guest-browsing-soft-gate-2edb` (base: #3's branch) | Removes the sign-in wall added 2026-09-14. Every tab, spot page, plan, hunt and shared link (`/l/…`) is browsable signed out; a sign-in sheet appears only at the moment of save/alert/upload/rate/vote/hunt-join/shortlist-create | 1,243 tests pass; `test:webview` 8/8, `test:a11y` 11/11, new `test:guest` 23/23 | None beyond the code deploy. After it deploys, a private/incognito window on shootvantage.com should land on Today, not a sign-in screen |
+## Backend prep that was done (before merging #6)
 
-Full technical detail, including the exact attack each worker-security test replays and every edge case the EXIF scrubber covers, is in each PR's own description — those descriptions are current and accurate as of this handoff (PR #3's was corrected during this pass; it had drifted to say "5 of 5" and omit #8 after #8 was added to the stack).
+- **Supabase region confirmed `us-east-1`** from the Management API (`GET /v1/projects/gxxjxfwxufqqxcyrdibh`), so the privacy page's "AWS US East (Northern Virginia)" is correct.
+- **`internal.config.worker_hook_secret`** exists (48 characters). Its value was written into the Worker secret `SUPABASE_HOOK_SECRET` without being printed.
+- **Migration `20260924000000_webhook_shared_secret.sql` applied** through the Management API's migrations endpoint (recorded as `webhook_shared_secret`). All three triggers (`notify_shortlist_response`, `feedback_notify`, `photo_report_notify`) send the header.
+- **Cascade check passed:** all 24 foreign keys into `auth.users` are `c` or `n`.
+- **`delete-account` Edge Function deployed**, `verify_jwt: true`, status `ACTIVE`. An unauthenticated call returns 401.
 
-### PR description fix made during this handoff
+## Production verification (after all six merged)
 
-[PR #3](https://github.com/jonoo407/photo-scout/pull/3)'s description said "Merge position: 5 of 5" and "Last in the stack", left over from before [#8](https://github.com/jonoo407/photo-scout/pull/8) existed. Corrected to "5 of 6" and to point at #8 as the next PR to retarget after #3 merges. No product code was touched.
+- `POST /api/push/notify-owner` and `/api/push/cron` → **404**. `GET /api/push/vapid` → 200 (the public route still works).
+- `POST /api/feedback-hook` with no secret → **401**; with the database secret and an empty body → **400 "no message"**. That proves the Worker and database secrets match.
+- `/privacy`, `/terms`, `/support` → 200 real pages, no TODOs. `/robots.txt`, `/sitemap.xml` → 200.
+- **Account deletion, end to end on a throwaway account:** signed up, uploaded a photo to `spot-photos`, inserted its `user_photos` row, called `POST /api/account/delete` with the user's token → `{"ok":true,"files":1,...}`. Afterwards the auth user, the storage object and the row were all gone, and the public URL stopped serving. Both throwaway accounts (`vantage-e2e-…@shootvantage.com`) were deleted through that same path; none remain.
+- **Guest browsing:** a signed-out browser opens a spot page directly, with "Sign in to add your shots" in place of the upload button.
+- **GPS stripping:** not checked in a live browser. The Claude Code cloud sandbox's proxy makes headless Chromium fail intermittently (`ERR_TOO_MANY_RETRIES`) against the live site. Instead, the full suite (1,243 tests, including `tests/unit/strip-metadata.test.ts` and `tests/unit/compress.test.ts`) passed on the production commit `07b3247`. If you have a working browser, upload a GPS-tagged JPEG and check the stored file has no EXIF GPS IFD.
 
-## What the owner must still do
+## Things that went wrong, and what to do if they recur
 
-Full detail, in order, with exact button names and expected outputs, is in [`owner-actions.md`](./owner-actions.md). The short version, as one consolidated list (per the owner's stated preference for a single "what I need from you" message, not per-PR chatter):
+- **Workers Builds failed once, on the #5 merge commit (`f584d43`), with no log visible to the API token.** The same commit built cleanly locally (`npm run build` + `wrangler deploy --dry-run`), so it was deployed by hand with `npx wrangler deploy`. The next four merges built normally. If a build fails again: reproduce locally first; if it's clean, `wrangler deploy` from that exact commit.
+- **The Claude Code cloud git proxy refuses tag pushes** (`git push origin v0.1.7` → "remote end hung up"). Only the session's own branch can be pushed.
 
-1. **Give an agent a Supabase access token and a Cloudflare API token** (owner-actions.md steps 1–3), or skip this and do the equivalent SQL/CLI steps yourself (owner-actions.md's "Fallback" section, steps A–G). Either way, someone needs to: apply the #6 migration, confirm the Worker's `SUPABASE_HOOK_SECRET` matches the database secret, run the account-deletion cascade check, and deploy the `delete-account` Edge Function — **all before merging**.
-2. **Tick "Automatically delete head branches"** in repo Settings → Pull Requests (30 seconds, optional but avoids a manual click on every merge).
-3. **Merge the six PRs in order** (#6 → #5 → #7 → #4 → #3 → #8), each with **"Create a merge commit"**, waiting for the Cloudflare deploy to finish between merges. Exact walkthrough: owner-actions.md step 6.
-4. **After all six are merged:** do the real-iPhone TestFlight check (5 steps, ~10 minutes, owner-actions.md step 8) once a new build is tagged.
-5. **Fill in App Store Connect:** Privacy Policy URL (`https://shootvantage.com/privacy`), Support URL (`https://shootvantage.com/support`), the App Review contact phone number (the owner has this — it is deliberately not written anywhere in this repo), and the "sign-in required" note now that guest browsing has shipped. Detail: owner-actions.md step 9.
+## TestFlight
+
+`ios-release.yml` runs on `v*` tags **or** manual dispatch. On a tag, the version comes from the tag; on manual dispatch it comes from `package.json`. `package.json` said `0.1.0` while TestFlight was already on 0.1.6, so a manual run would have gone backwards. The PR carrying this handoff bumps it to **0.1.7**. Once that's merged, run the workflow (`workflow_dispatch`, publish on) on `main`, or push a `v0.1.7` tag from somewhere that allows it. Keep `package.json`'s version in step with the tags from now on, because Settings shows it inside the app.
+
+## What the owner still has to do
+
+1. **Real-iPhone TestFlight check** once the 0.1.7 build lands ([`owner-actions.md`](./owner-actions.md) step 8, about 10 minutes).
+2. **App Store Connect fields** (step 9): Privacy Policy URL `https://shootvantage.com/privacy`, Support URL `https://shootvantage.com/support`, the App Review phone number (never write it in this repo), a demo account (an agent can create one), and the note that browsing needs no sign-in.
+3. **Rotate the Supabase and Cloudflare tokens** used for this rollout, and revoke the R2 access key that was shared alongside them (nothing here uses it).
 
 ## What the next agent should do next
 
-1. **Read this file, then `owner-actions.md`.** Check whether the owner has already provided Supabase/Cloudflare credentials (however your environment receives them — this repo has no dependency on Cursor's Secrets mechanism, so use whatever your tooling supports: environment variables, a `.env.local` the owner pasted values into, or credentials given directly in conversation).
-2. **If you have Supabase + Cloudflare credentials:** do the backend prep described in `owner-actions.md` step 5 — confirm the region, confirm the webhook secret exists and matches, apply the #6 migration via the Supabase Management API or CLI, run the #5 cascade check, deploy the `delete-account` function, and mark all six PRs "Ready for review". Report back once done; **do not merge anything yourself** unless the owner has explicitly said you may (merging deploys straight to production).
-3. **If you don't have credentials:** tell the owner, in one consolidated message, exactly which of the fallback steps A–G in `owner-actions.md` they need to run themselves (they're plain SQL/dashboard steps, no coding). Don't ask for anything not already covered there.
-4. **Once the owner says all six PRs are merged:** verify production per `owner-actions.md` step 7 (the 404/401/400 checks, the privacy pages, an end-to-end account-deletion test on a throwaway account, confirm an uploaded photo carries no GPS), then push a `v0.1.7` tag to trigger the TestFlight build.
-5. **Watch for drift.** If you touch any of the six PRs' branches again (rebasing, resolving a new conflict, etc.), re-check that PR's description still matches reality — that's exactly what went stale with PR #3 before this handoff.
-6. **Beyond the six PRs:** the roadmap (`roadmap.md`) has the rest of the plan. H5–H13, G2–G8, and everything in Phase 2 onward is still open. `app-audit.md` §8 has each remaining slice sized as roughly one PR each.
+1. Merge this handoff PR once it's green, then start the iOS release (see "TestFlight").
+2. When the owner reports the iPhone check, fix anything that failed.
+3. Beyond launch: [`roadmap.md`](./roadmap.md) has the rest of the plan. H5–H13, G2–G8 and Phase 2 onward are still open, and [`app-audit.md`](./app-audit.md) §8 sizes each remaining slice as roughly one PR.
 
 ## Key decisions already made (don't re-litigate these)
 
-- **Guest browsing replaces the 2026-09-14 sign-in wall.** Every tab, spot page, plan and shared link is browsable without an account; a sign-in sheet appears only at the moment of save, alerts, upload, rate, vote, hunt-join or client-shortlist-create. Shipped in [PR #8](https://github.com/jonoo407/photo-scout/pull/8). Reason: the sign-in wall was an App Store 5.1.1(v) risk and killed sharing, SEO and first-session activation (see `app-audit.md` §5, `market-and-launch.md` §4.1).
-- **Link sharing stays open, permanently.** Spot and day-plan share links (`#/spot/…`, `#/day/…`) and client shortlist links (`/l/<uuid>`) are never gated behind sign-in — they're the growth/referral loop. "Share-creation" (needing an account) only means creating a *new* client shortlist to receive a client's picks, not viewing a shared link.
-- **In-app account deletion removes every photo the user uploaded, including well-rated community ones.** Before [PR #5](https://github.com/jonoo407/photo-scout/pull/5), the existing DB trigger anonymized (kept) highly-rated community photos on account deletion; the in-app delete flow now removes all of them instead, because a person choosing to delete their account and everything in it shouldn't have their own photos survive them. Deletes made another way (Supabase dashboard, raw SQL) still go through the old anonymizing trigger — **use the `delete-account` Edge Function for emailed deletion requests, never the dashboard**, or the person's highly-rated photos will incorrectly survive.
-- **HEIC photos uploaded from Chrome, Firefox or Edge are rejected**, not uploaded raw. [PR #7](https://github.com/jonoo407/photo-scout/pull/7) strips GPS/EXIF from every upload, but those browsers can't decode HEIC to scrub it, so an unparseable file is refused with a clear message rather than uploaded with its location data intact. Safari and the iOS app's WebKit view can decode HEIC and are unaffected; the iPhone photo picker usually hands the page a JPEG anyway.
-- **Supabase's hosting region is inferred as `us-east-1` (AWS US East, Northern Virginia)**, from the database host's IP address resolving there — not read from an authoritative source. The privacy policy states this. **Confirm it with one Supabase Management API call before merging #4** (`GET /v1/projects/gxxjxfwxufqqxcyrdibh`, field `region`); correct `public/privacy.html` if it disagrees.
+- **Guest browsing replaces the 2026-09-14 sign-in wall** (shipped in #8). The sign-in wall was an App Store 5.1.1(v) risk and killed sharing, SEO and first-session activation (`app-audit.md` §5, `market-and-launch.md` §4.1).
+- **Link sharing stays open, permanently.** `#/spot/…`, `#/day/…` and `/l/<uuid>` links are never gated. Creating a *new* client shortlist needs an account; viewing one never does.
+- **In-app account deletion removes every photo the user uploaded, including well-rated community ones.** Deletes done another way (dashboard, raw SQL) still run the old anonymizing trigger, so **use the `delete-account` path for emailed deletion requests, never the dashboard.**
+- **HEIC from Chrome/Firefox/Edge is refused**, not uploaded raw, because those browsers can't decode it to strip GPS. Safari and the iOS app are unaffected.
 
 ## Owner preferences (how to work with this owner)
 
-- **The owner wants to do as little as possible.** Agents should handle everything that doesn't strictly require the owner's hands, credentials, or judgment.
-- **Anything the owner must do personally needs detailed, current, verified, step-by-step instructions** — exact button names, exact expected output, and what to do if it doesn't match. Don't make the owner guess or hunt through docs. `owner-actions.md` is written to this standard; keep it that way if you update it.
-- **One consolidated message, not per-PR chatter.** When something needs the owner's attention, send a single numbered "what I need from you" list covering everything outstanding, not a running commentary per pull request.
-- **Default to the documented recommendation instead of waiting on a decision the owner can veto later** (e.g. guest browsing over the sign-in wall, the Supabase region as inferred). Say what you did and why; don't block on approval for reversible, well-reasoned calls.
-- **Don't put the owner's phone number in the repo.** It's needed only in App Store Connect's App Review contact field, which the owner enters directly — see `owner-actions.md` step 9.
+- **Agents do all merges** (see the standing rule at the top).
+- **The owner wants to do as little as possible.** Handle everything that doesn't strictly need their hands, credentials or judgment.
+- **Anything the owner must do personally needs detailed, current, verified, step-by-step instructions**: exact button names, expected output, what to do if it doesn't match.
+- **One consolidated message, not per-PR chatter.**
+- **Default to the documented recommendation** instead of blocking on a decision the owner can veto later. Say what you did and why.
+- **Don't put the owner's phone number in the repo.**
 
 ## Other docs in this folder
 
-- [`roadmap.md`](./roadmap.md) — the full launch roadmap (Phase 0 through Phase 5), with the slices these six PRs close marked as shipped/pending-merge.
-- [`owner-actions.md`](./owner-actions.md) — the detailed, step-by-step owner checklist referenced throughout this file.
-- [`app-audit.md`](./app-audit.md) — the original readiness audit these PRs were scoped against (security findings, feature inventory, App Store blocker list).
-- [`market-and-launch.md`](./market-and-launch.md) — competitive research and the go-to-market plan for after these PRs ship.
-
-These four are copies of documents originally written in a Cursor Cloud Agents session store; they're included here so this handoff is self-contained for an agent working from the repo alone. Cross-references between them have been rewritten to point at these repo-relative files.
+- [`roadmap.md`](./roadmap.md): the full launch roadmap (Phase 0 through Phase 5).
+- [`owner-actions.md`](./owner-actions.md): the step-by-step checklist; steps 1–7 are now done, 8–9 are the owner's.
+- [`app-audit.md`](./app-audit.md): the original readiness audit.
+- [`market-and-launch.md`](./market-and-launch.md): competitive research and the go-to-market plan.
