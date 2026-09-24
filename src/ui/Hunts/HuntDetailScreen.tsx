@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { IconChevronLeft, IconCheck, IconCamera, IconCameraPlus, IconChevronRight } from '@tabler/icons-react'
 import { useAuth } from '../../auth/useAuth'
-import { authAvailable } from '../../auth/supabase'
+import { requireSignIn, useIsGuest } from '../../auth/sign-in-prompt'
 import { useSpotsByIds } from '../../state/useRegion'
 import type { Spot } from '../../spots/types'
 import {
@@ -37,6 +37,7 @@ export default function HuntDetailScreen() {
   const nav = useNavigate()
   const { id } = useParams()
   const user = useAuth((s) => s.user)
+  const guest = useIsGuest()
   const [hunt, setHunt] = useState<Hunt | null | 'loading'>('loading')
   const [rows, setRows] = useState<HuntProgressRow[]>([])
   const [joined, setJoined] = useState(false)
@@ -60,7 +61,9 @@ export default function HuntDetailScreen() {
     void fetchMyHuntState().then((s) => {
       if (!alive) return
       setRows(s.progress.filter((p) => p.huntId === id))
-      setJoined(s.joins.includes(id))
+      // OR, not assign: a join replayed right after sign-in can land before
+      // this read does.
+      setJoined((j) => j || s.joins.includes(id))
     })
     return () => { alive = false }
   }, [user?.id, id]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -88,6 +91,7 @@ export default function HuntDetailScreen() {
   const status = huntStatus(hunt, rows)
   const open = isOpen(hunt, now)
   const rowFor = (i: number) => rows.find((r) => r.stopIndex === i)
+  const join = () => { void joinHunt(hunt.id).then((ok) => ok && setJoined(true)) }
 
   const onFile = async (file: File | undefined) => {
     if (!file || status.nextIndex == null) return
@@ -141,17 +145,17 @@ export default function HuntDetailScreen() {
       </span>
       <p className="small tertiary" style={{ margin: '0 2px 14px' }}>{status.done} of {status.total} stops shot</p>
 
-      {!user && authAvailable() && (
+      {guest && (
         <div className="empty">
           <IconCamera size={30} />
           <p className="et">Sign in to hunt</p>
-          <p className="es">Accounts are free — your stops, shots, and points need a home. Sign in from Settings → Account.</p>
-          <button className="chip act" onClick={() => nav('/settings')}>Open Settings</button>
+          <p className="es">Accounts are free — your stops, shots, and points need a home.</p>
+          <button className="chip act" onClick={() => requireSignIn('hunt', open && !status.finished ? join : undefined, `Join ${hunt.title}`)}>Sign in to join</button>
         </div>
       )}
 
       {user && !joined && open && !status.finished && (
-        <button className="cta" style={{ marginBottom: 14 }} onClick={() => { void joinHunt(hunt.id).then((ok) => ok && setJoined(true)) }}>
+        <button className="cta" style={{ marginBottom: 14 }} onClick={join}>
           Join this hunt
         </button>
       )}

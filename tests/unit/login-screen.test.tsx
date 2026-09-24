@@ -1,18 +1,20 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { act } from '@testing-library/react'
 
-/* The sign-in screen (design 2e, minus its "continue without an account"
-   footnote — V4 decided 2026-09-14). As easy as possible means: Google is one
-   tap; otherwise an email and a password is the whole form. A device that has
-   never signed in defaults to CREATING the account, so a new person types two
-   things and taps once. A device that has signed in before defaults to
-   signing in, so a returning person does the same. */
+/* The sign-in page, /signin?next=… (design 2e). As easy as possible means:
+   Google is one tap; otherwise an email and a password is the whole form. A
+   device that has never signed in defaults to CREATING the account, so a new
+   person types two things and taps once. A device that has signed in before
+   defaults to signing in, so a returning person does the same. Since guest
+   browsing returned (G1) it is never a wall: "Continue without an account"
+   and a finished sign-in both go back to where the person came from. */
 
-const mocks = vi.hoisted(() => ({ google: true, native: false }))
+const mocks = vi.hoisted(() => ({ google: true, native: false, available: true }))
 vi.mock('../../src/auth/supabase', () => ({
-  authAvailable: () => true,
+  authAvailable: () => mocks.available,
   googleEnabled: () => mocks.google,
   getSupabase: vi.fn(async () => ({ auth: { onAuthStateChange: vi.fn() } })),
 }))
@@ -31,6 +33,7 @@ beforeEach(() => {
   vi.clearAllMocks()
   mocks.google = true
   mocks.native = false
+  mocks.available = true
   localStorage.clear()
   useAuth.setState({
     user: null, status: 'ready', errorMsg: null, linkError: null, recovery: false,
@@ -38,15 +41,24 @@ beforeEach(() => {
   })
 })
 
-const wrap = () => render(<MemoryRouter><LoginScreen /></MemoryRouter>)
+const wrap = (at = '/signin?next=%2Fspot%2Fbayshore-boulevard') => render(
+  <MemoryRouter initialEntries={[at]}>
+    <Routes>
+      <Route path="/signin" element={<LoginScreen />} />
+      <Route path="*" element={<Where />} />
+    </Routes>
+  </MemoryRouter>,
+)
+function Where() {
+  return <p>now at {useLocation().pathname}</p>
+}
 const type = async (u: ReturnType<typeof userEvent.setup>, label: RegExp, text: string) =>
   u.type(screen.getByLabelText(label), text)
 
 describe('what the screen says', () => {
-  it('leads with the promise and offers no way around an account', () => {
+  it('leads with the promise, and no magic link', () => {
     wrap()
     expect(screen.getByRole('heading', { name: /know where the light is/i })).toBeInTheDocument()
-    expect(screen.queryByText(/without an account/i)).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /sign-in link/i })).not.toBeInTheDocument()
   })
 
@@ -187,5 +199,33 @@ describe('messages', () => {
     useAuth.setState({ status: 'sending' })
     wrap()
     expect(screen.getByRole('button', { name: /working/i })).toBeDisabled()
+  })
+})
+
+describe('never a wall (G1)', () => {
+  it('"Continue without an account" goes back to where the person came from', async () => {
+    const u = userEvent.setup()
+    wrap()
+    await u.click(screen.getByRole('button', { name: /continue without an account/i }))
+    expect(screen.getByText('now at /spot/bayshore-boulevard')).toBeInTheDocument()
+  })
+
+  it('a finished sign-in goes back there too', () => {
+    wrap()
+    act(() => useAuth.setState({ user: { id: 'u1', email: 'jon@example.com' } }))
+    expect(screen.getByText('now at /spot/bayshore-boulevard')).toBeInTheDocument()
+  })
+
+  it('with no next=, or a foreign one, "back" means Today', async () => {
+    const u = userEvent.setup()
+    wrap('/signin?next=https%3A%2F%2Fevil.example')
+    await u.click(screen.getByRole('button', { name: /continue without an account/i }))
+    expect(screen.getByText('now at /')).toBeInTheDocument()
+  })
+
+  it('already signed in, or no accounts in this build: straight through', () => {
+    mocks.available = false
+    wrap()
+    expect(screen.getByText('now at /spot/bayshore-boulevard')).toBeInTheDocument()
   })
 })

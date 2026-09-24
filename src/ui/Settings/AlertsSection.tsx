@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { IconBellRinging } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
 import { useAuth } from '../../auth/useAuth'
+import { requireSignIn } from '../../auth/sign-in-prompt'
 import { alertsSupported, alertsAreOn, enableAlerts, disableAlerts } from '../../push/alerts'
 import { ALERT_SCORE } from '../../push/alert-rules'
 
@@ -25,6 +26,7 @@ export default function AlertsSection() {
 
   const toggle = async () => {
     if (busy || on == null) return
+    if (!on && !requireSignIn('alerts')) return
     setBusy(true)
     setFail(null)
     try {

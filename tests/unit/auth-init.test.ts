@@ -37,6 +37,7 @@ vi.mock('../../src/auth/supabase', () => ({
 
 import { useAuth, initAuth } from '../../src/auth/useAuth'
 import { hasSignedInBefore } from '../../src/auth/seen'
+import { rememberReturn } from '../../src/auth/return-to'
 
 const USER = { id: '11111111-2222-4333-8444-555555555555', email: 'jon@example.test' }
 
@@ -75,7 +76,7 @@ describe('initAuth', () => {
       .toBeLessThan(startSync.mock.invocationCallOrder[0])
   })
 
-  it('remembers that this device has signed in, so the gate defaults to "sign in" next time', async () => {
+  it('remembers that this device has signed in, so the form defaults to "sign in" next time', async () => {
     expect(hasSignedInBefore()).toBe(false)
     await initAuth()
     fire('SIGNED_IN', { user: USER })
@@ -120,6 +121,15 @@ describe('initAuth', () => {
     fire('SIGNED_IN', { user: USER })
     expect(window.location.search).toBe('')
     expect(window.location.hash).toBe('#/you') // the route survives
+  })
+
+  it('back from Google: returns to the screen the sign-in started on', async () => {
+    rememberReturn('#/spot/bayshore-boulevard')
+    window.history.replaceState(null, '', '/?code=abc123')
+    await initAuth()
+    fire('SIGNED_IN', { user: USER })
+    expect(window.location.search).toBe('')
+    expect(window.location.hash).toBe('#/spot/bayshore-boulevard')
   })
 
   it('surfaces an expired email link rather than failing silently', async () => {

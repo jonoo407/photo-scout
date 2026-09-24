@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, within, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import type { CommunityPhoto } from '../../src/spots/community-photos-api'
@@ -22,6 +22,7 @@ vi.mock('../../src/auth/supabase', () => ({
 
 import CommunityShots from '../../src/ui/SpotDetail/CommunityShots'
 import { useAuth } from '../../src/auth/useAuth'
+import { useSignInPrompt, dismissSignIn } from '../../src/auth/sign-in-prompt'
 
 const shot = (over: Partial<CommunityPhoto>): CommunityPhoto => ({
   id: 'p1', url: 'https://cdn.example/a.jpg', ownerInitials: 'SR', ownerRef: 'ref-sr',
@@ -76,13 +77,18 @@ describe('CommunityShots', () => {
     expect(ratePhoto).not.toHaveBeenCalled()
   })
 
-  it('nudges guests to sign in instead of rating', async () => {
+  it('asks a guest to sign in at the star, then records that rating', async () => {
     const user = userEvent.setup()
+    dismissSignIn()
     useAuth.setState({ user: null, status: 'ready', errorMsg: null, linkError: null })
     photos = [shot({ id: 'p1' })]
     renderShots()
     await user.click(await screen.findByRole('button', { name: /rate 4 stars/i }))
     expect(ratePhoto).not.toHaveBeenCalled()
-    expect(screen.getByText(/sign in to rate/i)).toBeInTheDocument()
+    expect(useSignInPrompt.getState().reason).toBe('rate')
+
+    act(() => useAuth.setState({ user: { id: 'u1', email: 'jon@example.com' } }))
+    expect(ratePhoto).toHaveBeenCalledWith('p1', 4)
+    expect(await screen.findByText(/4\.5 ★ · 4 ratings/)).toBeInTheDocument()
   })
 })

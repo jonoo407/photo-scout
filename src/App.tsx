@@ -21,6 +21,7 @@ import ClientListScreen from './ui/ClientList/ClientListScreen'
 import SuggestScreen from './ui/Suggest/SuggestScreen'
 import GuidelinesScreen from './ui/Settings/GuidelinesScreen'
 import ErrorScreen from './ui/ErrorScreen'
+import LoginScreen from './ui/Login/LoginScreen'
 
 /* The five-tab IA (redesign 1a): Today · Explore · Plan · You · Community.
    Old routes redirect — deep links in the wild are sacred. */
@@ -58,6 +59,8 @@ export const routes: RouteObject[] = [
   // Client shoot shortlist — deliberately OUTSIDE Layout so the page a client
   // opens has no tab bar or app chrome.
   { path: '/list', element: <ClientListScreen />, errorElement: <ErrorScreen /> },
+  // The full sign-in page (design 2e), chrome-free like the client list.
+  { path: '/signin', element: <LoginScreen />, errorElement: <ErrorScreen /> },
 ]
 
 const router = createHashRouter(routes)

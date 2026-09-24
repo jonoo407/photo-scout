@@ -4,6 +4,7 @@ import { IconSun, IconCompass, IconRoute, IconUser, IconUsers } from '@tabler/ic
 import { useStore } from '../state/store'
 import ScrollReset from './ScrollReset'
 import AuthGate from './Login/AuthGate'
+import SignInSheet from './Login/SignInSheet'
 
 function Tab({ to, icon, label, dot }: { to: string; icon: ReactNode; label: string; dot?: boolean }) {
   return (
@@ -18,7 +19,7 @@ function Tab({ to, icon, label, dot }: { to: string; icon: ReactNode; label: str
 }
 
 /* The five-tab IA (redesign 1a): Today · Explore · Plan · You · Community —
-   all of it behind the sign-in gate (2026-09-14). */
+   all of it browsable signed out (G1); the sign-in sheet rides on top. */
 export default function Layout() {
   // A client responded to a shortlist since the last look → dot on You
   // (responses are notifications; notifications live on the identity tab).
@@ -34,6 +35,7 @@ export default function Layout() {
         <Tab to="/you" icon={<IconUser size={22} />} label="You" dot={hasNewResponse} />
         <Tab to="/community" icon={<IconUsers size={22} />} label="Community" />
       </nav>
+      <SignInSheet />
     </AuthGate>
   )
 }

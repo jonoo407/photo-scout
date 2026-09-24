@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { IconChevronLeft, IconCamera } from '@tabler/icons-react'
 import { useAuth } from '../../auth/useAuth'
+import { requireSignIn, useIsGuest } from '../../auth/sign-in-prompt'
 import { useSpotsByIds } from '../../state/useRegion'
 import { listAllMyPhotos, sweepMyOrphanPhotos, type MyPhotoAll } from '../../spots/photos-api'
 
@@ -10,6 +11,7 @@ import { listAllMyPhotos, sweepMyOrphanPhotos, type MyPhotoAll } from '../../spo
 export default function YourShotsScreen() {
   const nav = useNavigate()
   const user = useAuth((s) => s.user)
+  const guest = useIsGuest()
   const [photos, setPhotos] = useState<MyPhotoAll[] | null>(null)
 
   useEffect(() => {
@@ -40,7 +42,8 @@ export default function YourShotsScreen() {
         <div className="empty">
           <IconCamera size={30} />
           <p className="et">Sign in to keep shots</p>
-          <p className="es">Your uploads live in your account and follow you across devices — sign in from Settings → Account.</p>
+          <p className="es">Your uploads live in your account and follow you across devices.</p>
+          {guest && <button className="chip act" onClick={() => requireSignIn('upload')}>Sign in</button>}
         </div>
       ) : photos === null ? (
         <p className="center-note">Loading…</p>

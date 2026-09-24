@@ -172,3 +172,14 @@ describe('there is no magic-link sign-in any more', () => {
     expect((useAuth.getState() as unknown as Record<string, unknown>).signInWithEmail).toBeUndefined()
   })
 })
+
+describe('signInWithGoogle', () => {
+  it('remembers the screen it left, for the full-page redirect to come back to', async () => {
+    sessionStorage.clear()
+    window.history.replaceState(null, '', '/#/spot/bayshore-boulevard')
+    await useAuth.getState().signInWithGoogle()
+    expect(auth.signInWithOAuth).toHaveBeenCalledWith(expect.objectContaining({ provider: 'google' }))
+    expect(JSON.parse(sessionStorage.getItem('vantage.return-to')!).hash).toBe('#/spot/bayshore-boulevard')
+    window.history.replaceState(null, '', '/')
+  })
+})
