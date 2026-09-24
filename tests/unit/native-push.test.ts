@@ -23,6 +23,7 @@ const deps = (over: Partial<NativePushDeps> = {}): NativePushDeps => ({
   onToken: vi.fn((cb: (t: string) => void) => { cb('DEADBEEF'); return () => {} }),
   onError: vi.fn(() => () => {}),
   post: vi.fn(async () => true),
+  remember: vi.fn(),
   ...over,
 })
 
@@ -62,12 +63,42 @@ describe('enableNativePushWith', () => {
       onToken: vi.fn(() => () => {}),
       onError: vi.fn((cb: (msg: string) => void) => { cb('aps-environment missing'); return () => {} }),
     })
-    expect(await enableNativePushWith(d, [], 60_000)).toBe('no-token')
+    expect(await enableNativePushWith(d, [], 60_000)).toBe('register-failed')
+  })
+
+  it('reports register() itself throwing as register-failed', async () => {
+    const d = deps({
+      onToken: vi.fn(() => () => {}),
+      register: vi.fn(async () => { throw new Error('bridge unavailable') }),
+    })
+    expect(await enableNativePushWith(d, [], 60_000)).toBe('register-failed')
   })
 
   it('reports a failed token post as post-failed, not as a permission problem', async () => {
     const d = deps({ post: vi.fn(async () => false) })
     expect(await enableNativePushWith(d, ['x'])).toBe('post-failed')
+  })
+
+  it('gives up on a token post that never answers', async () => {
+    const d = deps({ post: vi.fn(() => new Promise<boolean>(() => {})) })
+    expect(await enableNativePushWith(d, ['x'], 60_000, 40)).toBe('post-failed')
+  })
+
+  it('treats a token post that throws as post-failed', async () => {
+    const d = deps({ post: vi.fn(async () => { throw new TypeError('Load failed') }) })
+    expect(await enableNativePushWith(d, ['x'])).toBe('post-failed')
+  })
+
+  it('remembers the token only once the server has accepted it', async () => {
+    // The stored token is what marks alerts as on, so storing it before the
+    // post would show "Turn off" next launch for a device the server never saw.
+    const ok = deps()
+    await enableNativePushWith(ok, ['x'])
+    expect(ok.remember).toHaveBeenCalledWith('DEADBEEF')
+
+    const failed = deps({ post: vi.fn(async () => false) })
+    await enableNativePushWith(failed, ['x'])
+    expect(failed.remember).not.toHaveBeenCalled()
   })
 
   it('never claims an identity in the body — the Worker reads it from the token', async () => {

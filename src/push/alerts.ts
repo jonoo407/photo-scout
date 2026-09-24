@@ -14,7 +14,7 @@ import {
 } from './client'
 import {
   nativePushAvailable, enableNativePush, disableNativePush, syncNativeWatch,
-  storedApnsToken,
+  storedApnsToken, type NativeEnableOutcome,
 } from './native-push'
 
 export function alertsSupported(): boolean {
@@ -28,24 +28,38 @@ export async function alertsAreOn(): Promise<boolean> {
   return alertsEnabled()
 }
 
+/** Why turning alerts on failed, in the terms the user can act on.
+
+    - `blocked`: a REAL permission denial — the one failure fixable in
+      Settings. Nothing else may be blamed on permissions; build 16 did, and
+      sent the user to an iOS Settings screen where everything was allowed.
+    - `registration`: iOS never handed over a device token (Apple errored or
+      went silent), so there was nothing to send the server.
+    - `network`: the alert server didn't accept the subscription. */
+export type EnableAlertsFailure = 'blocked' | 'registration' | 'network'
+
 export interface EnableAlertsResult {
   on: boolean
-  /** True only for a REAL permission denial — the one failure the user can fix
-      in Settings. Everything else (no token, unreachable server) must not be
-      blamed on permissions; build 16 did, and it sent the user to an iOS
-      Settings screen where everything was already allowed. */
-  blocked: boolean
+  failure: EnableAlertsFailure | null
+}
+
+const NATIVE_FAILURE: Record<Exclude<NativeEnableOutcome, 'on'>, EnableAlertsFailure> = {
+  denied: 'blocked',
+  'register-failed': 'registration',
+  'no-token': 'registration',
+  'post-failed': 'network',
+  unsupported: 'network',
 }
 
 export async function enableAlerts(spotIds: string[]): Promise<EnableAlertsResult> {
   if (nativePushAvailable()) {
     const outcome = await enableNativePush(spotIds)
-    return { on: outcome === 'on', blocked: outcome === 'denied' }
+    return outcome === 'on' ? { on: true, failure: null } : { on: false, failure: NATIVE_FAILURE[outcome] }
   }
   const on = await enableConditionAlerts(spotIds)
-  const blocked = !on &&
-    typeof Notification !== 'undefined' && Notification.permission === 'denied'
-  return { on, blocked }
+  if (on) return { on, failure: null }
+  const blocked = typeof Notification !== 'undefined' && Notification.permission === 'denied'
+  return { on, failure: blocked ? 'blocked' : 'network' }
 }
 
 export async function disableAlerts(): Promise<void> {
