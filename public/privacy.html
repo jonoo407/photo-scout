@@ -98,7 +98,7 @@
     <h3>Photos you upload</h3>
     <ul>
       <li>When you add a shot to a spot (from your library or the camera), we store the image file, the spot, the time, and your account ID.</li>
-      <li><strong>Image metadata.</strong> The app usually shrinks large photos before upload, which removes embedded metadata. Smaller files (roughly 1.2&nbsp;MB and under), and files the app cannot shrink, are stored exactly as you uploaded them, <strong>including any embedded metadata such as the camera model, the time the photo was taken, and the GPS location where it was taken</strong>. If you do not want that shared, remove location data from the photo before uploading.</li>
+      <li><strong>Image metadata.</strong> Before any photo leaves your device, the app removes its embedded metadata, including the GPS location where it was taken, the camera make, model and serial number, the owner name, and the time it was taken. It keeps only what is needed to display the image correctly (its color profile and which way up it goes). If the app cannot remove the metadata from a file, it refuses to upload it rather than uploading it as is.</li>
       <li>We also store ratings you give other people’s shots, reports you file about a shot (the reason and any note you add), and photographers you block.</li>
     </ul>
 
