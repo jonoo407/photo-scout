@@ -88,10 +88,53 @@ export function harness(
 }
 
 /** A subscription row as `/subscribe` would have written it. */
-export const subRow = (over: Partial<{ endpoint: string; spotIds: string[]; userId: string | null }> = {}) => ({
+export const subRow = (
+  over: Partial<{ endpoint: string; spotIds: string[]; userId: string | null; verified: boolean; createdAt: string }> = {},
+) => ({
   endpoint: 'https://push.example.test/ep-1',
   spotIds: ['bayshore-boulevard'],
   createdAt: '2026-01-01T00:00:00.000Z',
   userId: null,
+  verified: true,
   ...over,
 })
+
+const b64url = (bytes: Uint8Array | string) => {
+  const raw = typeof bytes === 'string' ? new TextEncoder().encode(bytes) : bytes
+  return btoa(String.fromCharCode(...raw)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+}
+
+export interface JwtKit {
+  jwks: { keys: JsonWebKey[] }
+  /** A Supabase-shaped access token for `sub`; `claims` override the defaults. */
+  sign(sub: string, claims?: Record<string, unknown>, header?: Record<string, unknown>): Promise<string>
+}
+
+/**
+ * A real ES256 key pair standing in for the Supabase project's signing key.
+ * Tokens are signed with the genuine algorithm so the Worker's verifier runs
+ * exactly as it does in production.
+ */
+export async function jwtKit(issuer = 'https://db.example.test/auth/v1', kid = 'test-kid'): Promise<JwtKit> {
+  const pair = await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign', 'verify'])
+  const pub = await crypto.subtle.exportKey('jwk', pair.publicKey)
+  return {
+    jwks: { keys: [{ ...pub, kid, alg: 'ES256', use: 'sig' } as JsonWebKey] },
+    async sign(sub, claims = {}, header = {}) {
+      const now = Math.floor(Date.now() / 1000)
+      const h = b64url(JSON.stringify({ alg: 'ES256', typ: 'JWT', kid, ...header }))
+      const p = b64url(JSON.stringify({
+        sub, iss: issuer, aud: 'authenticated', role: 'authenticated', exp: now + 3600, iat: now, ...claims,
+      }))
+      const sig = await crypto.subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, pair.privateKey, new TextEncoder().encode(`${h}.${p}`))
+      return `${h}.${p}.${b64url(new Uint8Array(sig))}`
+    },
+  }
+}
+
+/** A fetchImpl that serves `kit`'s JWKS and hands everything else to `rest`. */
+export const withJwks = (
+  kit: JwtKit,
+  rest: (url: string, init?: RequestInit) => Response | Promise<Response> = () => new Response('{}', { status: 200 }),
+) => (url: string, init?: RequestInit) =>
+  url.endsWith('/auth/v1/.well-known/jwks.json') ? new Response(JSON.stringify(kit.jwks)) : rest(url, init)

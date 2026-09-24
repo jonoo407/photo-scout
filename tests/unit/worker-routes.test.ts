@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach, vi } from 'vitest'
 import worker from '../../worker/index'
-import { harness, subRow, type Harness } from '../helpers/worker-env'
+import { harness, subRow, jwtKit, withJwks, type Harness } from '../helpers/worker-env'
 
 /* The Worker's request router: the shortlist unfurl, the three Supabase DB
    webhooks, the Resend inbound-mail relay, the push proxy, and everything else
@@ -12,10 +12,14 @@ import { harness, subRow, type Harness } from '../helpers/worker-env'
 const OWNER = '11111111-2222-4333-8444-555555555555'
 const LIST_ID = 'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee'
 
-const postJson = (path: string, body: unknown) =>
+const postJson = (path: string, body: unknown, headers: Record<string, string> = {}) =>
   new Request(`https://shootvantage.com${path}`, {
-    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body),
+    method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: JSON.stringify(body),
   })
+
+/** What pg_net sends: the hook routes refuse anything without the secret. */
+const HOOK = { SUPABASE_HOOK_SECRET: 'shh' }
+const hookPost = (path: string, body: unknown) => postJson(path, body, { 'x-vantage-hook-secret': 'shh' })
 
 /** Script the Supabase RPC leg by function name. */
 const rpcRouter = (byFn: Record<string, unknown>, extra?: (url: string) => Response | undefined) =>
@@ -73,25 +77,25 @@ describe('POST /api/shortlist/response-hook', () => {
   })
 
   it('rejects a payload with no or malformed list id', async () => {
-    h = harness({}, rpcRouter({}))
+    h = harness({ ...HOOK }, rpcRouter({}))
     for (const list_id of [undefined, 'not-a-uuid', '../../x']) {
-      const res = await worker.fetch(postJson('/api/shortlist/response-hook', body({ list_id })), h.env)
+      const res = await worker.fetch(hookPost('/api/shortlist/response-hook', body({ list_id })), h.env)
       expect(res.status, String(list_id)).toBe(400)
     }
   })
 
   it('stops quietly when the list has no resolvable owner', async () => {
-    h = harness({}, rpcRouter({ get_shortlist: [{ title: 't', spots: [] }] })) // get_list_owner 404s
-    const res = await worker.fetch(postJson('/api/shortlist/response-hook', body()), h.env)
+    h = harness({ ...HOOK }, rpcRouter({ get_shortlist: [{ title: 't', spots: [] }] })) // get_list_owner 404s
+    const res = await worker.fetch(hookPost('/api/shortlist/response-hook', body()), h.env)
     expect(res.status).toBe(200)
     expect(await res.text()).toBe('no owner')
   })
 
   it('pushes to the owner and names the client in the alert', async () => {
-    h = harness({}, rpcRouter({ get_list_owner: OWNER, get_shortlist: [{ title: 'Bridal party', spots: [] }] }))
+    h = harness({ ...HOOK }, rpcRouter({ get_list_owner: OWNER, get_shortlist: [{ title: 'Bridal party', spots: [] }] }))
     h.storage.map.set('sub:mine', subRow({ userId: OWNER }))
 
-    const res = await worker.fetch(postJson('/api/shortlist/response-hook', body()), h.env)
+    const res = await worker.fetch(hookPost('/api/shortlist/response-hook', body()), h.env)
     expect(await res.json()).toMatchObject({ ok: true, sent: 1, emailed: false })
 
     const queued = h.storage.map.get('pending:mine') as Array<{ title: string; body: string; url: string }>
@@ -101,21 +105,22 @@ describe('POST /api/shortlist/response-hook', () => {
   })
 
   it('falls back to a generic title when the client left no name', async () => {
-    h = harness({}, rpcRouter({ get_list_owner: OWNER, get_shortlist: [{ title: null, spots: [] }] }))
+    h = harness({ ...HOOK }, rpcRouter({ get_list_owner: OWNER, get_shortlist: [{ title: null, spots: [] }] }))
     h.storage.map.set('sub:mine', subRow({ userId: OWNER }))
-    await worker.fetch(postJson('/api/shortlist/response-hook', body({ client_name: '   ' })), h.env)
+    await worker.fetch(hookPost('/api/shortlist/response-hook', body({ client_name: '   ' })), h.env)
 
     const queued = h.storage.map.get('pending:mine') as Array<{ title: string; body: string }>
     expect(queued[0].title).toBe('Your client responded')
     expect(queued[0].body).toContain('Location options')
   })
 
-  it('never asks for the owner email without the shared secret', async () => {
-    // Holding a list link must not be enough to learn the photographer's address.
+  it('does nothing at all without the shared secret configured', async () => {
+    // Holding a list link must not be enough to learn the photographer's
+    // address — or to push them anything.
     h = harness({ RESEND_API_KEY: 'rk_test' }, rpcRouter({ get_list_owner: OWNER, get_shortlist: [{ title: 't', spots: [] }] }))
-    const res = await worker.fetch(postJson('/api/shortlist/response-hook', body()), h.env)
-    expect(await res.json()).toMatchObject({ emailed: false })
-    expect(h.calls.filter((c) => c.url.includes('get_owner_email'))).toHaveLength(0)
+    const res = await worker.fetch(hookPost('/api/shortlist/response-hook', body()), h.env)
+    expect(res.status).toBe(503)
+    expect(h.calls).toHaveLength(0)
   })
 
   it('emails the owner when both the key and the hook secret are configured', async () => {
@@ -123,7 +128,7 @@ describe('POST /api/shortlist/response-hook', () => {
       { RESEND_API_KEY: 'rk_test', SUPABASE_HOOK_SECRET: 'shh' },
       rpcRouter({ get_list_owner: OWNER, get_shortlist: [{ title: 'Bridal party', spots: [] }], get_owner_email: 'jon@example.test' }),
     )
-    const res = await worker.fetch(postJson('/api/shortlist/response-hook', body()), h.env)
+    const res = await worker.fetch(hookPost('/api/shortlist/response-hook', body()), h.env)
     expect(await res.json()).toMatchObject({ emailed: true })
 
     const secretCall = h.calls.find((c) => c.url.includes('get_owner_email'))!
@@ -144,29 +149,29 @@ describe('POST /api/shortlist/response-hook', () => {
         (url) => url === 'https://api.resend.com/emails' ? new Response('nope', { status: 422 }) : undefined,
       ),
     )
-    const res = await worker.fetch(postJson('/api/shortlist/response-hook', body()), h.env)
+    const res = await worker.fetch(hookPost('/api/shortlist/response-hook', body()), h.env)
     expect(await res.json()).toMatchObject({ emailed: false })
   })
 })
 
 describe('POST /api/feedback-hook', () => {
   it('400s a record with no message', async () => {
-    h = harness({ RESEND_API_KEY: 'rk_test' })
-    const res = await worker.fetch(postJson('/api/feedback-hook', { record: { kind: 'bug' } }), h.env)
+    h = harness({ ...HOOK, RESEND_API_KEY: 'rk_test' })
+    const res = await worker.fetch(hookPost('/api/feedback-hook', { record: { kind: 'bug' } }), h.env)
     expect(res.status).toBe(400)
   })
 
   it('no-ops without a Resend key — the DB row is still the durable record', async () => {
-    h = harness({})
-    const res = await worker.fetch(postJson('/api/feedback-hook', { record: { message: 'hi' } }), h.env)
+    h = harness({ ...HOOK })
+    const res = await worker.fetch(hookPost('/api/feedback-hook', { record: { message: 'hi' } }), h.env)
     expect(await res.json()).toEqual({ ok: true, emailed: false })
     expect(h.calls).toHaveLength(0)
   })
 
   it('sets reply-to only when the tester left an address', async () => {
-    h = harness({ RESEND_API_KEY: 'rk_test' })
-    await worker.fetch(postJson('/api/feedback-hook', { record: { message: 'a', contact_email: 't@example.test' } }), h.env)
-    await worker.fetch(postJson('/api/feedback-hook', { record: { message: 'b' } }), h.env)
+    h = harness({ ...HOOK, RESEND_API_KEY: 'rk_test' })
+    await worker.fetch(hookPost('/api/feedback-hook', { record: { message: 'a', contact_email: 't@example.test' } }), h.env)
+    await worker.fetch(hookPost('/api/feedback-hook', { record: { message: 'b' } }), h.env)
 
     const bodies = h.calls.filter((c) => c.url === 'https://api.resend.com/emails').map((c) => JSON.parse(String(c.init!.body)))
     expect(bodies[0].reply_to).toEqual(['t@example.test'])
@@ -174,8 +179,8 @@ describe('POST /api/feedback-hook', () => {
   })
 
   it('escapes tester-supplied text — the message goes straight into an email body', async () => {
-    h = harness({ RESEND_API_KEY: 'rk_test' })
-    await worker.fetch(postJson('/api/feedback-hook', {
+    h = harness({ ...HOOK, RESEND_API_KEY: 'rk_test' })
+    await worker.fetch(hookPost('/api/feedback-hook', {
       record: { message: '<img src=x onerror=alert(1)>', kind: '<b>bug', app_version: '0.1 & up', contact_email: '<script>' },
     }), h.env)
 
@@ -189,14 +194,14 @@ describe('POST /api/feedback-hook', () => {
 
 describe('POST /api/report-hook', () => {
   it('400s without a photo id', async () => {
-    h = harness({ RESEND_API_KEY: 'rk_test' })
-    expect((await worker.fetch(postJson('/api/report-hook', { record: { reason: 'nudity' } }), h.env)).status).toBe(400)
+    h = harness({ ...HOOK, RESEND_API_KEY: 'rk_test' })
+    expect((await worker.fetch(hookPost('/api/report-hook', { record: { reason: 'nudity' } }), h.env)).status).toBe(400)
   })
 
   it('flags an auto-hidden shot in the subject so triage can skip it', async () => {
-    h = harness({ RESEND_API_KEY: 'rk_test' })
-    await worker.fetch(postJson('/api/report-hook', { record: { photo_id: 'p1', reason: 'nudity', hidden: true } }), h.env)
-    await worker.fetch(postJson('/api/report-hook', { record: { photo_id: 'p2', reason: 'spam', hidden: false } }), h.env)
+    h = harness({ ...HOOK, RESEND_API_KEY: 'rk_test' })
+    await worker.fetch(hookPost('/api/report-hook', { record: { photo_id: 'p1', reason: 'nudity', hidden: true } }), h.env)
+    await worker.fetch(hookPost('/api/report-hook', { record: { photo_id: 'p2', reason: 'spam', hidden: false } }), h.env)
 
     const subjects = h.calls.filter((c) => c.url === 'https://api.resend.com/emails')
       .map((c) => JSON.parse(String(c.init!.body)).subject)
@@ -205,8 +210,8 @@ describe('POST /api/report-hook', () => {
   })
 
   it('escapes the reporter\'s free-text note', async () => {
-    h = harness({ RESEND_API_KEY: 'rk_test' })
-    await worker.fetch(postJson('/api/report-hook', {
+    h = harness({ ...HOOK, RESEND_API_KEY: 'rk_test' })
+    await worker.fetch(hookPost('/api/report-hook', {
       record: { photo_id: 'p1', reason: 'other', note: '</p><script>steal()</script>' },
     }), h.env)
     const sent = JSON.parse(String(h.calls.find((c) => c.url === 'https://api.resend.com/emails')!.init!.body))
@@ -348,22 +353,28 @@ describe('CORS for the native wrapper', () => {
       headers: {
         origin: 'capacitor://localhost',
         'access-control-request-method': 'POST',
-        'access-control-request-headers': 'content-type',
+        'access-control-request-headers': 'content-type, authorization',
       },
     }), h.env)
     expect(res.status).toBe(204)
     expect(res.headers.get('access-control-allow-origin')).toBe('capacitor://localhost')
     expect(res.headers.get('access-control-allow-methods')).toMatch(/POST/)
     expect(res.headers.get('access-control-allow-headers')).toMatch(/content-type/i)
+    // /subscribe needs the access token, so the wrapper must be allowed to send it.
+    expect(res.headers.get('access-control-allow-headers')).toMatch(/authorization/i)
     expect(h.assetRequests).toHaveLength(0)
   })
 
   it('marks /api/push/* responses readable from the wrapper origin', async () => {
-    h = harness()
+    const kit = await jwtKit()
+    h = harness({}, withJwks(kit))
     const res = await worker.fetch(new Request('https://shootvantage.com/api/push/subscribe', {
       method: 'POST',
-      headers: { 'content-type': 'application/json', origin: 'capacitor://localhost' },
-      body: JSON.stringify({ endpoint: 'apns://tok-1', spotIds: [], userId: null }),
+      headers: {
+        'content-type': 'application/json', origin: 'capacitor://localhost',
+        authorization: `Bearer ${await kit.sign('11111111-2222-4333-8444-555555555555')}`,
+      },
+      body: JSON.stringify({ endpoint: 'apns://tok-1', spotIds: [] }),
     }), h.env)
     expect(res.status).toBe(200)
     expect(res.headers.get('access-control-allow-origin')).toBe('capacitor://localhost')
