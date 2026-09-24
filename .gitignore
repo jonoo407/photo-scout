@@ -1,5 +1,6 @@
 node_modules
 dist
+dist-e2e-auth
 dist-ssr
 coverage
 *.tsbuildinfo
@@ -15,6 +16,7 @@ coverage
 .env.*
 !.env.example
 !.env.production
+!.env.e2e-auth
 .DS_Store
 .session
 

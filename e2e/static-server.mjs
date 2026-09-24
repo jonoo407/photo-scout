@@ -12,7 +12,9 @@ import { readFile } from 'node:fs/promises'
 import { join, extname, normalize } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const ROOT = fileURLToPath(new URL('../dist/', import.meta.url))
+// DIST picks another build dir — the guest suite serves the auth-configured
+// build (dist-e2e-auth/) on its own port, beside the plain one.
+const ROOT = fileURLToPath(new URL(`../${process.env.DIST ?? 'dist'}/`, import.meta.url))
 const PORT = Number(process.env.PORT ?? 4173)
 
 const TYPES = {
@@ -39,4 +41,4 @@ createServer(async (req, res) => {
     res.writeHead(404, { 'content-type': 'text/plain' })
     res.end(`404 ${rel}`)
   }
-}).listen(PORT, () => console.log(`static dist/ on http://localhost:${PORT}`))
+}).listen(PORT, () => console.log(`static ${process.env.DIST ?? 'dist'}/ on http://localhost:${PORT}`))

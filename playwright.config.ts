@@ -1,6 +1,17 @@
+import { existsSync } from 'node:fs'
 import { defineConfig } from '@playwright/test'
 
-// iPhone-form-factor visual QA + axe a11y against the built app (vite preview).
+// Deliberately NOT `vite preview` — it 301s `/` to vite's `base`, which
+// hides the absolute-asset-path bug that breaks capacitor://localhost.
+const staticServer = (port: number, dist: string) => ({
+  command: 'node e2e/static-server.mjs',
+  env: { PORT: String(port), DIST: dist },
+  url: `http://localhost:${port}`,
+  reuseExistingServer: !process.env.CI,
+  timeout: 120000,
+})
+
+// iPhone-form-factor visual QA + axe a11y against the built app.
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: false,
@@ -24,13 +35,20 @@ export default defineConfig({
     // The iOS wrapper gate — WebKit is the closest engine to WKWebView we can
     // run without a Mac. Cheap enough to gate every push.
     { name: 'webkit', use: { browserName: 'webkit' }, testMatch: /webview\.spec\.ts/ },
+    // The signed-out experience with auth ON, as production is built — the
+    // other projects run an auth-off bundle and never see sign-in at all.
+    // Service workers blocked so page.route sees every Supabase request.
+    {
+      name: 'guest',
+      use: { browserName: 'webkit', baseURL: 'http://localhost:4174', serviceWorkers: 'block' },
+      testMatch: /guest\.spec\.ts/,
+    },
   ],
-  webServer: {
-    // Deliberately NOT `vite preview` — it 301s `/` to vite's `base`, which
-    // hides the absolute-asset-path bug that breaks capacitor://localhost.
-    command: 'node e2e/static-server.mjs',
-    url: 'http://localhost:4173',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120000,
-  },
+  webServer: [
+    staticServer(4173, 'dist'),
+    // Only once `npm run build:e2e-auth` has made it: an absent build would
+    // 404 the readiness probe and stall every other project for two minutes.
+    // guest.spec.ts fails loudly on its own when the build is missing.
+    ...(existsSync('dist-e2e-auth/index.html') ? [staticServer(4174, 'dist-e2e-auth')] : []),
+  ],
 })
