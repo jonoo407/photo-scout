@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   IconArrowLeft, IconHome, IconNavigation, IconRuler2, IconMessagePlus,
   IconCameraPlus, IconCurrentLocation, IconChevronRight, IconMapPin, IconMoonStars,
+  IconHelpCircle, IconLock, IconFileText, IconExternalLink,
 } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
 import { REGION_LIST, nearestRegion } from '../../data/regions'
@@ -12,6 +13,7 @@ import AlertsSection from './AlertsSection'
 import SafetySection from './SafetySection'
 import { APP_VERSION_LABEL } from '../../app-version'
 import { getPosition } from '../../geo/position'
+import { sitePageUrl } from '../../legal/links'
 
 export default function SettingsScreen() {
   const nav = useNavigate()
@@ -167,6 +169,22 @@ export default function SettingsScreen() {
           <span className="rowleft"><IconMessagePlus size={18} /> Send feedback</span>
           <span className="val"><IconChevronRight size={16} /></span>
         </button>
+      </div>
+
+      <p className="shdr">HELP &amp; LEGAL</p>
+      <div className="card list">
+        <a className="row" href={sitePageUrl('support')} target="_blank" rel="noreferrer">
+          <span className="rowleft"><IconHelpCircle size={18} /> Help &amp; support</span>
+          <IconExternalLink size={16} className="val" />
+        </a>
+        <a className="row" href={sitePageUrl('privacy')} target="_blank" rel="noreferrer">
+          <span className="rowleft"><IconLock size={18} /> Privacy policy</span>
+          <IconExternalLink size={16} className="val" />
+        </a>
+        <a className="row last" href={sitePageUrl('terms')} target="_blank" rel="noreferrer">
+          <span className="rowleft"><IconFileText size={18} /> Terms of use</span>
+          <IconExternalLink size={16} className="val" />
+        </a>
       </div>
 
       <p className="small tertiary" style={{ margin: '14px 2px 0', lineHeight: 1.6 }}>

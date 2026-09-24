@@ -2,11 +2,11 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 
 /* Supabase client — env-gated and lazy.
 
-   Since 2026-09-14 the app requires sign-in (AuthGate around Layout); the
-   client list page is the one account-free surface. Until VITE_SUPABASE_URL /
-   VITE_SUPABASE_ANON_KEY are set (Cloudflare Workers BUILD vars in prod,
-   .env.development.local in dev, nothing in vitest) authAvailable() is false,
-   the gate passes everyone through, the Account UI never renders, and
+   Everything browses signed out; an account is asked for only at the actions
+   that need one (requireSignIn, auth/sign-in-prompt.ts). Until
+   VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY are set (Cloudflare Workers BUILD
+   vars in prod, .env.development.local in dev, nothing in vitest)
+   authAvailable() is false, nothing asks, the Account UI never renders, and
    @supabase/supabase-js is never even downloaded (dynamic import keeps it out
    of the main bundle).
 

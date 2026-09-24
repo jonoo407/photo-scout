@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { render, screen, within, fireEvent } from '@testing-library/react'
+import { render, screen, within, fireEvent, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import type { Hunt, HuntProgressRow } from '../../src/hunts/hunts'
@@ -56,6 +56,7 @@ vi.mock('../../src/auth/supabase', () => ({
 import HuntsHubScreen from '../../src/ui/Hunts/HuntsHubScreen'
 import HuntDetailScreen from '../../src/ui/Hunts/HuntDetailScreen'
 import { useAuth } from '../../src/auth/useAuth'
+import { useSignInPrompt, dismissSignIn } from '../../src/auth/sign-in-prompt'
 import { useStore } from '../../src/state/store'
 import { DEFAULT_HOME } from '../../src/data/home.config'
 
@@ -75,6 +76,7 @@ beforeEach(() => {
   joins = []
   progress = []
   joinHunt.mockClear()
+  dismissSignIn()
   submitHuntStop.mockClear()
   uploadSpotPhoto.mockClear()
   submitResult = { ok: true, done: 1, total: 3, finished: false, awarded: 25, totalPts: 25 }
@@ -108,13 +110,16 @@ describe('Hunts hub (2c)', () => {
     expect(joinHunt).toHaveBeenCalledWith(TOUR.id)
   })
 
-  it('nudges guests to sign in instead of joining', async () => {
+  it('asks a guest to sign in at Join, then joins once they have', async () => {
     const user = userEvent.setup()
     useAuth.setState({ user: null, status: 'ready', errorMsg: null })
     renderHub()
     await user.click((await screen.findAllByRole('button', { name: /^join$/i }))[0])
     expect(joinHunt).not.toHaveBeenCalled()
-    expect(screen.getByText(/Accounts are free — sign in to join/i)).toBeInTheDocument()
+    expect(useSignInPrompt.getState()).toMatchObject({ reason: 'hunt', context: `Join ${TOUR.title}` })
+
+    act(() => useAuth.setState({ user: { id: 'u1', email: 'jon@example.com' } }))
+    expect(joinHunt).toHaveBeenCalledWith(TOUR.id)
   })
 })
 
@@ -201,10 +206,27 @@ describe('Hunt detail (2d)', () => {
     expect(await screen.findByTestId('spot-page')).toBeInTheDocument()
   })
 
-  it('asks guests to sign in before hunting', async () => {
+  it('asks guests to sign in before hunting — in place, then joins', async () => {
+    const user = userEvent.setup()
     useAuth.setState({ user: null, status: 'ready', errorMsg: null })
     renderDetail()
     expect(await screen.findByText('Sign in to hunt')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /submit a shot/i })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /sign in to join/i }))
+    expect(useSignInPrompt.getState()).toMatchObject({ reason: 'hunt', context: `Join ${TOUR.title}` })
+    act(() => useAuth.setState({ user: { id: 'u1', email: 'jon@example.com' } }))
+    await vi.waitFor(() => expect(joinHunt).toHaveBeenCalledWith(TOUR.id))
+    expect(await screen.findByRole('button', { name: /submit a shot/i })).toBeInTheDocument()
+  })
+
+  it('a guest on a hunt that has closed is not joined by signing in', async () => {
+    const user = userEvent.setup()
+    hunts = [{ ...TOUR, closesAt: '2020-01-01T00:00:00Z' }]
+    useAuth.setState({ user: null, status: 'ready', errorMsg: null })
+    renderDetail()
+    await user.click(await screen.findByRole('button', { name: /sign in to join/i }))
+    act(() => useAuth.setState({ user: { id: 'u1', email: 'jon@example.com' } }))
+    expect(joinHunt).not.toHaveBeenCalled()
   })
 })

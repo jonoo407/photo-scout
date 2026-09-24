@@ -16,6 +16,7 @@ import { Capacitor } from '@capacitor/core'
 import { PushNotifications } from '@capacitor/push-notifications'
 import { apnsEndpointFor } from './apns'
 import { apiUrl } from './api-base'
+import { pushAuthHeaders } from './auth-header'
 
 export interface NativePushDeps {
   isNative: boolean
@@ -27,14 +28,34 @@ export interface NativePushDeps {
       function. Without it a failed registration is silence until the timeout. */
   onError: (cb: (message: string) => void) => () => void
   post: (path: string, body: unknown) => Promise<boolean>
+  /** Persist the token once the server holds it. Only then is the device
+      really subscribed — the stored token is what `alertsAreOn` reads. */
+  remember: (token: string) => void
 }
 
 /** What actually happened, so the UI can say the true thing. Build 16 showed
     "notifications are blocked" for a dead network path because a boolean
-    couldn't distinguish the failure modes. */
-export type NativeEnableOutcome = 'on' | 'unsupported' | 'denied' | 'no-token' | 'post-failed'
+    couldn't distinguish the failure modes.
+
+    - `register-failed`: Apple answered with an error (or `register()` threw).
+    - `no-token`: Apple never answered within the timeout. */
+export type NativeEnableOutcome =
+  | 'on' | 'unsupported' | 'denied' | 'register-failed' | 'no-token' | 'post-failed'
 
 const TOKEN_TIMEOUT_MS = 10000
+const POST_TIMEOUT_MS = 15000
+
+/** A fetch on a stalled connection can sit far longer than anyone will watch
+    a spinner, and WKWebView on iOS 15 has no AbortSignal.timeout. */
+function within<T>(p: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => resolve(fallback), ms)
+    p.then(
+      (v) => { clearTimeout(timer); resolve(v) },
+      () => { clearTimeout(timer); resolve(fallback) },
+    )
+  })
+}
 
 /**
  * Turn native alerts on: ask iOS, register with Apple, post the token.
@@ -45,8 +66,8 @@ const TOKEN_TIMEOUT_MS = 10000
 export async function enableNativePushWith(
   deps: NativePushDeps,
   spotIds: string[],
-  userId: string | null,
   timeoutMs = TOKEN_TIMEOUT_MS,
+  postTimeoutMs = POST_TIMEOUT_MS,
 ): Promise<NativeEnableOutcome> {
   if (!deps.isNative) return 'unsupported'
 
@@ -56,7 +77,8 @@ export async function enableNativePushWith(
   // The token arrives via a callback, not a return value, so bridge it to a
   // promise — and bound the wait. A silent registration failure must not leave
   // the settings toggle spinning forever.
-  const token = await new Promise<string | null>((resolve) => {
+  type TokenResult = { token: string } | { failed: 'no-token' | 'register-failed' }
+  const result = await new Promise<TokenResult>((resolve) => {
     let settled = false
     let timer: ReturnType<typeof setTimeout> | undefined
     // `off` is deliberately `let`, assigned after: the listener may fire
@@ -65,26 +87,28 @@ export async function enableNativePushWith(
     // temporal-dead-zone crash — which is exactly how this was first written.
     let off: (() => void) | undefined
     let offErr: (() => void) | undefined
-    const done = (t: string | null) => {
+    const done = (r: TokenResult) => {
       if (settled) return
       settled = true
       if (timer) clearTimeout(timer)
       off?.()
       offErr?.()
-      resolve(t)
+      resolve(r)
     }
-    off = deps.onToken(done)
-    offErr = deps.onError(() => done(null))
+    off = deps.onToken((token) => done({ token }))
+    offErr = deps.onError(() => done({ failed: 'register-failed' }))
     if (settled) { off?.(); offErr?.() } // fired synchronously — tidy the listeners up now
-    timer = setTimeout(() => done(null), timeoutMs)
-    void deps.register().catch(() => done(null))
+    timer = setTimeout(() => done({ failed: 'no-token' }), timeoutMs)
+    void deps.register().catch(() => done({ failed: 'register-failed' }))
   })
-  if (!token) return 'no-token'
+  if ('failed' in result) return result.failed
 
-  const posted = await deps.post('/api/push/subscribe', {
-    endpoint: apnsEndpointFor(token), spotIds, userId: userId ?? null,
-  })
-  return posted ? 'on' : 'post-failed'
+  const posted = await within(deps.post('/api/push/subscribe', {
+    endpoint: apnsEndpointFor(result.token), spotIds,
+  }), postTimeoutMs, false)
+  if (!posted) return 'post-failed'
+  deps.remember(result.token)
+  return 'on'
 }
 
 export async function disableNativePushWith(deps: NativePushDeps, token: string | null): Promise<void> {
@@ -93,11 +117,11 @@ export async function disableNativePushWith(deps: NativePushDeps, token: string 
 }
 
 export async function syncNativeWatchWith(
-  deps: NativePushDeps, token: string | null, spotIds: string[], userId: string | null,
+  deps: NativePushDeps, token: string | null, spotIds: string[],
 ): Promise<void> {
   if (!deps.isNative || !token) return
   await deps.post('/api/push/subscribe', {
-    endpoint: apnsEndpointFor(token), spotIds, userId: userId ?? null,
+    endpoint: apnsEndpointFor(token), spotIds,
   }).catch(() => false)
 }
 
@@ -120,13 +144,15 @@ export function nativePushDeps(): NativePushDeps {
     register: () => PushNotifications.register(),
     onToken: (cb) => {
       const handle = PushNotifications.addListener('registration', (t: { value: string }) => {
-        rememberToken(t.value)
         cb(t.value)
       })
       return () => { void Promise.resolve(handle).then((h) => h.remove()).catch(() => {}) }
     },
     onError: (cb) => {
       const handle = PushNotifications.addListener('registrationError', (e: { error: string }) => {
+        // Apple's own wording (e.g. a missing aps-environment entitlement) —
+        // visible in Safari Web Inspector when debugging on a device.
+        console.warn('[push] APNs registration failed:', e.error)
         cb(e.error)
       })
       return () => { void Promise.resolve(handle).then((h) => h.remove()).catch(() => {}) }
@@ -136,21 +162,22 @@ export function nativePushDeps(): NativePushDeps {
       // relative /api fetch goes nowhere — the TestFlight build 16 alerts bug.
       const res = await fetch(apiUrl(path), {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
+        headers: { 'content-type': 'application/json', ...(await pushAuthHeaders()) },
         body: JSON.stringify(body),
       }).catch(() => null)
       return !!res && res.ok
     },
+    remember: rememberToken,
   }
 }
 
 export const nativePushAvailable = () => Capacitor.isNativePlatform()
 
-export const enableNativePush = (spotIds: string[], userId: string | null) =>
-  enableNativePushWith(nativePushDeps(), spotIds, userId)
+export const enableNativePush = (spotIds: string[]) =>
+  enableNativePushWith(nativePushDeps(), spotIds)
 
 export const disableNativePush = () =>
   disableNativePushWith(nativePushDeps(), storedApnsToken())
 
-export const syncNativeWatch = (spotIds: string[], userId: string | null) =>
-  syncNativeWatchWith(nativePushDeps(), storedApnsToken(), spotIds, userId)
+export const syncNativeWatch = (spotIds: string[]) =>
+  syncNativeWatchWith(nativePushDeps(), storedApnsToken(), spotIds)

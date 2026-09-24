@@ -287,9 +287,8 @@ textarea.fbfield { resize: vertical; min-height: 120px; }
 .linky { appearance: none; border: 0; background: none; padding: 0; cursor: pointer; font: inherit; font-size: 12px; color: var(--terracotta); text-decoration: underline; }
 .linky:disabled { color: var(--ink-3); cursor: default; text-decoration: none; }
 
-/* ---- Sign-in gate (2026-09-14): LoginScreen, NewPasswordScreen, splash ---- */
+/* ---- Sign-in (2026-09-14): LoginScreen, NewPasswordScreen ---- */
 .login { min-height: 100%; display: flex; flex-direction: column; background: var(--bg); }
-.login.splash { align-items: center; justify-content: center; min-height: 100vh; }
 .login-hero { position: relative; height: 34vh; min-height: 210px; max-height: 330px; overflow: hidden; background: var(--surface-2); }
 .login-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
 /* Darken the top for the wordmark, dissolve the bottom into the page. */
@@ -310,8 +309,23 @@ textarea.fbfield { resize: vertical; min-height: 120px; }
 .login-error { margin: 0; font-size: 13px; color: var(--skip-ink); }
 .login-note { display: flex; gap: 8px; align-items: flex-start; padding: 12px; border-radius: var(--radius-sm); background: var(--surface-2); font-size: 14px; line-height: 1.5; }
 .login-note.warn { background: var(--skip-bg); color: var(--skip-ink); }
+/* Destructive, irreversible actions (account deletion). skip-bg/skip-ink is
+   the pair already contrast-checked in both themes; white on skip-ink is not. */
+.cta.danger { background: var(--skip-bg); color: var(--skip-ink); border: 0.5px solid var(--skip-ink); }
+/* 16px for the same iOS focus-zoom reason as .login-form .field. */
+.confirm-field { width: 100%; font: inherit; font-size: 16px; padding: 11px 13px; border-radius: var(--radius-sm); border: 0.5px solid var(--line-strong); background: var(--surface-2); color: var(--ink); box-sizing: border-box; letter-spacing: 0.06em; }
 .login-note .linky { font-size: 14px; }
 .login-links { display: flex; flex-wrap: wrap; gap: 6px 16px; }
 .login-links .linky { font-size: 13px; }
 .login-keeps { margin-top: 6px; }
 .login-keeps .row { padding: 8px 12px; }
+.login-legal { margin: 4px 2px 0; font-size: 12px; line-height: 1.6; color: var(--ink-2); }
+.login-legal a { color: var(--terracotta); }
+
+/* ---- Soft gate (G1, 2026-09-24): the contextual sign-in sheet (design 4b) ---- */
+.signin-sheet { display: flex; flex-direction: column; gap: 10px; max-height: 92vh; padding: 14px 20px calc(var(--safe-bottom) + 16px); background: var(--bg); }
+.signin-sheet h2 { font-size: 22px; margin: 0; text-align: center; }
+.signin-sheet-context { margin: 0; text-align: center; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; }
+.signin-sheet-body { margin: 0 0 4px; text-align: center; line-height: 1.5; }
+.signin-sheet .center-note { padding: 2px 0 0; }
+.signin-sheet .center-note .linky, .login-body > .center-note .linky { font-size: 13px; color: var(--ink-2); }

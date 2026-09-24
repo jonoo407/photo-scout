@@ -1,6 +1,9 @@
 import { useNavigate, Link } from 'react-router-dom'
-import { IconArrowLeft, IconMail, IconMessage2, IconChevronRight } from '@tabler/icons-react'
+import {
+  IconArrowLeft, IconMail, IconMessage2, IconChevronRight, IconHelpCircle, IconExternalLink,
+} from '@tabler/icons-react'
 import { POSTING_RULES, REPORT_POLICY, SUPPORT_EMAIL } from '../../community/standards'
+import { sitePageUrl } from '../../legal/links'
 
 /* Community guidelines + published contact (V1, App Review guideline 1.2).
    Reachable from Settings and from the pre-upload agreement. */
@@ -12,7 +15,8 @@ export default function GuidelinesScreen() {
       <h1>Community guidelines</h1>
       <p className="small muted" style={{ margin: '0 2px 16px', lineHeight: 1.6 }}>
         Shots you add to a spot are visible to every other photographer using Vantage.
-        These are the rules for what belongs there.
+        These are the rules for what belongs there. They are part of our{' '}
+        <a href={sitePageUrl('terms')} target="_blank" rel="noreferrer">Terms of use</a>.
       </p>
 
       <p className="shdr">WHAT ISN'T ALLOWED</p>
@@ -36,10 +40,14 @@ export default function GuidelinesScreen() {
           <span className="rowleft" style={{ color: 'var(--terracotta)' }}><IconMail size={18} /> {SUPPORT_EMAIL}</span>
           <IconChevronRight size={16} className="val" />
         </a>
-        <Link className="row last" to="/you/feedback">
+        <Link className="row" to="/you/feedback">
           <span className="rowleft" style={{ color: 'var(--terracotta)' }}><IconMessage2 size={18} /> Send feedback in the app</span>
           <IconChevronRight size={16} className="val" />
         </Link>
+        <a className="row last" href={sitePageUrl('support')} target="_blank" rel="noreferrer">
+          <span className="rowleft" style={{ color: 'var(--terracotta)' }}><IconHelpCircle size={18} /> Help &amp; support</span>
+          <IconExternalLink size={16} className="val" />
+        </a>
       </div>
       <p className="small tertiary" style={{ margin: '10px 2px 0', lineHeight: 1.6 }}>
         Reports about content are answered within one business day.

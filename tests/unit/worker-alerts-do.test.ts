@@ -11,6 +11,9 @@ const post = (path: string, body: unknown) =>
     method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body),
   })
 
+const USER = '99999999-2222-4333-8444-555555555555'
+const subscribe = (body: Record<string, unknown>) => post('/subscribe', { userId: USER, ...body })
+
 let h: Harness
 beforeEach(() => { h = harness() })
 afterEach(() => { vi.unstubAllGlobals() })
@@ -27,7 +30,7 @@ describe('AlertsDO /vapid', () => {
 
 describe('AlertsDO /subscribe', () => {
   it('stores a web-push subscription under a hash of its endpoint', async () => {
-    const res = await h.DO.fetch(post('/subscribe', {
+    const res = await h.DO.fetch(subscribe({
       endpoint: 'https://push.example.test/ep-1', spotIds: ['bayshore-boulevard'],
     }))
     expect(res.status).toBe(200)
@@ -40,20 +43,20 @@ describe('AlertsDO /subscribe', () => {
   })
 
   it('accepts a native apns:// endpoint too', async () => {
-    const res = await h.DO.fetch(post('/subscribe', { endpoint: 'apns://devicetoken123', spotIds: [] }))
+    const res = await h.DO.fetch(subscribe({ endpoint: 'apns://devicetoken123', spotIds: [] }))
     expect(res.status).toBe(200)
   })
 
   it('rejects an endpoint that is neither https nor apns', async () => {
     for (const endpoint of ['http://insecure.test/x', 'javascript:alert(1)', 'ftp://x', '']) {
-      const res = await h.DO.fetch(post('/subscribe', { endpoint }))
+      const res = await h.DO.fetch(subscribe({ endpoint }))
       expect(res.status, endpoint).toBe(400)
     }
     expect([...h.storage.map.keys()]).toHaveLength(0)
   })
 
   it('drops spot ids that are not real spots', async () => {
-    const res = await h.DO.fetch(post('/subscribe', {
+    const res = await h.DO.fetch(subscribe({
       endpoint: 'https://push.example.test/ep-1',
       spotIds: ['bayshore-boulevard', 'not-a-spot', '../../etc/passwd'],
     }))
@@ -61,25 +64,31 @@ describe('AlertsDO /subscribe', () => {
   })
 
   it('caps the watched list at MAX_WATCHED', async () => {
-    const res = await h.DO.fetch(post('/subscribe', {
+    const res = await h.DO.fetch(subscribe({
       endpoint: 'https://push.example.test/ep-1',
       spotIds: Array.from({ length: 40 }, () => 'bayshore-boulevard'),
     }))
     expect(await res.json()).toEqual({ ok: true, watching: 20 })
   })
 
-  it('keeps a well-formed userId and discards anything that is not a uuid', async () => {
-    const uuid = '11111111-2222-4333-8444-555555555555'
-    await h.DO.fetch(post('/subscribe', { endpoint: 'https://push.example.test/a', spotIds: [], userId: uuid }))
-    await h.DO.fetch(post('/subscribe', { endpoint: 'https://push.example.test/b', spotIds: [], userId: 'not-a-uuid' }))
-    const rows = [...h.storage.map.entries()].filter(([k]) => k.startsWith('sub:')).map(([, v]) => v as { userId: string | null })
-    expect(rows.map((r) => r.userId).sort()).toEqual([uuid, null])
+  it('stores the user id the Worker verified and marks the row verified', async () => {
+    await h.DO.fetch(subscribe({ endpoint: 'https://push.example.test/a', spotIds: [] }))
+    const rows = [...h.storage.map.entries()].filter(([k]) => k.startsWith('sub:')).map(([, v]) => v as { userId: string; verified: boolean })
+    expect(rows).toEqual([expect.objectContaining({ userId: USER, verified: true })])
+  })
+
+  it('refuses a subscription without a well-formed user id', async () => {
+    for (const userId of [undefined, null, 'not-a-uuid']) {
+      const res = await h.DO.fetch(post('/subscribe', { endpoint: 'https://push.example.test/a', spotIds: [], userId }))
+      expect(res.status, String(userId)).toBe(400)
+    }
+    expect([...h.storage.map.keys()]).toHaveLength(0)
   })
 })
 
 describe('AlertsDO /unsubscribe', () => {
   it('removes the subscription and its queued payloads', async () => {
-    await h.DO.fetch(post('/subscribe', { endpoint: 'https://push.example.test/ep-1', spotIds: [] }))
+    await h.DO.fetch(subscribe({ endpoint: 'https://push.example.test/ep-1', spotIds: [] }))
     const key = [...h.storage.map.keys()].find((k) => k.startsWith('sub:'))!.slice('sub:'.length)
     h.storage.map.set(`pending:${key}`, [{ title: 'x', body: 'y', url: '/' }])
 
@@ -209,5 +218,85 @@ describe('AlertsDO /cron', () => {
     expect(out.checked).toBe(1)
     expect(out.alerted).toBe(0)
     expect(h.storage.map.has('pending:a')).toBe(false)
+  })
+})
+
+describe('AlertsDO /notify-owner and pre-verification rows', () => {
+  const owner = '11111111-2222-4333-8444-555555555555'
+
+  it('never notifies a row whose user id was only claimed, not verified', async () => {
+    // Before 2026-09-24 /subscribe took userId from the body, so any existing
+    // row may be an attacker's device registered under a victim's id.
+    h.storage.map.set('sub:planted', subRow({ endpoint: 'https://push.example.test/planted', userId: owner, verified: undefined }))
+    h.storage.map.set('sub:real', subRow({ endpoint: 'https://push.example.test/real', userId: owner }))
+    const res = await h.DO.fetch(post('/notify-owner', { ownerId: owner, alert: { title: 't', body: 'b', url: '/' } }))
+    expect(await res.json()).toEqual({ ok: true, sent: 1 })
+    expect(h.calls.map((c) => c.url)).toEqual(['https://push.example.test/real'])
+    expect(h.storage.map.has('pending:planted')).toBe(false)
+  })
+})
+
+describe('AlertsDO /subscribe caps', () => {
+  it('keeps at most ten devices per user, evicting the least recently refreshed', async () => {
+    for (let i = 0; i < 10; i++) {
+      h.storage.map.set(`sub:old${i}`, subRow({
+        endpoint: `https://push.example.test/old${i}`, userId: USER, createdAt: `2026-01-${String(10 + i).padStart(2, '0')}T00:00:00.000Z`,
+      }))
+      h.storage.map.set(`pending:old${i}`, [])
+    }
+    const res = await h.DO.fetch(subscribe({ endpoint: 'https://push.example.test/new', spotIds: [] }))
+    expect(res.status).toBe(200)
+
+    const mine = [...h.storage.map.entries()].filter(([k, v]) => k.startsWith('sub:') && (v as { userId: string }).userId === USER)
+    expect(mine).toHaveLength(10)
+    expect(h.storage.map.has('sub:old0')).toBe(false) // the oldest
+    expect(h.storage.map.has('pending:old0')).toBe(false)
+    expect(h.storage.map.has('sub:old1')).toBe(true)
+  })
+
+  it('refreshing an existing device never evicts another', async () => {
+    await h.DO.fetch(subscribe({ endpoint: 'https://push.example.test/a', spotIds: [] }))
+    for (let i = 0; i < 9; i++) h.storage.map.set(`sub:x${i}`, subRow({ userId: USER, createdAt: '2020-01-01T00:00:00.000Z' }))
+    await h.DO.fetch(subscribe({ endpoint: 'https://push.example.test/a', spotIds: ['bayshore-boulevard'] }))
+    expect([...h.storage.map.keys()].filter((k) => k.startsWith('sub:'))).toHaveLength(10)
+  })
+
+  it('refuses new devices once the store holds MAX_SUBSCRIPTIONS rows', async () => {
+    for (let i = 0; i < 5000; i++) h.storage.map.set(`sub:f${i}`, subRow({ userId: null }))
+    const res = await h.DO.fetch(subscribe({ endpoint: 'https://push.example.test/one-too-many', spotIds: [] }))
+    expect(res.status).toBe(503)
+    expect(h.storage.map.size).toBe(5000)
+  })
+
+  it('rejects an oversized endpoint', async () => {
+    const res = await h.DO.fetch(subscribe({ endpoint: 'https://push.example.test/' + 'x'.repeat(3000), spotIds: [] }))
+    expect(res.status).toBe(400)
+  })
+})
+
+describe('AlertsDO /ratelimit', () => {
+  const take = async (bucket: string, limit = 2, windowMs = 60_000) =>
+    ((await (await h.DO.fetch(post('/ratelimit', { bucket, limit, windowMs }))).json()) as { allowed: boolean }).allowed
+
+  it('allows up to the limit per window, per bucket', async () => {
+    expect([await take('a'), await take('a'), await take('a')]).toEqual([true, true, false])
+    expect(await take('b')).toBe(true)
+  })
+
+  it('opens again once the window has passed', async () => {
+    h.storage.map.set('rl:a', { start: Date.now() - 61_000, count: 2, windowMs: 60_000 })
+    expect(await take('a')).toBe(true)
+  })
+
+  it('400s a malformed request', async () => {
+    expect((await h.DO.fetch(post('/ratelimit', { bucket: 'a' }))).status).toBe(400)
+  })
+
+  it('the daily cron sweeps buckets whose window has ended', async () => {
+    h.storage.map.set('rl:ip:1.2.3.4', { start: Date.now() - 2 * 3600_000, count: 5, windowMs: 3600_000 })
+    h.storage.map.set('rl:email:day', { start: Date.now() - 1000, count: 5, windowMs: 86400_000 })
+    await h.DO.fetch(post('/cron', {}))
+    expect(h.storage.map.has('rl:ip:1.2.3.4')).toBe(false)
+    expect(h.storage.map.has('rl:email:day')).toBe(true)
   })
 })

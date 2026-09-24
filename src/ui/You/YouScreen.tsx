@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { IconChevronRight, IconUser, IconMessagePlus } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
 import { useAuth } from '../../auth/useAuth'
+import { signInPath, useIsGuest } from '../../auth/sign-in-prompt'
 import { pointsTotal, type PointEvent } from '../../craft/points'
 import { fetchMyPointEvents } from '../../craft/points-api'
 import { tierProgress } from '../../craft/tiers'
@@ -31,6 +32,7 @@ const Chevron = () => <IconChevronRight size={14} color="var(--ink-3)" />
 export default function YouScreen() {
   const nav = useNavigate()
   const user = useAuth((s) => s.user)
+  const guest = useIsGuest()
   const wishlist = useStore((s) => s.wishlist)
   const visited = useStore((s) => s.visited)
   const region = useStore((s) => s.region)
@@ -80,6 +82,13 @@ export default function YouScreen() {
         </div>
         <div style={{ minWidth: 0 }}>
           <h2 style={{ fontSize: 20 }}>{user ? user.email?.split('@')[0] ?? 'You' : 'You'}</h2>
+          {guest && (
+            <p className="small muted" style={{ margin: '3px 0 0' }}>
+              Browsing as a guest —{' '}
+              <button className="linky" style={{ fontSize: 'inherit' }} onClick={() => nav(signInPath('/you'))}>sign in</button>{' '}
+              to sync and keep your points
+            </p>
+          )}
         </div>
       </div>
 

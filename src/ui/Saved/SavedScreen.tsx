@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { IconStar, IconCircleCheck, IconCamera, IconShare2, IconChevronLeft } from '@tabler/icons-react'
 import { useStore } from '../../state/store'
 import { useAuth } from '../../auth/useAuth'
-import { authAvailable } from '../../auth/supabase'
+import { requireSignIn, useIsGuest } from '../../auth/sign-in-prompt'
 import { useSpotsByIds } from '../../state/useRegion'
 import { SpotCard } from '../SpotCard'
 import { shortlistUrl, storedShortlistUrl, buildListSpots, MAX_SHORTLIST } from '../../spots/shortlist'
@@ -21,6 +21,7 @@ export default function SavedScreen() {
   const visited = useStore((s) => s.visited)
   const checklist = useStore((s) => s.checklist)
   const user = useAuth((s) => s.user)
+  const guest = useIsGuest()
   const neededIds = [...wishlist, ...visited]
   const { byId, loading } = useSpotsByIds(neededIds)
   const [picking, setPicking] = useState(false)
@@ -45,9 +46,11 @@ export default function SavedScreen() {
   const stopPicking = () => { setPicking(false); setPicked([]); setNotes({}); setCopied(false); setShareError(false) }
 
   const share = async () => {
+    if (!requireSignIn('share', undefined, title.trim() || undefined)) return
     setShareError(false)
     try {
-      // Signed in → store the list (notes + client responses); else v1 URL-only.
+      // Signed in → store the list (notes + client responses). URL-only (v1)
+      // is left for builds with no accounts at all.
       const url = user
         ? storedShortlistUrl(await createShortlist(title.trim() || null, buildListSpots(picked, notes)))
         : shortlistUrl(picked, title)
@@ -97,9 +100,9 @@ export default function SavedScreen() {
           <p className="small muted" style={{ margin: 0 }}>
             Tap spots below to add them, then send your client one link with the options.
           </p>
-          {authAvailable() && !user && (
+          {guest && (
             <p className="small muted" style={{ margin: 0 }}>
-              Sign in (Settings → Account) to add notes and get your client's pick back.
+              Sending asks you to sign in — then you can add notes and get your client's pick back.
             </p>
           )}
           {user && picked.map((id) => {

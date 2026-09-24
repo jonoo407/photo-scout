@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, within, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 
@@ -24,6 +24,7 @@ vi.mock('../../src/auth/supabase', () => ({
 import CommunityScreen from '../../src/ui/Community/CommunityScreen'
 import { CANDIDATE_CITIES } from '../../src/community/cities'
 import { useAuth } from '../../src/auth/useAuth'
+import { useSignInPrompt, dismissSignIn } from '../../src/auth/sign-in-prompt'
 import { useStore } from '../../src/state/store'
 import { DEFAULT_HOME } from '../../src/data/home.config'
 
@@ -56,10 +57,17 @@ describe('Community — next-city scoreboard', () => {
     expect(screen.getByText(/Denver needs 25 more votes to overtake Austin/)).toBeInTheDocument()
   })
 
-  it('nudges guests to sign in instead of letting them vote', async () => {
+  it('asks a guest to sign in at the vote, then opens the city picker', async () => {
+    const user = userEvent.setup()
+    dismissSignIn()
     renderCommunity()
-    expect(await screen.findByRole('button', { name: /sign in to vote/i })).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /cast your vote/i })).not.toBeInTheDocument()
+    await user.click(await screen.findByRole('button', { name: /cast your vote/i }))
+    expect(screen.queryByRole('button', { name: 'Denver' })).not.toBeInTheDocument()
+    expect(useSignInPrompt.getState().reason).toBe('vote')
+
+    act(() => useAuth.setState({ user: { id: 'u1', email: 'jon@example.com' } }))
+    expect(await screen.findByRole('button', { name: 'Denver' })).toBeInTheDocument()
+    expect(castVote).not.toHaveBeenCalled() // the choice is still theirs to make
   })
 
   it('lets a signed-in user pick a city and casts the vote', async () => {

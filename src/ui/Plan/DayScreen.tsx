@@ -12,6 +12,7 @@ import { haversineMiles } from '../../spots/distance'
 import { driveMinutes } from '../../spots/live'
 import { CATEGORY_LABEL } from '../../spots/types'
 import { shareLink } from '../../util/share'
+import { requireSignIn } from '../../auth/sign-in-prompt'
 import { fmtTime, fmtDrive, fmtDay } from '../../util/format'
 import type { Spot } from '../../spots/types'
 
@@ -139,9 +140,10 @@ export default function DayScreen() {
     p.stops.length === stopRefs.length &&
     stopRefs.every((r) => p.stops.some((x) => x.block === r.block && x.spotId === r.spotId)))
   const isSaved = !!savedId || alreadySaved
-  const onSave = () => {
-    setSavedId(savePlan({ name: `${fmtDay(date)} · ${region.label}`, date: dateYmd, stops: stopRefs }))
-  }
+  const planName = `${fmtDay(date)} · ${region.label}`
+  const onSave = () => requireSignIn('save', () => {
+    setSavedId(savePlan({ name: planName, date: dateYmd, stops: stopRefs }))
+  }, planName)
   const onShare = () => void shareLink(`Photo day · ${fmtDay(date)}`, planUrl(dateYmd, stopRefs))
 
   return (

@@ -39,6 +39,11 @@ describe('route table', () => {
   it('keeps the chrome-free client list route outside the tab layout', () => {
     expect(routes.some((r) => r.path === '/list')).toBe(true)
   })
+
+  it('keeps the full sign-in page outside it too', () => {
+    expect(routes.some((r) => r.path === '/signin')).toBe(true)
+    expect(layoutChildren.some((r) => r.path === '/signin')).toBe(false)
+  })
 })
 
 describe('tab bar', () => {
