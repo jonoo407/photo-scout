@@ -300,6 +300,28 @@ export class AlertsDO {
       return json({ ok: true, sent })
     }
 
+    // Account deletion: every device registered under this user, with its
+    // queue and dedupe markers. Reached only from /api/account/delete, after
+    // the session is verified — the public proxy refuses this path.
+    if (path === '/forget-user' && request.method === 'POST') {
+      const body = (await request.json().catch(() => null)) as { userId?: string } | null
+      const userId = body?.userId
+      if (!userId || !UUID_RE.test(userId)) return json({ error: 'bad user' }, 400)
+      const subs = await this.storage.list<Subscription>({ prefix: 'sub:' })
+      let removed = 0
+      for (const [storageKey, sub] of subs) {
+        if (sub.userId !== userId) continue
+        const key = storageKey.slice('sub:'.length)
+        await this.storage.delete(storageKey)
+        await this.storage.delete(`pending:${key}`)
+        for (const lastKey of (await this.storage.list({ prefix: `last:${key}:` })).keys()) {
+          await this.storage.delete(lastKey)
+        }
+        removed++
+      }
+      return json({ ok: true, removed })
+    }
+
     if (path === '/unsubscribe' && request.method === 'POST') {
       const body = (await request.json()) as { endpoint?: string }
       if (!body.endpoint) return json({ error: 'bad endpoint' }, 400)
@@ -402,6 +424,63 @@ const doStub = (env: Env) => env.ALERTS.get(env.ALERTS.idFromName('alerts'))
 
 /** The iOS wrapper's page origin — the only cross-origin caller /api/push has. */
 const WRAPPER_ORIGIN = 'capacitor://localhost'
+
+/** DO routes the Worker calls itself and /api/push/* must never forward. */
+const DO_PRIVATE = new Set(['/forget-user'])
+
+/** The Supabase user a bearer token belongs to, or null. Asking the auth
+    server (rather than decoding the JWT here) also catches a revoked session
+    or an account that is already gone. */
+async function sessionUserId(env: Env, authorization: string | null): Promise<string | null> {
+  if (!authorization || !/^Bearer\s+\S+$/i.test(authorization.trim())) return null
+  const res = await fetch(`${env.SUPABASE_URL}/auth/v1/user`, {
+    headers: { apikey: env.SUPABASE_PUBLISHABLE_KEY, Authorization: authorization.trim() },
+  }).catch(() => null)
+  if (!res || !res.ok) return null
+  const user = (await res.json().catch(() => null)) as { id?: unknown } | null
+  return typeof user?.id === 'string' && UUID_RE.test(user.id) ? user.id : null
+}
+
+/**
+ * Settings → Delete account. The Worker owns the push registrations (they
+ * live in the AlertsDO, out of Supabase's reach), so it is the entry point:
+ * verify the session, forget the user's devices, then hand the same token to
+ * the `delete-account` Edge Function, which holds the service role and
+ * removes everything in Supabase including the auth user.
+ *
+ * Devices go first on purpose. If the Edge Function then fails, the account
+ * still exists and the person can retry — whereas an account deleted with
+ * its devices left behind would keep pushing to a phone nobody can sign
+ * into, with no session left to retry from.
+ */
+async function deleteAccount(request: Request, env: Env): Promise<Response> {
+  const authorization = request.headers.get('authorization')
+  const userId = await sessionUserId(env, authorization)
+  if (!userId) return json({ error: 'sign in first' }, 401)
+
+  const forgot = await doStub(env).fetch(new Request('https://do/forget-user', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ userId }),
+  }))
+  const { removed = 0 } = (await forgot.json().catch(() => ({}))) as { removed?: number }
+
+  const res = await fetch(`${env.SUPABASE_URL}/functions/v1/delete-account`, {
+    method: 'POST',
+    headers: {
+      apikey: env.SUPABASE_PUBLISHABLE_KEY,
+      Authorization: authorization!.trim(),
+      'content-type': 'application/json',
+    },
+    body: '{}',
+  }).catch(() => null)
+  if (!res) return json({ error: 'could not reach the account service', devices: removed }, 502)
+  const out = (await res.json().catch(() => ({}))) as Record<string, unknown>
+  if (!res.ok) {
+    return json({ error: 'could not delete the account', ...out, devices: removed }, res.status >= 500 ? 502 : res.status)
+  }
+  return json({ ...out, devices: removed })
+}
 
 /* The DO's other routes (notify-owner, cron, ratelimit) send push to anyone
    and spend quota; they are reachable only from inside this Worker. */
@@ -628,6 +707,27 @@ export default {
       return json({ ok: !!sent && sent.ok })
     }
 
+    if (url.pathname === '/api/account/delete') {
+      // Same single cross-origin caller as /api/push/*, but this route also
+      // needs the Authorization header through the preflight.
+      if (request.method === 'OPTIONS') {
+        return new Response(null, {
+          status: 204,
+          headers: {
+            'access-control-allow-origin': WRAPPER_ORIGIN,
+            'access-control-allow-methods': 'POST, OPTIONS',
+            'access-control-allow-headers': 'authorization, content-type',
+            'access-control-max-age': '86400',
+          },
+        })
+      }
+      if (request.method === 'POST') {
+        const out = await deleteAccount(request, env)
+        out.headers.set('access-control-allow-origin', WRAPPER_ORIGIN)
+        return out
+      }
+    }
+
     if (url.pathname.startsWith('/api/push/')) {
       // CORS, for exactly one caller: the iOS wrapper, whose pages live on
       // capacitor://localhost and whose WKWebView enforces cross-origin rules.
@@ -645,6 +745,7 @@ export default {
           },
         })
       }
+      if (DO_PRIVATE.has(url.pathname.slice('/api/push'.length))) return json({ error: 'not found' }, 404)
       const res = await pushRoute(request, url, env)
       const out = new Response(res.body, res)
       out.headers.set('access-control-allow-origin', WRAPPER_ORIGIN)
