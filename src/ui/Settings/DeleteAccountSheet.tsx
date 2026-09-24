@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { IconTrash } from '@tabler/icons-react'
 import { deleteAccount } from '../../auth/delete-account'
 import { useAuth } from '../../auth/useAuth'
@@ -21,6 +22,7 @@ const WHAT_GOES = [
 ]
 
 export default function DeleteAccountSheet({ onClose }: { onClose: () => void }) {
+  const nav = useNavigate()
   const user = useAuth((s) => s.user)
   const [typed, setTyped] = useState('')
   const [busy, setBusy] = useState(false)
@@ -34,6 +36,7 @@ export default function DeleteAccountSheet({ onClose }: { onClose: () => void })
     const res = await deleteAccount(user.id)
     if (!res.ok) { setBusy(false); setError(res.message); return }
     useAuth.setState({ notice: 'Your account and everything in it have been deleted.' })
+    nav('/', { replace: true })
   }
 
   return (

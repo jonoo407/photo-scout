@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Routes, Route } from 'react-router-dom'
 
 /* Settings → Account → Delete account (App Store guideline 5.1.1(v)).
    Apple asks that deletion be easy to FIND and hard to do by accident: a
@@ -20,6 +20,7 @@ vi.mock('../../src/auth/supabase', () => ({
 
 import AccountSection from '../../src/ui/Settings/AccountSection'
 import LoginScreen from '../../src/ui/Login/LoginScreen'
+import TodayScreen from '../../src/ui/Today/TodayScreen'
 import { useAuth } from '../../src/auth/useAuth'
 
 const USER = { id: '11111111-2222-4333-8444-555555555555', email: 'jon@example.test' }
@@ -68,7 +69,7 @@ describe('Settings → Delete account', () => {
     expect(confirm).toBeEnabled()
   })
 
-  it('deletes this user\'s account and leaves a notice for the sign-in screen', async () => {
+  it('deletes this user\'s account and leaves a notice for Today', async () => {
     const user = userEvent.setup()
     await open(user)
     await user.type(screen.getByLabelText(/type delete to confirm/i), 'DELETE')
@@ -100,12 +101,38 @@ describe('Settings → Delete account', () => {
 })
 
 describe('after deletion', () => {
-  it('the sign-in screen confirms the account is gone, and the notice can be dismissed', async () => {
+  // Signed out, the person stays in the app as a guest (G1) — so the
+  // confirmation goes where they land, not to a sign-in screen they never see.
+  it('lands on Today, which confirms the account is gone until dismissed', async () => {
     const user = userEvent.setup()
+    global.fetch = vi.fn(async () => { throw new Error('offline') }) as unknown as typeof fetch
+    mocks.deleteAccount.mockImplementationOnce(async () => {
+      useAuth.setState({ user: null })
+      return { ok: true }
+    })
+    render(
+      <MemoryRouter initialEntries={['/settings']}>
+        <Routes>
+          <Route path="/settings" element={<AccountSection />} />
+          <Route path="/" element={<TodayScreen />} />
+        </Routes>
+      </MemoryRouter>,
+    )
+    await user.click(screen.getByRole('button', { name: /delete account/i }))
+    await user.type(screen.getByLabelText(/type delete to confirm/i), 'DELETE')
+    await user.click(screen.getByRole('button', { name: /delete my account/i }))
+
+    const banner = await screen.findByRole('status')
+    expect(banner).toHaveTextContent(/have been deleted/i)
+    expect(screen.getByRole('heading', { name: /good (morning|afternoon|evening)/i })).toBeInTheDocument()
+    await user.click(within(banner).getByRole('button', { name: /dismiss/i }))
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    expect(useAuth.getState().notice).toBeNull()
+  })
+
+  it('the sign-in page no longer carries it', () => {
     useAuth.setState({ user: null, notice: 'Your account and everything in it have been deleted.' })
     render(<MemoryRouter><LoginScreen /></MemoryRouter>)
-    expect(screen.getByRole('status')).toHaveTextContent(/have been deleted/i)
-    await user.click(screen.getByRole('button', { name: /dismiss/i }))
-    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    expect(screen.queryByText(/have been deleted/i)).not.toBeInTheDocument()
   })
 })

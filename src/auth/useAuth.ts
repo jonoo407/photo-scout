@@ -19,7 +19,7 @@ interface AuthState {
   errorMsg: string | null
   /** A link from an email failed (expired/used) — shown wherever the person is. */
   linkError: string | null
-  /** A neutral one-off message for the sign-in screen (e.g. "account deleted"). */
+  /** A neutral one-off message, shown on Today (e.g. "account deleted"). */
   notice: string | null
   /** A password-reset link brought us here: ask for the new password before
       anything else. */
