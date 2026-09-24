@@ -12,10 +12,20 @@ const mocks = vi.hoisted(() => ({
 }))
 vi.mock('../../src/push/client', () => mocks)
 
+const native = vi.hoisted(() => ({
+  nativePushAvailable: vi.fn(() => false),
+  enableNativePush: vi.fn(async () => 'on' as string),
+  disableNativePush: vi.fn(async () => {}),
+  syncNativeWatch: vi.fn(async () => {}),
+  storedApnsToken: vi.fn(() => null as string | null),
+}))
+vi.mock('../../src/push/native-push', () => native)
+
 beforeEach(() => {
   vi.clearAllMocks()
   mocks.pushSupported.mockReturnValue(true)
   mocks.alertsEnabled.mockResolvedValue(false)
+  native.nativePushAvailable.mockReturnValue(false)
   useStore.setState({ wishlist: ['honeymoon-island-sp'], visited: [] })
 })
 
@@ -70,5 +80,38 @@ describe('Settings — when turning alerts on fails', () => {
     await user.click(await screen.findByRole('button', { name: /turn on/i }))
     expect(await screen.findByText(/couldn.t reach/i)).toBeInTheDocument()
     expect(screen.queryByText(/blocked/i)).not.toBeInTheDocument()
+  })
+
+  it('on iOS, blames Apple registration — not the server — when no token arrives', async () => {
+    native.nativePushAvailable.mockReturnValue(true)
+    native.enableNativePush.mockResolvedValue('no-token')
+    const user = userEvent.setup()
+    render(<AlertsSection />)
+    await user.click(await screen.findByRole('button', { name: /turn on/i }))
+    expect(await screen.findByText(/didn.t register this device/i)).toBeInTheDocument()
+    expect(screen.queryByText(/couldn.t reach/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/blocked/i)).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /turn on/i })).toBeEnabled()
+  })
+
+  it('shows progress while waiting on Apple, instead of a dead button', async () => {
+    native.nativePushAvailable.mockReturnValue(true)
+    let finish!: (v: string) => void
+    native.enableNativePush.mockReturnValue(new Promise<string>((r) => { finish = r }))
+    const user = userEvent.setup()
+    render(<AlertsSection />)
+    await user.click(await screen.findByRole('button', { name: /turn on/i }))
+    expect(await screen.findByRole('button', { name: /turning on/i })).toBeDisabled()
+    finish('on')
+    expect(await screen.findByRole('button', { name: /turn off/i })).toBeEnabled()
+  })
+
+  it('recovers with a message if enabling throws outright', async () => {
+    mocks.enableConditionAlerts.mockRejectedValue(new Error('boom'))
+    const user = userEvent.setup()
+    render(<AlertsSection />)
+    await user.click(await screen.findByRole('button', { name: /turn on/i }))
+    expect(await screen.findByText(/couldn.t reach/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /turn on/i })).toBeEnabled()
   })
 })

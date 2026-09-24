@@ -94,30 +94,40 @@ describe('enableAlerts reports WHY it failed', () => {
   it('native: on', async () => {
     native.nativePushAvailable.mockReturnValue(true)
     native.enableNativePush.mockResolvedValue('on')
-    expect(await enableAlerts(['a'], null)).toEqual({ on: true, blocked: false })
+    expect(await enableAlerts(['a'], null)).toEqual({ on: true, failure: null })
   })
 
   it('native: a real permission denial is blocked', async () => {
     native.nativePushAvailable.mockReturnValue(true)
     native.enableNativePush.mockResolvedValue('denied' as never)
-    expect(await enableAlerts(['a'], null)).toEqual({ on: false, blocked: true })
+    expect(await enableAlerts(['a'], null)).toEqual({ on: false, failure: 'blocked' })
   })
 
-  it('native: a failed token post is NOT blocked', async () => {
+  it('native: a failed token post is a server problem, NOT blocked', async () => {
     native.nativePushAvailable.mockReturnValue(true)
     native.enableNativePush.mockResolvedValue('post-failed' as never)
-    expect(await enableAlerts(['a'], null)).toEqual({ on: false, blocked: false })
+    expect(await enableAlerts(['a'], null)).toEqual({ on: false, failure: 'network' })
+  })
+
+  it('native: no token from Apple is a registration problem, not the server', async () => {
+    // The missing-AppDelegate-forwarding bug surfaced as "couldn't reach the
+    // alert server" — true of nothing that had happened.
+    native.nativePushAvailable.mockReturnValue(true)
+    native.enableNativePush.mockResolvedValue('no-token' as never)
+    expect(await enableAlerts(['a'], null)).toEqual({ on: false, failure: 'registration' })
+    native.enableNativePush.mockResolvedValue('register-failed' as never)
+    expect(await enableAlerts(['a'], null)).toEqual({ on: false, failure: 'registration' })
   })
 
   it('web: blocked only when the browser says denied', async () => {
     web.enableConditionAlerts.mockResolvedValue(false)
     vi.stubGlobal('Notification', { permission: 'denied' })
-    expect(await enableAlerts(['a'], null)).toEqual({ on: false, blocked: true })
+    expect(await enableAlerts(['a'], null)).toEqual({ on: false, failure: 'blocked' })
   })
 
   it('web: failure with permission granted is a server problem', async () => {
     web.enableConditionAlerts.mockResolvedValue(false)
     vi.stubGlobal('Notification', { permission: 'granted' })
-    expect(await enableAlerts(['a'], null)).toEqual({ on: false, blocked: false })
+    expect(await enableAlerts(['a'], null)).toEqual({ on: false, failure: 'network' })
   })
 })
