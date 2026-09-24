@@ -8,6 +8,7 @@ import { fetchMyPointEvents } from '../../craft/points-api'
 import { pointsTotal, photoQuotaForPoints } from '../../craft/points'
 import { useStore } from '../../state/store'
 import { capturePhoto, nativeCaptureAvailable } from '../../spots/capture'
+import { PhotoPrivacyError } from '../../spots/compress'
 import StandardsGate from './StandardsGate'
 
 /* Your shots from this spot — shared with the community and rate-able.
@@ -71,7 +72,7 @@ export default function SpotPhotos({ spotId }: { spotId: string }) {
       await uploadSpotPhoto(spotId, file)
       await reload()
     } catch (e) {
-      setError(e instanceof Error && /photo limit/i.test(e.message)
+      setError(e instanceof PhotoPrivacyError || (e instanceof Error && /photo limit/i.test(e.message))
         ? e.message
         : 'Upload failed — photos up to 8 MB (JPEG/PNG/WebP/HEIC).')
     } finally {

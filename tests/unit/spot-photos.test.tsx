@@ -12,6 +12,7 @@ vi.mock('../../src/spots/photos-api', () => mocks)
 vi.mock('../../src/auth/supabase', () => ({ authAvailable: () => true }))
 
 import SpotPhotos from '../../src/ui/SpotDetail/SpotPhotos'
+import { PhotoPrivacyError } from '../../src/spots/compress'
 import { useAuth } from '../../src/auth/useAuth'
 import { useStore } from '../../src/state/store'
 
@@ -46,6 +47,16 @@ describe('SpotPhotos', () => {
     await user.upload(input, file)
     expect(mocks.uploadSpotPhoto).toHaveBeenCalledWith('bayshore-boulevard', file)
     expect(mocks.listMyPhotos.mock.calls.length).toBeGreaterThanOrEqual(2) // initial + refresh
+  })
+
+  it('says why a photo was refused for its location data, not a generic failure', async () => {
+    const user = userEvent.setup()
+    mocks.uploadSpotPhoto.mockRejectedValueOnce(new PhotoPrivacyError())
+    render(<MemoryRouter><SpotPhotos spotId="bayshore-boulevard" /></MemoryRouter>)
+    const input = (await screen.findByLabelText(/add your photo/i)) as HTMLInputElement
+    await user.upload(input, new File(['x'], 'IMG_0001.HEIC', { type: 'image/heic' }))
+    expect(await screen.findByText(/location data couldn't be removed/i)).toBeInTheDocument()
+    expect(screen.queryByText(/upload failed/i)).not.toBeInTheDocument()
   })
 
   it('deletes with a two-tap confirm', async () => {
