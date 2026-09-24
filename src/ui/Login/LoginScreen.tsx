@@ -4,6 +4,7 @@ import { googleEnabled } from '../../auth/supabase'
 import { isNativeApp } from '../../pwa/native'
 import { useAuth } from '../../auth/useAuth'
 import { hasSignedInBefore } from '../../auth/seen'
+import { sitePageUrl } from '../../legal/links'
 
 /* The sign-in screen (design 2e, minus its "continue without an account"
    footnote — V4 decided 2026-09-14). "Make it as easy as possible": Google is
@@ -144,6 +145,13 @@ export default function LoginScreen() {
             </div>
           ))}
         </div>
+
+        <p className="login-legal">
+          By continuing you agree to the{' '}
+          <a href={sitePageUrl('terms')} target="_blank" rel="noreferrer">Terms of Use</a> and{' '}
+          <a href={sitePageUrl('privacy')} target="_blank" rel="noreferrer">Privacy Policy</a>.
+          {' '}Trouble signing in? <a href={sitePageUrl('support')} target="_blank" rel="noreferrer">Get help</a>.
+        </p>
       </div>
     </div>
   )

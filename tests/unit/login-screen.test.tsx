@@ -56,6 +56,23 @@ describe('what the screen says', () => {
   })
 })
 
+describe('legal links (App Review 5.1.1: reachable before sign-in)', () => {
+  it('links the terms, privacy policy and support pages on the web', () => {
+    wrap()
+    expect(screen.getByRole('link', { name: /terms of use/i })).toHaveAttribute('href', '/terms')
+    expect(screen.getByRole('link', { name: /privacy policy/i })).toHaveAttribute('href', '/privacy')
+    expect(screen.getByRole('link', { name: /get help/i })).toHaveAttribute('href', '/support')
+  })
+
+  it('sends the wrapper to the live site, which opens in Safari', () => {
+    mocks.native = true
+    wrap()
+    expect(screen.getByRole('link', { name: /privacy policy/i }))
+      .toHaveAttribute('href', 'https://shootvantage.com/privacy')
+    expect(screen.getByRole('link', { name: /privacy policy/i })).toHaveAttribute('target', '_blank')
+  })
+})
+
 describe('Google', () => {
   it('is the first button on the web, and starts the redirect', async () => {
     const u = userEvent.setup()
