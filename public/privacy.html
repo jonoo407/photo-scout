@@ -39,7 +39,7 @@
         <li>We collect what the app needs to work: your email and sign-in, the spots and plans you save, the photos you choose to share, and, only when you tap a location button, your location.</li>
         <li>No ads. No analytics or tracking SDKs. We do not sell or share your personal information for advertising.</li>
         <li>Photos you add to a spot are public to everyone using Vantage, shown with your initials.</li>
-        <li>You can ask us to delete your account and data at any time by emailing <a href="mailto:support@shootvantage.com">support@shootvantage.com</a>.</li>
+        <li>You can delete your account at any time in the app (Settings → Account → Delete account). That removes your photos and everything else tied to your account.</li>
       </ul>
     </div>
 
@@ -241,8 +241,21 @@
     <h2 id="retention">6. How long we keep it</h2>
     <ul>
       <li><strong>Account and synced data:</strong> for as long as you have an account.</li>
-      <li><strong>When you delete your account:</strong> your account, synced data, shortlists and their responses, city vote, and block list are deleted, and your points, hunt progress and ratings are deleted or de-identified. Spot suggestions, feedback and reports you filed are kept but are no longer linked to you. <!-- TODO(verify): hunt_joins, hunt_progress, point_events and photo_ratings are defined in migrations that are not in the repo; confirm their auth.users FKs cascade or set null. --></li>
-      <li><strong>Your community shots after account deletion:</strong> shots that the community rated highly (at least three ratings averaging 4 stars or more) stay in Vantage as anonymous community shots with no name or initials attached. Your other shots are removed. If you want every shot removed, delete them from “Your shots” before deleting your account, or ask us.</li>
+      <li>
+        <strong>When you delete your account</strong>, we delete:
+        <ul>
+          <li>every photo you uploaded, including highly rated community shots, and the image files themselves;</li>
+          <li>your saved spots, checklists, notes, day plans and home base;</li>
+          <li>your client shortlists and the responses to them;</li>
+          <li>your points, hunt progress, ratings, city vote and block list;</li>
+          <li>the spot suggestions and feedback you sent;</li>
+          <li>your notification registrations on every device;</li>
+          <li>your login (email, password or Google link).</li>
+        </ul>
+        Reports you filed about other people’s shots are kept for moderation, no longer linked to you.
+        The device you deleted from is also reset.
+        <!-- TODO(verify): hunt_joins, hunt_progress, point_events and photo_ratings are defined in migrations that are not in the repo; confirm their auth.users FKs cascade or set null (see PR #5). -->
+      </li>
       <li><strong>Notification subscriptions:</strong> until you turn alerts off, or your browser or Apple reports the subscription is no longer valid.</li>
       <li><strong>Support email and feedback:</strong> for as long as needed to handle it and keep a record of what was reported.</li>
       <li><strong>Server logs</strong> are kept for the limited periods set by our providers.</li>
@@ -250,7 +263,7 @@
 
     <h2 id="rights">7. Your choices and rights</h2>
     <ul>
-      <li><strong>Delete your account:</strong> email <a href="mailto:support@shootvantage.com">support@shootvantage.com</a> from the address on your account and we will delete it and the data described above. <!-- TODO(account-deletion): once Settings → Delete account ships, describe it here first. --></li>
+      <li><strong>Delete your account:</strong> in the app, go to Settings → Account → Delete account and type DELETE to confirm. This deletes the data listed under <a href="#retention">How long we keep it</a> straight away. If you can’t sign in, email <a href="mailto:support@shootvantage.com">support@shootvantage.com</a> from the address on your account and we will delete it the same way. <!-- TODO(ops): handle emailed requests with the delete-account function, not a dashboard delete. A dashboard delete still runs the prune trigger, which keeps highly rated shots. --></li>
       <li><strong>Delete a photo:</strong> open “Your shots” in the You tab.</li>
       <li><strong>Location and notifications:</strong> turn them off in your device or browser settings, or turn alerts off in Vantage Settings.</li>
       <li><strong>Access, correction, portability:</strong> ask us for a copy of your data or to correct it.</li>
