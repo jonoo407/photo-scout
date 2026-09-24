@@ -37,12 +37,12 @@ export interface EnableAlertsResult {
   blocked: boolean
 }
 
-export async function enableAlerts(spotIds: string[], userId: string | null): Promise<EnableAlertsResult> {
+export async function enableAlerts(spotIds: string[]): Promise<EnableAlertsResult> {
   if (nativePushAvailable()) {
-    const outcome = await enableNativePush(spotIds, userId)
+    const outcome = await enableNativePush(spotIds)
     return { on: outcome === 'on', blocked: outcome === 'denied' }
   }
-  const on = await enableConditionAlerts(spotIds, userId)
+  const on = await enableConditionAlerts(spotIds)
   const blocked = !on &&
     typeof Notification !== 'undefined' && Notification.permission === 'denied'
   return { on, blocked }
@@ -53,7 +53,7 @@ export async function disableAlerts(): Promise<void> {
   return disableConditionAlerts()
 }
 
-export async function syncWatch(spotIds: string[], userId: string | null): Promise<void> {
-  if (nativePushAvailable()) return syncNativeWatch(spotIds, userId)
-  return syncWatchedSpots(spotIds, userId)
+export async function syncWatch(spotIds: string[]): Promise<void> {
+  if (nativePushAvailable()) return syncNativeWatch(spotIds)
+  return syncWatchedSpots(spotIds)
 }

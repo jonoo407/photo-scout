@@ -96,7 +96,7 @@ begin
       'list_id', new.list_id,
       'client_name', new.client_name
     )),
-    headers := '{"Content-Type": "application/json"}'::jsonb
+    headers := internal.worker_hook_headers()
   );
   return new;
 end;
@@ -156,7 +156,7 @@ begin
       'picked', new.picked,
       'comment', new.comment
     )),
-    headers := '{"Content-Type": "application/json"}'::jsonb
+    headers := internal.worker_hook_headers()
   );
   return new;
 end;
@@ -333,7 +333,7 @@ begin
       'contact_email', new.contact_email, 'app_version', new.app_version,
       'platform', new.platform
     )),
-    headers := '{"Content-Type": "application/json"}'::jsonb
+    headers := internal.worker_hook_headers()
   );
   return new;
 end;
@@ -560,3 +560,70 @@ alter table public.photographers enable row level security;
 -- Guards verified against production before applying: graceHours=10000 spared
 -- the same 58-day-old file, maxDeletes=0 selected nothing, and a wrong or
 -- missing x-janitor-secret returned 403.
+
+-- ── In-app account deletion (App Store 5.1.1(v), 2026-09-24) ───────────────
+-- No migration: Edge Function `delete-account` (supabase/functions/
+-- delete-account/) + Worker route POST /api/account/delete.
+--
+-- Settings → Delete account (typed DELETE) → the Worker verifies the session
+-- against /auth/v1/user, forgets the user's push devices in the AlertsDO, then
+-- calls the Edge Function with the SAME user token. The function re-verifies
+-- it with getUser() and, as service_role:
+--   1. lists every file under spot-photos/<uid>/ (the listing, not the rows,
+--      is the source of truth — it also finds orphans, and survives a retry),
+--   2. deletes the user's user_photos rows — ALL of them. prune_departing_
+--      photos keeps well-rated shots anonymized, which is right for a lapsed
+--      account and wrong for someone who asked for deletion. The trigger
+--      still governs deletes made any other way (dashboard, SQL),
+--   3. deletes their feedback and spot_suggestions (both `on delete set
+--      null`; feedback can carry a contact email),
+--   4. removes the files over the Storage API,
+--   5. deletes the auth user; FK cascades take vantage_state (saved spots,
+--      plans, notes, prefs), shortlists + responses, city_votes,
+--      blocked_users, photographers — and, per their migrations (bodies not
+--      in this file, so confirm with the query below), hunt_joins,
+--      hunt_progress, point_events and photo_ratings. photo_reports they
+--      filed survive with reporter = null.
+-- The auth user goes LAST, so any earlier failure leaves an account the
+-- person can sign back into and retry from.
+--
+-- Step 5 fails ("Database error deleting user") if any FK into auth.users is
+-- NO ACTION/RESTRICT and the user has rows there. Check before deploying —
+-- every row should read c (cascade) or n (set null):
+--   select conrelid::regclass as tbl, conname, confdeltype
+--   from pg_constraint
+--   where contype = 'f' and confrelid = 'auth.users'::regclass
+--   order by 1;
+--
+-- Deploy: supabase functions deploy delete-account  (JWT verification on;
+-- SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY are injected by the platform —
+-- no secret to set). Until it is deployed the Worker answers 502 and the
+-- app shows "nothing was lost, try again".
+
+-- ── Webhook shared secret (2026-09-24) ─────────────────────────────────────
+-- Applied as migration `webhook_shared_secret`
+-- (supabase/migrations/20260924000000_webhook_shared_secret.sql).
+--
+-- The three pg_net triggers above used to post with only Content-Type, and
+-- the Worker checked nothing: anyone could POST /api/feedback-hook or
+-- /api/report-hook to email Jon at will, or /api/shortlist/response-hook with
+-- a known list id to push + email a photographer a fake "client picked". The
+-- email leg shares Resend's quota with auth SMTP, so a flood also starved
+-- password resets.
+--
+--   internal.worker_hook_headers() — definer, no role may EXECUTE it (only
+--     the trigger functions' owner): Content-Type plus `x-vantage-hook-secret`
+--     = internal.config.worker_hook_secret, the SAME value as the Worker
+--     secret SUPABASE_HOOK_SECRET that already gates get_owner_email().
+--   notify_shortlist_response / feedback_notify / photo_report_notify — now
+--     post `headers := internal.worker_hook_headers()`. The migration patches
+--     the LIVE bodies in place and refuses to run if the secret is unset or a
+--     body doesn't have the expected header literal.
+--
+-- The Worker answers 503 when SUPABASE_HOOK_SECRET is unset and 401 when the
+-- header doesn't match. Apply the migration BEFORE deploying that Worker.
+-- Verified 2026-09-24 on Postgres 16 with a recording stand-in for
+-- net.http_post: refuses without the secret, anon inserts on all three
+-- tables post the header, EXECUTE lockdown survives, re-run is a no-op, an
+-- unexpected body aborts with nothing half-applied, anon cannot call the
+-- helper.

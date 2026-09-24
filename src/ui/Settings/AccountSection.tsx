@@ -1,6 +1,8 @@
-import { IconUserCircle, IconCloudCheck, IconLogout } from '@tabler/icons-react'
+import { useState } from 'react'
+import { IconUserCircle, IconCloudCheck, IconLogout, IconTrash } from '@tabler/icons-react'
 import { authAvailable } from '../../auth/supabase'
 import { useAuth } from '../../auth/useAuth'
+import DeleteAccountSheet from './DeleteAccountSheet'
 
 /* Account row for Settings. Since the sign-in gate (2026-09-14) nobody
    reaches Settings signed out, so this is only "who you are, and how to
@@ -9,6 +11,7 @@ import { useAuth } from '../../auth/useAuth'
 export default function AccountSection() {
   const user = useAuth((s) => s.user)
   const signOut = useAuth((s) => s.signOut)
+  const [deleting, setDeleting] = useState(false)
 
   if (!authAvailable() || !user) return null
 
@@ -23,10 +26,14 @@ export default function AccountSection() {
         <p className="small tertiary" style={{ margin: '0 2px 8px' }}>
           Saved spots, shot checklists and settings are synced across your devices.
         </p>
-        <button className="row last" onClick={() => void signOut()}>
+        <button className="row" onClick={() => void signOut()}>
           <span className="rowleft" style={{ color: 'var(--terracotta)' }}><IconLogout size={18} /> Sign out</span>
         </button>
+        <button className="row last" onClick={() => setDeleting(true)}>
+          <span className="rowleft" style={{ color: 'var(--skip-ink)' }}><IconTrash size={18} /> Delete account</span>
+        </button>
       </div>
+      {deleting && <DeleteAccountSheet onClose={() => setDeleting(false)} />}
     </>
   )
 }

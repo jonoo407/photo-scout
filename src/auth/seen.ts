@@ -15,3 +15,8 @@ export function hasSignedInBefore(): boolean {
 export function rememberSignedIn(): void {
   try { localStorage.setItem(SEEN_KEY, '1') } catch { /* private mode, quota — the default just leans "create" */ }
 }
+
+/** After deleting the account: there is nothing left to sign back in to. */
+export function forgetSignedIn(): void {
+  try { localStorage.removeItem(SEEN_KEY) } catch { /* private mode */ }
+}
