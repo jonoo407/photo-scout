@@ -18,6 +18,8 @@ interface AuthState {
   errorMsg: string | null
   /** A link from an email failed (expired/used) — shown wherever the person is. */
   linkError: string | null
+  /** A neutral one-off message for the sign-in screen (e.g. "account deleted"). */
+  notice: string | null
   /** A password-reset link brought us here: ask for the new password before
       anything else. */
   recovery: boolean
@@ -37,6 +39,7 @@ interface AuthState {
   clearStatus: () => void
   signOut: () => Promise<void>
   dismissLinkError: () => void
+  dismissNotice: () => void
 }
 
 const redirectHere = () => window.location.origin + window.location.pathname
@@ -65,8 +68,10 @@ export const useAuth = create<AuthState>((set) => ({
   status: 'idle',
   errorMsg: null,
   linkError: null,
+  notice: null,
   recovery: false,
   dismissLinkError: () => set({ linkError: null }),
+  dismissNotice: () => set({ notice: null }),
   clearStatus: () => set({ status: 'ready', errorMsg: null }),
   endRecovery: () => set({ recovery: false, status: 'ready', errorMsg: null }),
 
@@ -191,6 +196,7 @@ export async function initAuth(): Promise<void> {
       useAuth.setState({
         user: { id: u.id, email: u.email ?? null },
         status: 'ready',
+        notice: null,
         // supabase-js raises this itself when a legacy ConfirmationURL-style
         // reset lands via detectSessionInUrl.
         ...(event === 'PASSWORD_RECOVERY' ? { recovery: true } : {}),

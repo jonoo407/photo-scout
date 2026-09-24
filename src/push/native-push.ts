@@ -16,6 +16,7 @@ import { Capacitor } from '@capacitor/core'
 import { PushNotifications } from '@capacitor/push-notifications'
 import { apnsEndpointFor } from './apns'
 import { apiUrl } from './api-base'
+import { pushAuthHeaders } from './auth-header'
 
 export interface NativePushDeps {
   isNative: boolean
@@ -65,7 +66,6 @@ function within<T>(p: Promise<T>, ms: number, fallback: T): Promise<T> {
 export async function enableNativePushWith(
   deps: NativePushDeps,
   spotIds: string[],
-  userId: string | null,
   timeoutMs = TOKEN_TIMEOUT_MS,
   postTimeoutMs = POST_TIMEOUT_MS,
 ): Promise<NativeEnableOutcome> {
@@ -104,7 +104,7 @@ export async function enableNativePushWith(
   if ('failed' in result) return result.failed
 
   const posted = await within(deps.post('/api/push/subscribe', {
-    endpoint: apnsEndpointFor(result.token), spotIds, userId: userId ?? null,
+    endpoint: apnsEndpointFor(result.token), spotIds,
   }), postTimeoutMs, false)
   if (!posted) return 'post-failed'
   deps.remember(result.token)
@@ -117,11 +117,11 @@ export async function disableNativePushWith(deps: NativePushDeps, token: string 
 }
 
 export async function syncNativeWatchWith(
-  deps: NativePushDeps, token: string | null, spotIds: string[], userId: string | null,
+  deps: NativePushDeps, token: string | null, spotIds: string[],
 ): Promise<void> {
   if (!deps.isNative || !token) return
   await deps.post('/api/push/subscribe', {
-    endpoint: apnsEndpointFor(token), spotIds, userId: userId ?? null,
+    endpoint: apnsEndpointFor(token), spotIds,
   }).catch(() => false)
 }
 
@@ -162,7 +162,7 @@ export function nativePushDeps(): NativePushDeps {
       // relative /api fetch goes nowhere — the TestFlight build 16 alerts bug.
       const res = await fetch(apiUrl(path), {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
+        headers: { 'content-type': 'application/json', ...(await pushAuthHeaders()) },
         body: JSON.stringify(body),
       }).catch(() => null)
       return !!res && res.ok
@@ -173,11 +173,11 @@ export function nativePushDeps(): NativePushDeps {
 
 export const nativePushAvailable = () => Capacitor.isNativePlatform()
 
-export const enableNativePush = (spotIds: string[], userId: string | null) =>
-  enableNativePushWith(nativePushDeps(), spotIds, userId)
+export const enableNativePush = (spotIds: string[]) =>
+  enableNativePushWith(nativePushDeps(), spotIds)
 
 export const disableNativePush = () =>
   disableNativePushWith(nativePushDeps(), storedApnsToken())
 
-export const syncNativeWatch = (spotIds: string[], userId: string | null) =>
-  syncNativeWatchWith(nativePushDeps(), storedApnsToken(), spotIds, userId)
+export const syncNativeWatch = (spotIds: string[]) =>
+  syncNativeWatchWith(nativePushDeps(), storedApnsToken(), spotIds)

@@ -1,0 +1,112 @@
+/* Standalone pages (privacy, terms, support). These load without the app
+   bundle, so they carry their own copy of the brand tokens from
+   src/styles/theme.css, and deliberately no web fonts: a privacy policy
+   should not itself phone a third party. */
+:root {
+  --bg: #faf1e2;
+  --surface: #fffcf6;
+  --ink: #2e2014;
+  --ink-2: #79624a;
+  --line: #ecddc8;
+  --terracotta: #a8431d;
+  --todo-bg: #fde68a;
+  --todo-ink: #3b2a00;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1a120b;
+    --surface: #241910;
+    --ink: #f4e7d4;
+    --ink-2: #c2a98c;
+    --line: #3a2a1b;
+    --terracotta: #e0794a;
+  }
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.65 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+.site-header, main, .site-footer {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: max(20px, env(safe-area-inset-top));
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+  text-decoration: none;
+  font: 600 18px/1 Georgia, 'Times New Roman', serif;
+  letter-spacing: 0.08em;
+}
+.brand img { width: 32px; height: 32px; }
+.open-app {
+  color: var(--terracotta);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+main { padding-top: 8px; padding-bottom: 32px; }
+h1, h2, h3 { font-family: Georgia, 'Times New Roman', serif; font-weight: 600; line-height: 1.25; }
+h1 { font-size: 32px; margin: 28px 0 4px; }
+h2 { font-size: 22px; margin: 36px 0 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+h3 { font-size: 17px; margin: 22px 0 4px; }
+p, ul, ol { margin: 0 0 12px; }
+li { margin-bottom: 6px; }
+a { color: var(--terracotta); }
+.updated { color: var(--ink-2); font-size: 14px; margin-bottom: 20px; }
+
+.summary, .contact-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin: 16px 0 8px;
+}
+.summary ul { margin-bottom: 0; }
+.contact-card > h2:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+
+nav.toc ol { padding-left: 20px; columns: 2; column-gap: 32px; }
+@media (max-width: 520px) { nav.toc ol { columns: 1; } }
+
+table { width: 100%; border-collapse: collapse; margin: 8px 0 16px; font-size: 15px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+th { font-weight: 600; }
+.table-wrap { overflow-x: auto; }
+
+/* Owner-supplied details still missing. Loud on purpose: none of these
+   should survive to the version linked from App Store Connect. */
+mark.todo {
+  background: var(--todo-bg);
+  color: var(--todo-ink);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.site-footer {
+  padding-top: 16px;
+  padding-bottom: max(28px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line);
+  color: var(--ink-2);
+  font-size: 14px;
+}
+.site-footer nav { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-bottom: 8px; }
