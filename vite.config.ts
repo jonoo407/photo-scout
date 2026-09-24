@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { manifestIcons } from './src/brand/icons'
 import { SITE_PAGE_PATHS } from './src/legal/pages'
+import { CLIENT_LIST_PATHS } from './src/pwa/navigation-denylist'
 
 // Read rather than imported: a JSON import would need resolveJsonModule wiring
 // in the config's own tsconfig scope.
@@ -34,8 +35,10 @@ export default defineConfig({
         globIgnores: ['**/spot-photos/**'],
         // The app is hash-routed, so the navigation fallback only ever needs
         // to answer "/". Without this, an installed worker hands /privacy,
-        // /terms and /support the app shell instead of the real pages.
-        navigateFallbackDenylist: [SITE_PAGE_PATHS],
+        // /terms and /support the app shell instead of the real pages, and
+        // /l/<uuid> client-list links the app shell instead of the Worker's
+        // page. Separate patterns: SITE_PAGE_PATHS must not match /l/.
+        navigateFallbackDenylist: [SITE_PAGE_PATHS, CLIENT_LIST_PATHS],
         // Cache viewed spot photos so heroes/thumbnails survive spotty signal
         // in the field. Same-origin now, so responses are never opaque —
         // status 0 is deliberately NOT cacheable here: accepting it is what let

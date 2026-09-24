@@ -310,6 +310,11 @@ textarea.fbfield { resize: vertical; min-height: 120px; }
 .login-error { margin: 0; font-size: 13px; color: var(--skip-ink); }
 .login-note { display: flex; gap: 8px; align-items: flex-start; padding: 12px; border-radius: var(--radius-sm); background: var(--surface-2); font-size: 14px; line-height: 1.5; }
 .login-note.warn { background: var(--skip-bg); color: var(--skip-ink); }
+/* Destructive, irreversible actions (account deletion). skip-bg/skip-ink is
+   the pair already contrast-checked in both themes; white on skip-ink is not. */
+.cta.danger { background: var(--skip-bg); color: var(--skip-ink); border: 0.5px solid var(--skip-ink); }
+/* 16px for the same iOS focus-zoom reason as .login-form .field. */
+.confirm-field { width: 100%; font: inherit; font-size: 16px; padding: 11px 13px; border-radius: var(--radius-sm); border: 0.5px solid var(--line-strong); background: var(--surface-2); color: var(--ink); box-sizing: border-box; letter-spacing: 0.06em; }
 .login-note .linky { font-size: 14px; }
 .login-links { display: flex; flex-wrap: wrap; gap: 6px 16px; }
 .login-links .linky { font-size: 13px; }

@@ -31,6 +31,8 @@ export default function LoginScreen() {
   const errorMsg = useAuth((s) => s.errorMsg)
   const linkError = useAuth((s) => s.linkError)
   const dismissLinkError = useAuth((s) => s.dismissLinkError)
+  const notice = useAuth((s) => s.notice)
+  const dismissNotice = useAuth((s) => s.dismissNotice)
   const clearStatus = useAuth((s) => s.clearStatus)
   const signInWithGoogle = useAuth((s) => s.signInWithGoogle)
   const signInWithPassword = useAuth((s) => s.signInWithPassword)
@@ -64,6 +66,13 @@ export default function LoginScreen() {
             ? 'Free account — one tap with Google, or an email and a password.'
             : 'Free account — an email and a password is all it takes.'}
         </p>
+
+        {notice && (
+          <div className="login-note" role="status">
+            <IconCheck size={17} style={{ flex: 'none', marginTop: 1 }} />
+            <span>{notice} <button className="linky" type="button" onClick={dismissNotice}>Dismiss</button></span>
+          </div>
+        )}
 
         {linkError && (
           <div className="login-note warn" role="alert">

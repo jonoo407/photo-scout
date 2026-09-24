@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { enableConditionAlerts, disableConditionAlerts, syncWatchedSpots, pushSupported } from '../../src/push/client'
 
+const auth = vi.hoisted(() => ({ pushAuthHeaders: vi.fn(async () => ({}) as Record<string, string>) }))
+vi.mock('../../src/push/auth-header', () => auth)
+
 const ENDPOINT = 'https://push.example.com/sub/abc'
 
 function mockPushStack(existing: boolean) {
@@ -50,15 +53,18 @@ describe('push client', () => {
     const subCall = fetchMock.mock.calls.find((c) => String(c[0]).endsWith('/api/push/subscribe'))
     expect(subCall).toBeTruthy()
     const body = JSON.parse((subCall![1] as RequestInit).body as string)
-    expect(body).toEqual({ endpoint: ENDPOINT, spotIds: ['honeymoon-island-sp', 'fort-de-soto-park'], userId: null })
+    expect(body).toEqual({ endpoint: ENDPOINT, spotIds: ['honeymoon-island-sp', 'fort-de-soto-park'] })
   })
 
-  it('enable forwards the signed-in user id so client responses can find this device', async () => {
+  it('enable sends the session token so the Worker can bind this device to the account', async () => {
     mockPushStack(false)
-    await enableConditionAlerts(['a'], 'f5b0e9a2-1111-2222-3333-444455556666')
+    auth.pushAuthHeaders.mockResolvedValueOnce({ authorization: 'Bearer tok-123' })
+    await enableConditionAlerts(['a'])
     const subCall = fetchMock.mock.calls.find((c) => String(c[0]).endsWith('/api/push/subscribe'))
-    const body = JSON.parse((subCall![1] as RequestInit).body as string)
-    expect(body.userId).toBe('f5b0e9a2-1111-2222-3333-444455556666')
+    const init = subCall![1] as RequestInit
+    expect((init.headers as Record<string, string>).authorization).toBe('Bearer tok-123')
+    // The Worker ignores any claimed id; sending one would only mislead.
+    expect(JSON.parse(init.body as string)).not.toHaveProperty('userId')
   })
 
   it('disable: unsubscribes locally and tells the server', async () => {

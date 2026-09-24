@@ -99,7 +99,7 @@ describe('service-worker navigation denylist', () => {
 
   it('is wired into the PWA config', () => {
     const config = readFileSync(resolve(__dirname, '../../vite.config.ts'), 'utf8')
-    expect(config).toMatch(/navigateFallbackDenylist: \[SITE_PAGE_PATHS\]/)
+    expect(config).toMatch(/navigateFallbackDenylist: \[[^\]]*\bSITE_PAGE_PATHS\b[^\]]*\]/)
   })
 })
 
