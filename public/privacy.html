@@ -28,7 +28,7 @@
     <p>
       Vantage (the app at shootvantage.com and the Vantage iOS app) helps photographers
       find places to shoot and the right light to shoot them in. Vantage is operated by
-      <mark class="todo">TODO: operator's full legal name (individual or company)</mark>
+      Jon Flaherty, an individual
       (“we”, “us”). This policy explains what information Vantage handles, why, who
       processes it for us, how long it is kept, and the choices you have.
     </p>
@@ -254,7 +254,6 @@
         </ul>
         Reports you filed about other people’s shots are kept for moderation, no longer linked to you.
         The device you deleted from is also reset.
-        <!-- TODO(verify): hunt_joins, hunt_progress, point_events and photo_ratings are defined in migrations that are not in the repo; confirm their auth.users FKs cascade or set null (see PR #5). -->
       </li>
       <li><strong>Notification subscriptions:</strong> until you turn alerts off, or your browser or Apple reports the subscription is no longer valid.</li>
       <li><strong>Support email and feedback:</strong> for as long as needed to handle it and keep a record of what was reported.</li>
@@ -263,7 +262,7 @@
 
     <h2 id="rights">7. Your choices and rights</h2>
     <ul>
-      <li><strong>Delete your account:</strong> in the app, go to Settings → Account → Delete account and type DELETE to confirm. This deletes the data listed under <a href="#retention">How long we keep it</a> straight away. If you can’t sign in, email <a href="mailto:support@shootvantage.com">support@shootvantage.com</a> from the address on your account and we will delete it the same way. <!-- TODO(ops): handle emailed requests with the delete-account function, not a dashboard delete. A dashboard delete still runs the prune trigger, which keeps highly rated shots. --></li>
+      <li><strong>Delete your account:</strong> in the app, go to Settings → Account → Delete account and type DELETE to confirm. This deletes the data listed under <a href="#retention">How long we keep it</a> straight away. If you can’t sign in, email <a href="mailto:support@shootvantage.com">support@shootvantage.com</a> from the address on your account and we will delete it the same way.</li>
       <li><strong>Delete a photo:</strong> open “Your shots” in the You tab.</li>
       <li><strong>Location and notifications:</strong> turn them off in your device or browser settings, or turn alerts off in Vantage Settings.</li>
       <li><strong>Access, correction, portability:</strong> ask us for a copy of your data or to correct it.</li>
@@ -282,7 +281,8 @@
       outside the United States, your information will be transferred to and processed in countries
       that may have different data protection laws, under the safeguards our providers offer (such as
       the European Commission’s Standard Contractual Clauses).
-      <mark class="todo">TODO: confirm the Supabase project’s hosting region</mark>
+      Our database, file storage and sign-in service (Supabase) are hosted in the United States,
+      in Amazon Web Services’ US East (Northern Virginia) region.
     </p>
 
     <h2 id="security">9. Security</h2>
@@ -306,8 +306,8 @@
 
     <h2 id="contact">12. Contact us</h2>
     <div class="contact-card">
-      <p><strong><mark class="todo">TODO: operator's full legal name</mark></strong></p>
-      <p><mark class="todo">TODO: postal address (required for EEA/UK privacy requests)</mark></p>
+      <p><strong>Jon Flaherty</strong></p>
+      <p>3812 W Leona St, Tampa, FL 33629, USA</p>
       <p>Email: <a href="mailto:support@shootvantage.com">support@shootvantage.com</a></p>
     </div>
   </main>
@@ -319,7 +319,7 @@
       <a href="/terms">Terms</a>
       <a href="/support">Support</a>
     </nav>
-    <p>© 2026 <mark class="todo">TODO: operator's legal name</mark></p>
+    <p>© 2026 Jon Flaherty</p>
   </footer>
 </body>
 </html>

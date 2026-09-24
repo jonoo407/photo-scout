@@ -50,6 +50,12 @@ describe.each(pages)('public/%s.html', (page) => {
   it('leaves pinch-zoom alone', () => {
     expect(read(file)).not.toMatch(/user-scalable=no|maximum-scale/)
   })
+
+  it('ships no unfilled placeholders', () => {
+    const html = read(file)
+    expect(html).not.toMatch(/\bTODO\b/)
+    expect(html).not.toContain('class="todo"')
+  })
 })
 
 describe('policy content tracks the app', () => {
