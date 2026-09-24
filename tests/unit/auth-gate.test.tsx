@@ -104,6 +104,16 @@ describe('Layout — guests browse', () => {
     expect(document.querySelectorAll('nav.tabbar a')).toHaveLength(5)
   })
 
+  it('carries the terms, privacy and support links, like the full sign-in page', () => {
+    layout()
+    act(() => { requireSignIn('save') })
+    const sheet = screen.getByRole('dialog')
+    expect(within(sheet).getByText(/by continuing you agree/i)).toBeInTheDocument()
+    expect(within(sheet).getByRole('link', { name: /terms of use/i })).toHaveAttribute('href', '/terms')
+    expect(within(sheet).getByRole('link', { name: /privacy policy/i })).toHaveAttribute('href', '/privacy')
+    expect(within(sheet).getByRole('link', { name: /get help/i })).toHaveAttribute('href', '/support')
+  })
+
   it('"Not now" goes back to browsing and drops the pending action', async () => {
     const u = userEvent.setup()
     const action = vi.fn()

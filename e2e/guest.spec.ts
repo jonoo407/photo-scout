@@ -121,6 +121,8 @@ test.describe('sign-in is asked for at the action, in place', () => {
     await expect(sheet(page)).toBeVisible()
     await expect(sheet(page).getByRole('heading', { name: /keep your spots/i })).toBeVisible()
     await expect(sheet(page).getByText(SPOT_NAME)).toBeVisible()
+    await expect(sheet(page).getByRole('link', { name: /terms of use/i })).toHaveAttribute('href', '/terms')
+    await expect(sheet(page).getByRole('link', { name: /privacy policy/i })).toHaveAttribute('href', '/privacy')
 
     await sheet(page).getByRole('button', { name: /not now/i }).click()
     await expect(sheet(page)).toHaveCount(0)
