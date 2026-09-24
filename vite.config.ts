@@ -4,6 +4,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { manifestIcons } from './src/brand/icons'
+import { SITE_PAGE_PATHS } from './src/legal/pages'
 
 // Read rather than imported: a JSON import would need resolveJsonModule wiring
 // in the config's own tsconfig scope.
@@ -31,6 +32,10 @@ export default defineConfig({
         // library down; they get cached on view by the runtime rule below.
         // Native doesn't need either — `cap sync` ships them inside the IPA.
         globIgnores: ['**/spot-photos/**'],
+        // The app is hash-routed, so the navigation fallback only ever needs
+        // to answer "/". Without this, an installed worker hands /privacy,
+        // /terms and /support the app shell instead of the real pages.
+        navigateFallbackDenylist: [SITE_PAGE_PATHS],
         // Cache viewed spot photos so heroes/thumbnails survive spotty signal
         // in the field. Same-origin now, so responses are never opaque —
         // status 0 is deliberately NOT cacheable here: accepting it is what let
