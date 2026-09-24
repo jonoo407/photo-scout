@@ -1,4 +1,5 @@
 import { b64urlToBytes } from './vapid'
+import { pushAuthHeaders } from './auth-header'
 
 /* Browser side of conditions alerts: permission, push subscription, and
    keeping the server's watch list in step with the user's saved spots. */
@@ -18,7 +19,7 @@ async function currentSubscription(): Promise<PushSubscription | null> {
 async function postJson(path: string, body: unknown): Promise<Response> {
   return fetch(path, {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    headers: { 'content-type': 'application/json', ...(await pushAuthHeaders()) },
     body: JSON.stringify(body),
   })
 }
@@ -34,7 +35,7 @@ export async function alertsEnabled(): Promise<boolean> {
  * register which spots to watch. Returns false when the user declines or the
  * environment can't push.
  */
-export async function enableConditionAlerts(spotIds: string[], userId?: string | null): Promise<boolean> {
+export async function enableConditionAlerts(spotIds: string[]): Promise<boolean> {
   if (!pushSupported()) return false
   const permission = await Notification.requestPermission()
   if (permission !== 'granted') return false
@@ -48,7 +49,7 @@ export async function enableConditionAlerts(spotIds: string[], userId?: string |
     new Uint8Array(applicationServerKey).set(raw)
     sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey })
   }
-  const res = await postJson('/api/push/subscribe', { endpoint: sub.endpoint, spotIds, userId: userId ?? null })
+  const res = await postJson('/api/push/subscribe', { endpoint: sub.endpoint, spotIds })
   return res.ok
 }
 
@@ -63,9 +64,9 @@ export async function disableConditionAlerts(): Promise<void> {
 }
 
 /** Keep the server's watch list current — no-op unless already subscribed. */
-export async function syncWatchedSpots(spotIds: string[], userId?: string | null): Promise<void> {
+export async function syncWatchedSpots(spotIds: string[]): Promise<void> {
   if (!pushSupported() || Notification.permission !== 'granted') return
   const sub = await currentSubscription()
   if (!sub) return
-  await postJson('/api/push/subscribe', { endpoint: sub.endpoint, spotIds, userId: userId ?? null }).catch(() => {})
+  await postJson('/api/push/subscribe', { endpoint: sub.endpoint, spotIds }).catch(() => {})
 }

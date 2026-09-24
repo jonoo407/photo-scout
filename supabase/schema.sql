@@ -96,7 +96,7 @@ begin
       'list_id', new.list_id,
       'client_name', new.client_name
     )),
-    headers := '{"Content-Type": "application/json"}'::jsonb
+    headers := internal.worker_hook_headers()
   );
   return new;
 end;
@@ -156,7 +156,7 @@ begin
       'picked', new.picked,
       'comment', new.comment
     )),
-    headers := '{"Content-Type": "application/json"}'::jsonb
+    headers := internal.worker_hook_headers()
   );
   return new;
 end;
@@ -333,7 +333,7 @@ begin
       'contact_email', new.contact_email, 'app_version', new.app_version,
       'platform', new.platform
     )),
-    headers := '{"Content-Type": "application/json"}'::jsonb
+    headers := internal.worker_hook_headers()
   );
   return new;
 end;
@@ -560,3 +560,31 @@ alter table public.photographers enable row level security;
 -- Guards verified against production before applying: graceHours=10000 spared
 -- the same 58-day-old file, maxDeletes=0 selected nothing, and a wrong or
 -- missing x-janitor-secret returned 403.
+
+-- ── Webhook shared secret (2026-09-24) ─────────────────────────────────────
+-- Applied as migration `webhook_shared_secret`
+-- (supabase/migrations/20260924000000_webhook_shared_secret.sql).
+--
+-- The three pg_net triggers above used to post with only Content-Type, and
+-- the Worker checked nothing: anyone could POST /api/feedback-hook or
+-- /api/report-hook to email Jon at will, or /api/shortlist/response-hook with
+-- a known list id to push + email a photographer a fake "client picked". The
+-- email leg shares Resend's quota with auth SMTP, so a flood also starved
+-- password resets.
+--
+--   internal.worker_hook_headers() — definer, no role may EXECUTE it (only
+--     the trigger functions' owner): Content-Type plus `x-vantage-hook-secret`
+--     = internal.config.worker_hook_secret, the SAME value as the Worker
+--     secret SUPABASE_HOOK_SECRET that already gates get_owner_email().
+--   notify_shortlist_response / feedback_notify / photo_report_notify — now
+--     post `headers := internal.worker_hook_headers()`. The migration patches
+--     the LIVE bodies in place and refuses to run if the secret is unset or a
+--     body doesn't have the expected header literal.
+--
+-- The Worker answers 503 when SUPABASE_HOOK_SECRET is unset and 401 when the
+-- header doesn't match. Apply the migration BEFORE deploying that Worker.
+-- Verified 2026-09-24 on Postgres 16 with a recording stand-in for
+-- net.http_post: refuses without the secret, anon inserts on all three
+-- tables post the header, EXECUTE lockdown survives, re-run is a no-op, an
+-- unexpected body aborts with nothing half-applied, anon cannot call the
+-- helper.
