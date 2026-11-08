@@ -26,7 +26,7 @@ concurrency:
 env:
   BUNDLE_ID: app.datedeck.ios
   # date-deck commit to build (branch main-qqdeam, PR #2).
-  DATEDECK_REF: 49860fda15588b7457ff6e79a077d5b3624a7245
+  DATEDECK_REF: b07bd295bb098d06e7246c5735fff72bb4a0b8c4
   APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
   APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
   APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
@@ -162,6 +162,13 @@ jobs:
           # Explicit branch rather than an args array: macOS runners ship bash
           # 3.2, where "${arr[@]}" on an EMPTY array trips `set -u`.
           app-store-connect publish --path 'build/ios/ipa/*.ipa' --max-build-processing-wait 30
+
+      - name: TestFlight setup (export compliance, internal testers)
+        if: steps.record.outputs.exists == 'true'
+        working-directory: .
+        run: |
+          curl -sSf -o /tmp/tf.py "https://raw.githubusercontent.com/jonoo407/photo-scout/${GITHUB_SHA}/.github/datedeck/testflight_setup.py"
+          python3 /tmp/tf.py
 
       - uses: actions/upload-artifact@v4
         if: always()
