@@ -1,0 +1,165 @@
+# Date Deck iOS: signed archive -> TestFlight, built from THIS repo so it can use the
+# App Store Connect secrets Vantage already has (same Apple account, same distribution
+# certificate key, so no second certificate slot is used).
+#
+# Lives only on the `datedeck-ios` branch; nothing on main changes. It builds the public
+# jonoo407/date-deck repo at DATEDECK_REF. A new build = a commit here that moves DATEDECK_REF.
+# The real pipeline is date-deck's own .github/workflows/ios-release.yml; this is a copy that
+# differs only in the checkout and the trigger.
+#
+# TRIGGER DISCIPLINE (this job reads the signing keys): pushes to this branch only.
+# NEVER `pull_request` or `pull_request_target`.
+name: Date Deck iOS release
+
+on:
+  push:
+    branches: [datedeck-ios]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: datedeck-ios-release
+  cancel-in-progress: false
+
+env:
+  BUNDLE_ID: app.datedeck.ios
+  # date-deck commit to build (branch main-qqdeam, PR #2).
+  DATEDECK_REF: 49860fda15588b7457ff6e79a077d5b3624a7245
+  APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+  APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+  APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+  # A DIFFERENT key from the .p8 above. The .p8 authenticates to Apple's API;
+  # this RSA key is the one the distribution CERTIFICATE is issued against and
+  # the one that actually signs code. Apple never stores it, so it must be
+  # stable across releases — regenerating it burns one of the 2 certificate
+  # slots every run.
+  CERTIFICATE_PRIVATE_KEY: ${{ secrets.CERTIFICATE_PRIVATE_KEY }}
+
+jobs:
+  release:
+    runs-on: macos-26
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: app
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: jonoo407/date-deck
+          ref: ${{ env.DATEDECK_REF }}
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install codemagic-cli-tools
+        run: pip install --quiet codemagic-cli-tools
+
+      - name: Resolve version and build number
+        id: ver
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            version="${GITHUB_REF_NAME#v}"
+          else
+            version=$(node -p "require('./package.json').version")
+          fi
+          # CFBundleShortVersionString must be 1-3 dot-separated integers.
+          if ! printf '%s' "$version" | grep -qE '^[0-9]+(\.[0-9]+){0,2}$'; then
+            echo "::error::Version '$version' is not App Store legal (need 1-3 dot-separated integers, e.g. 0.1.0)."
+            exit 1
+          fi
+          # Build number must strictly increase and never repeat across uploads;
+          # the run number does that for free and survives re-tagging.
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "build=${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+          echo "Version $version (build ${GITHUB_RUN_NUMBER})"
+
+      - run: npm ci
+
+      - name: Build web assets
+        # The Supabase URL and publishable key are public by design; every table is closed to clients
+        # and the api function checks who is asking. They're also the app's built-in defaults.
+        env:
+          BUILD_NUMBER: ${{ steps.ver.outputs.build }}
+          VITE_SUPABASE_URL: https://ypgttqsrrgnbdvnolbqt.supabase.co
+          VITE_SUPABASE_KEY: sb_publishable_bZLVI8B9uHkKFg3NVlOBMw_3Ie64R_f
+        run: npm run build
+
+      - name: Sync web build into the native project
+        run: npx cap sync ios
+
+      - name: Fetch signing files (creates bundle id + cert + profile if absent)
+        run: |
+          set -euo pipefail
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --platform IOS \
+            --type IOS_APP_STORE \
+            --certificate-key @env:CERTIFICATE_PRIVATE_KEY \
+            --strict-match-identifier \
+            --create
+
+      - name: Add certificates to a temporary keychain
+        run: |
+          set -euo pipefail
+          keychain initialize
+          keychain add-certificates
+
+      - name: Apply provisioning profiles to the Xcode project
+        run: xcode-project use-profiles
+
+      - name: Build signed IPA
+        run: |
+          set -euo pipefail
+          xcode-project build-ipa \
+            --project ios/App/App.xcodeproj \
+            --scheme App \
+            --archive-xcargs "COMPILER_INDEX_STORE_ENABLE=NO MARKETING_VERSION=${{ steps.ver.outputs.version }} CURRENT_PROJECT_VERSION=${{ steps.ver.outputs.build }}"
+
+      - name: Does the App Store Connect app record exist?
+        id: record
+        run: |
+          set -uo pipefail
+          # Apple has no API for creating an app record — it is UI-only — so the
+          # very first release needs a human to add it once. Detect rather than
+          # fail with an opaque upload error.
+          if app-store-connect apps list 2>/dev/null | grep -q "$BUNDLE_ID"; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::No App Store Connect app record for $BUNDLE_ID yet — skipping TestFlight upload. Create it once at https://appstoreconnect.apple.com (My Apps -> + -> New App), selecting bundle id $BUNDLE_ID, then re-run this workflow. The signed IPA is attached as an artifact."
+          fi
+
+      - name: Upload to TestFlight
+        if: steps.record.outputs.exists == 'true'
+        run: |
+          set -euo pipefail
+          # Plain upload by default: once processing finishes, INTERNAL testers
+          # get the build immediately with no review. `--testflight` additionally
+          # submits for EXTERNAL beta review — a human review gate that needs
+          # Test Information filled in, and that you do not want on every build.
+          # Explicit branch rather than an args array: macOS runners ship bash
+          # 3.2, where "${arr[@]}" on an EMPTY array trips `set -u`.
+          app-store-connect publish --path 'build/ios/ipa/*.ipa' --max-build-processing-wait 30
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-release-${{ steps.ver.outputs.version }}-${{ steps.ver.outputs.build }}
+          path: |
+            app/build/ios/ipa/*.ipa
+            app/build/ios/xcarchive/**/*.log
+          if-no-files-found: warn
