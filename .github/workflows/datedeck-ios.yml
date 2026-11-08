@@ -2,10 +2,10 @@
 # App Store Connect secrets Vantage already has (same Apple account, same distribution
 # certificate key, so no second certificate slot is used).
 #
-# Lives only on the `datedeck-ios` branch; nothing on main changes. It builds the public
-# jonoo407/date-deck repo at DATEDECK_REF. A new build = a commit here that moves DATEDECK_REF.
+# Lives only on the `datedeck-ios` branch; nothing on main changes. It builds the
+# private jonoo407/date-deck repo at DATEDECK_REF (fetched through a gated Worker, below). A new build = a commit here that moves DATEDECK_REF.
 # The real pipeline is date-deck's own .github/workflows/ios-release.yml; this is a copy that
-# differs only in the checkout and the trigger.
+# differs only in how it gets the source and the trigger.
 #
 # TRIGGER DISCIPLINE (this job reads the signing keys): pushes to this branch only.
 # NEVER `pull_request` or `pull_request_target`.
@@ -17,6 +17,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write  # for the OIDC token the source gate checks
 
 concurrency:
   group: datedeck-ios-release
@@ -45,11 +46,18 @@ jobs:
         working-directory: app
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          repository: jonoo407/date-deck
-          ref: ${{ env.DATEDECK_REF }}
-          persist-credentials: false
+      # date-deck is private, so this job's GITHUB_TOKEN can't clone it. A small Cloudflare
+      # Worker (date-deck-ios-src) hands over the source at DATEDECK_REF only to a request
+      # carrying a GitHub OIDC token for exactly this repo, branch and workflow file.
+      - name: Fetch Date Deck source
+        working-directory: .
+        run: |
+          set -euo pipefail
+          tok=$(curl -sSf -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=date-deck-src" | python3 -c 'import sys,json;print(json.load(sys.stdin)["value"])')
+          echo "::add-mask::$tok"
+          curl -sSf --retry 3 -H "Authorization: Bearer $tok" -o /tmp/dd.tgz "https://date-deck-ios-src.flahertyjon.workers.dev/src/$DATEDECK_REF"
+          tar -xzf /tmp/dd.tgz
+          test -f app/package.json
 
       - uses: actions/setup-node@v4
         with:
