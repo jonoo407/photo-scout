@@ -26,7 +26,7 @@ concurrency:
 env:
   BUNDLE_ID: app.datedeck.ios
   # date-deck commit to build (branch main-qqdeam, PR #2).
-  DATEDECK_REF: ccbdba4df4e9c51296d78053c0448dd1792c0272
+  DATEDECK_REF: b974e54573298fa85c540eac6bf005c74fa3bb26
   APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
   APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
   APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
