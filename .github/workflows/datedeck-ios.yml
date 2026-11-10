@@ -39,13 +39,23 @@ env:
 
 jobs:
   release:
-    runs-on: macos-26
+    # Xcode 27.1 is the first with iPhone Duo support: built with Xcode 26 the app opens letterboxed, as a
+    # phone-sized app, on the Duo's inner screen. Only GitHub's xcode-27 image has it (macos-26 stops at 26.6).
+    # https://github.com/actions/runner-images/blob/main/images/macos/xcode-27-arm64-Readme.md
+    runs-on: xcode-27
     timeout-minutes: 60
     defaults:
       run:
         working-directory: app
 
     steps:
+      - name: Use Xcode 27.1 (iPhone Duo support)
+        working-directory: .
+        run: |
+          sudo xcode-select -s /Applications/Xcode_27.1.app
+          xcodebuild -version
+          xcodebuild -showsdks | grep -i iphoneos
+
       # date-deck is private, so this job's GITHUB_TOKEN can't clone it. A small Cloudflare
       # Worker (date-deck-ios-src) hands over the source at DATEDECK_REF only to a request
       # carrying a GitHub OIDC token for exactly this repo, branch and workflow file.
